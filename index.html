@@ -132,7 +132,7 @@ button.rbadge{cursor:pointer}
 .effb{display:flex;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);color:var(--fg);font:inherit;font-size:15px;cursor:pointer}
 .effb.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .effn{flex:none;width:34px;height:34px;border-radius:17px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--gold-hi)}
-.effb.on .effn{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.effb.on .effn{background:#0b0b0c;border:2px solid var(--gold)}
 .effs{display:inline-block;min-width:15px;height:15px;line-height:15px;padding:0 3px;margin-left:3px;border-radius:4px;font-size:10px;font-weight:800;text-align:center;vertical-align:super;border:1px solid}
 .effs.e1{color:var(--ok);border-color:rgba(124,194,135,.6);background:rgba(124,194,135,.12)}.effs.e2{color:var(--gold-hi);border-color:rgba(201,162,74,.6);background:rgba(201,162,74,.12)}.effs.e3{color:#f0a35a;border-color:rgba(240,163,90,.6);background:rgba(240,163,90,.12)}.effs.e4{color:var(--bad);border-color:rgba(229,101,91,.6);background:rgba(229,101,91,.12)}
 .exmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-start;margin:-2px 0 4px}.exmeta .tgt,.exmeta .gear{margin:0}
@@ -399,9 +399,12 @@ function applyGoals(){if(!S.active||!poOn())return;for(const e of S.active.exerc
 function poHint(e){const g=setGoals(e);if(!g)return '';const rg=poRange(e.target);
  if(!g.length)return poMode()==='short'?`<div class="pohint"><b>Erstes Mal:</b> Gewicht im Zielbereich finden</div>`:`<div class="pohint"><b>Erstes Mal:</b> Such dir ein Gewicht, mit dem du ${rg?`${rg[0]}–${rg[1]}`:'ein paar'} saubere Wiederholungen schaffst. Ab dann gilt: in jedem Satz 1 mehr.</div>`;
  let n=0;const nums=g.map(x=>x?++n:null);const up=g.map((x,j)=>x&&x.up?nums[j]:null).filter(Boolean);const cl=g.map((x,j)=>x&&x.clean?nums[j]:null).filter(Boolean);const L=a=>a.length>1?a.slice(0,-1).join(', ')+' und '+a[a.length-1]:String(a[0]);
- if(poMode()==='short'){const rest=n-up.length-cl.length;const parts=[];if(up.length)parts.push(`<b>Gewicht hoch in Satz ${L(up)}</b>`);if(cl.length)parts.push(`<b>Satz ${L(cl)}: gleiches Ziel, sauberer ausführen</b>`);if(rest>0)parts.push(up.length||cl.length?'sonst +1 Wdh.':'<b>Ziel heute: +1 Wdh. pro Satz</b>');return `<div class="pohint${up.length?' up':''}">${parts.join(' · ')}</div>`}
- if(up.length)return `<div class="pohint up"><b>Gewicht hoch in Satz ${L(up)}.</b> Dort warst du letztes Mal über ${rg[1]} Wdh. ${up.length<n?'In den anderen Sätzen bleibt das Gewicht, Ziel ist 1 Wdh. mehr. ':''}Jeder Satz wird für sich gesteigert. Dein Ziel für jeden Satz ist schon eingetragen.</div>`;
- return `<div class="pohint"><b>Ziel heute:</b> in jedem Satz 1 Wdh. mehr als letztes Mal${cl.length?` (Satz ${L(cl)}: gleiche Wdh., aber sauber)`:''}. Dein Ziel für jeden Satz ist schon eingetragen.${rg?` Kommt ein Satz über ${rg[1]} Wdh., steigt dort beim nächsten Mal das Gewicht.`:''}</div>`}
+ if(poMode()==='short'){const rest=n-up.length-cl.length;const parts=[];if(up.length)parts.push(`<b>Gewicht hoch in Satz ${L(up)}</b>`);if(cl.length)parts.push(cl.length===n?'<b>Ziel heute: gleiche Wdh., aber sauber</b>':`<b>Satz ${L(cl)}: gleiche Wdh., sauberer</b>`);if(rest>0)parts.push(up.length||cl.length?'sonst +1 Wdh.':'<b>Ziel heute: +1 Wdh. pro Satz</b>');return `<div class="pohint${up.length?' up':''}">${parts.join(' · ')}</div>`}
+ const inc=g.map((x,j)=>x&&!x.up&&!x.clean?nums[j]:null).filter(Boolean);const nxt=rg?` Kommt ein Satz über ${rg[1]} Wdh., steigt dort beim nächsten Mal das Gewicht.`:'';
+ if(up.length)return `<div class="pohint up"><b>Gewicht hoch in Satz ${L(up)}.</b> Dort warst du letztes Mal über ${rg[1]} Wdh. ${inc.length?`Satz ${L(inc)}: gleiches Gewicht, 1 Wdh. mehr. `:''}${cl.length?`Satz ${L(cl)}: gleiche Wdh., aber sauber. `:''}Jeder Satz wird für sich gesteigert. Dein Ziel für jeden Satz ist schon eingetragen.</div>`;
+ if(cl.length&&!inc.length)return `<div class="pohint"><b>Ziel heute:</b> gleiche Wdh. wie letztes Mal, aber sauber. Erst wenn jede Wiederholung sauber ist, geht es wieder nach oben. Dein Ziel für jeden Satz ist schon eingetragen.</div>`;
+ if(cl.length)return `<div class="pohint"><b>Ziel heute:</b> Satz ${L(inc)}: 1 Wdh. mehr als letztes Mal. Satz ${L(cl)}: gleiche Wdh., aber sauber. Dein Ziel für jeden Satz ist schon eingetragen.${nxt}</div>`;
+ return `<div class="pohint"><b>Ziel heute:</b> in jedem Satz 1 Wdh. mehr als letztes Mal. Dein Ziel für jeden Satz ist schon eingetragen.${nxt}</div>`}
 const INTRO=[
  {k:'Warum tracken?',h:'Was du misst, wird besser.',t:'Dein Körper wird nur stärker, wenn du ihm jedes Mal ein bisschen mehr abverlangst. Ohne Notizen weisst du aber nicht, was „mehr“ ist. REPIT merkt sich jeden Satz und zeigt dir beim nächsten Mal genau, was du schlagen musst.'},
  {k:'Progressive Overload',h:'Jedes Mal 1 Wiederholung mehr.',t:'Jede Übung hat einen Zielbereich, z. B. 6–8 Wdh. Du versuchst jedes Training eine Wiederholung mehr zu schaffen. Kommst du über den Zielbereich, nimmst du mehr Gewicht und fängst wieder unten an.',lad:true},
@@ -691,7 +694,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='26.10. 12:45';
+const APPV='29.10. 17:45';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -789,7 +792,7 @@ function isCardio(e){return !!(e&&(e.cardio||catOf(e.name)==='Cardio'||/stair|la
 function fShort(t){const d=new Date(t);return d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'2-digit'})}
 function growAll(root){(root||document).querySelectorAll('textarea.nt').forEach(grow)}
 function grow(el){el.rows=1;el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'}
-const EFF=[{v:'8',n:1,t:'Zu leicht',d:'Da wäre noch mehr gegangen. Nächstes Mal steigern.'},{v:'9',n:2,t:'Letzte unsauber',d:'Letzte Wiederholung geschafft, aber nicht mehr sauber. Nächstes Mal an der Ausführung arbeiten statt steigern.'},{v:'9.5',n:3,t:'Nur halb geschafft',d:'Gekämpft, aber mitten in der letzten Wiederholung ging die Kraft aus.'},{v:'10',n:4,t:'Alles gegeben',d:'Bis zum letzten Rest Kraft gekämpft und die letzte Wiederholung gerade noch geschafft. Mehr ging nicht.'}];
+const EFF=[{v:'8',n:1,t:'Zu leicht',d:'Da wäre noch mehr gegangen. Nächstes Mal steigern.'},{v:'9',n:2,t:'Letzte unsauber',d:'Letzte Wiederholung geschafft, aber nicht mehr sauber. Nächstes Mal an der Ausführung arbeiten statt steigern.'},{v:'9.5',n:3,t:'Nur halb geschafft',d:'Gekämpft, aber mitten in der letzten Wiederholung ging die Kraft aus.'},{v:'10',n:4,t:'Alles gegeben | Muskelversagen',d:'Bis zum letzten Rest Kraft gekämpft und die letzte Wiederholung gerade noch geschafft. Mehr ging nicht.'}];
 function effBadge(r){const l=effLvl(r);return l?`<sup class="effs e${l}" title="Anstrengung ${l} von 4">${l}</sup>`:''}
 function effLvl(r){const x=num(r);if(!x)return 0;return x>=10?4:x>=9.5?3:x>=9?2:1}
 function poMode(){try{const m=localStorage.getItem('hantelbuch.pomode');if(m)return m;return localStorage.getItem('hantelbuch.pohint')==='0'?'off':'full'}catch(e){return 'full'}}
