@@ -554,7 +554,7 @@ function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
   sh.hidden=false;bd.hidden=false;
-  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear})[S.sheet.type];
+  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear})[S.sheet.type];
   sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);
 }
 function sPicker(){
@@ -667,9 +667,30 @@ function sSummary({id}){
   ${ciOn()?`<div class="eyebrow" style="margin-top:14px">Wie hat sich das Training angefühlt?</div><div class="row" style="gap:6px;margin-top:6px">${CI_FEEL.map((t,k)=>`<button class="chip ${w.feel===k+1?'on':''}" data-act="ci-feel" data-v="${k+1}" data-w="${w.id}">${k+1} ${t}</button>`).join('')}</div>${w.food?`<div class="muted mini" style="margin-top:6px">Essen vorher: ${w.food}/4 · ${CI_FOOD[w.food-1]}</div>`:''}`:''}
   <button class="btn gold full" style="margin-top:16px" data-act="close">Fertig</button>`;
 }
+const GUIDE=[
+['Routinen & Reihenfolge','Leg pro Trainingstag eine Routine an (Routinen → +). Die Routinen laufen im Kreis 1 → 2 → 3 und dann von vorne. Das nächste Training ist golden mit „Als Nächstes“ markiert. Fällt ein Tag aus, machst du einfach das nächste. Feste Wochentage kannst du oben mit „1 · 2 · 3 | Wochentage“ einschalten. Für Wochenwechsel (z. B. Woche A Kraft, Woche B Athletik) stellst du in der Routine „Gilt für“ auf Woche A oder B.'],
+['Training starten & Sätze','Bei der Routine auf Start. Kg und Wdh. eintragen, dann den Haken antippen, so startet die Pause. Ziele aus dem letzten Mal sind schon eingetragen. Unter „Vorher“ siehst du, was du letztes Mal geschafft hast. Satznummer antippen = Aufwärmsatz (W), der zählt nicht für die Steigerung.'],
+['Progressive Overload','Jede Übung hat einen Zielbereich, z. B. 6–8. Jeder Satz wird einzeln gesteigert: Warst du letztes Mal über dem oberen Ziel, steigt nur in diesem Satz das Gewicht. Sonst ist das Ziel 1 Wdh. mehr. Saubere Ausführung geht immer vor Gewicht.'],
+['Anstrengung 1–4','Nach jedem Satz kurz bewerten (1–4 beim Wdh.-Feld). 1 Zu leicht: nächstes Mal steigern. 2 Letzte unsauber: Gewicht erstmal behalten, sauberer ausführen. 3 Nur halb geschafft: die letzte Wiederholung ging nur noch halb. 4 Alles gegeben | Muskelversagen. Bei Wdh. trägst du immer nur die ganz geschafften ein, die Stufe sagt, was danach noch kam.'],
+['Hinweise','In Daten → „Hinweise im Training“: Anfängerhilfe (ausführlich, mit Erinnerungen), Trainingshinweis (eine Zeile) oder Aus.'],
+['Varianten (eigener Verlauf)','Gleiche Übung, aber getrennt speichern, z. B. Kabelcurls am Rückentag und am Armtag: Übung → ••• → „Variante“ eintragen, z. B. „Rückentag“. Dann hat „Kabelcurls · Rückentag“ eigene Werte, Ziele und Notizen. Ohne Variante teilt sich eine Übung den Verlauf über alle Tage. Die Variante immer gleich schreiben.'],
+['Supersatz & Zirkel','Übung → ••• → „Mit nächster Übung koppeln“. Für 3 oder mehr Übungen bei der nächsten „Zur Gruppe davor hinzufügen“. Die App springt nach jedem Satz zur nächsten Übung der Gruppe, ohne Pause. Erst nach der letzten Übung läuft die Pause, die Ansicht bleibt dabei stehen.'],
+['Einseitig (links/rechts)','Übung → ••• → „Einseitig an“. Ein Haken = erste Seite, kurze Wechselpause, zweiter Haken = Satz fertig. Die Wechselpause stellst du dort ein.'],
+['Aufwärmen','Aufwärmübungen sind blau markiert und zählen nicht für die Steigerung. Aufwärmsätze markierst du, indem du die Satznummer antippst (W).'],
+['Pause & Timer-Ton','Pause pro Satz: die Zeit unter dem Satz antippen. Standard-Pause und Ton: Routinen → „Pause & Timer-Ton“. Ton kann vor der Glocke kommen oder sie ersetzen. ⏱ in der Pausenleiste startet den iPhone-Timer.'],
+['Geräte-Einstellung & Gewichtsschritte','Bei der Übung auf „Einstellung“: Sitzhöhe, Polster, Kabelstufe usw. notieren und die Gewichtsschritte der Maschine (z. B. 2,5 oder 5 kg). Die App erhöht dann in diesen Schritten.'],
+['Notizen','„Notiz (bleibt)“ steht bei jedem Training wieder da. „Fürs nächste Mal“ ist eine Erinnerung für das nächste Training. Ältere Notizen findest du in der Übung (Name antippen).'],
+['Check-in Essen & Gefühl','In Daten einschalten. Vor dem Start bewertest du dein Essen (Carbs voll?), nach dem Training dein Gefühl. Im Wochenbericht siehst du, bei welchem Essen deine Trainings am besten laufen.'],
+['Verlauf & Bearbeiten','Verlauf → Training antippen: Start- und Endzeit, Notizen und Werte ändern, kcal werden neu gerechnet. „Bearbeiten“ öffnet das Training nochmal komplett.'],
+['Wochenbericht','Verlauf → „Wochenbericht“: pro Übung besser, gleich oder schlechter, Volumen, kcal, Ø Anstrengung, Körpergewicht. Mit Export zum Teilen, z. B. für den Coach.'],
+['Körper & Fotos','Körper: Gewicht eintragen, Start- und Zielgewicht setzen. Tag antippen für Tagesnotiz und Formcheck-Fotos (gross ansehen und löschen möglich).'],
+['Coach & Teilen','Routinen → „Für Kunden (Coach)“: eine Rubrik pro Kunde. „Plan teilen“ verschickt einen Tag oder Split als Datei oder Link, mit Gewichtsrechner.'],
+['Daten & Updates','„Backup speichern“ sichert alles inklusive Fotos. „Daten importieren“ nimmt Backup, Coach-Plan oder Strong-Export. Neue Versionen holt sich die App selbst, die aktuelle Version steht unten in Daten.']];
+function sGuide(){return `<div class="spread"><h2>Funktionen</h2><button class="btn text sm" data-act="close">Schliessen</button></div><div class="muted mini" style="margin-bottom:8px">Alles, was REPIT kann, kurz erklärt. Antippen zum Aufklappen.</div>${GUIDE.map(([t,d])=>`<details class="oldnotes" style="border-bottom:1px solid var(--line);padding:4px 0"><summary>${esc(t)} ▾</summary><div class="mini" style="line-height:1.6;padding:2px 0 10px">${esc(d)}</div></details>`).join('')}`}
 function sData(){
   return `<h2>Daten</h2><div class="stack">
-  <button class="btn gold full" data-act="import">Daten importieren</button>
+  <button class="btn gold full" data-act="guide">Funktionsanleitung</button>
+  <button class="btn ghost full" data-act="import">Daten importieren</button>
   <button class="btn ghost full" data-act="export">Backup speichern</button>
   <button class="btn ghost full" data-act="intro-open">So funktioniert REPIT</button>
   <div class="eyebrow" style="margin-top:6px">Check-in vor und nach dem Training</div><div class="row" style="gap:6px">${[[1,'An'],[0,'Aus']].map(([k,l])=>`<button class="chip ${ciOn()===!!k?'on':''}" data-act="ci-mode" data-v="${k}">${l}</button>`).join('')}</div><p class="muted mini">Vor dem Start bewertest du kurz dein Essen (Carbs voll?), nach dem Training dein Gefühl. Im Verlauf und Wochenbericht siehst du dann, was dir liegt.</p>
@@ -694,7 +715,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 12:35';
+const APPV='30.10. 12:45';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -887,7 +908,8 @@ const ACT={
   'ph-del-yes':async(el)=>{const [date,id]=el.dataset.v.split('|');const b=clone(S.body.find(x=>x.date===date)||{date,photos:[]});b.photos=(b.photos||[]).filter(p=>p.id!==id);await saveBody(b);if(String(id).startsWith('local-'))await idbDel('ph:'+id);toast('Foto gelöscht');openSheet({type:'day',date});setTimeout(hydratePhotos,50);renderMain()},
   'ex-warm':(el)=>{const n=S.active.exercises[+el.dataset.i].name;let x=warmList();if(x.includes(n))x=x.filter(v=>v!==n);else if(!/warm|aufw[äa]rm/i.test(n))x.push(n);else return toast('Diese Übung heisst schon Aufwärmen.');try{localStorage.setItem('hantelbuch.warmex',JSON.stringify(x))}catch(e){}renderSheet();renderMain()},
   'po-mode':(el)=>{try{localStorage.setItem('hantelbuch.pomode',el.dataset.v)}catch(e){}renderSheet();renderMain()},
-  'intro-open':()=>{S.introStep=0;openSheet({type:'intro'})},
+  'guide':()=>openSheet({type:'guide',back:S.sheet}),
+'intro-open':()=>{S.introStep=0;openSheet({type:'intro'})},
   'intro-prev':()=>{S.introStep=Math.max(0,(S.introStep||0)-1);renderSheet()},
   'intro-next':()=>{if((S.introStep||0)<INTRO.length-1){S.introStep=(S.introStep||0)+1;renderSheet()}else{try{localStorage.setItem('hantelbuch.intro','1')}catch(e){}closeSheet()}},
   'r-client':(el)=>{S.edit.client=S.edit.client===el.dataset.v?undefined:el.dataset.v;renderSheet()},
