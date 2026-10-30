@@ -360,7 +360,7 @@ function vTraining(){
   const wk=S.workouts.filter(w=>w.start>Date.now()-7*864e5).length;
   return `<div class="card hero stack"><div class="eyebrow">Diese Woche</div><div class="big num">${wk} ${wk===1?'Training':'Trainings'}</div>
   ${last?`<div class="muted mini">Zuletzt: ${esc(last.name)}, ${fDate(last.start)} · ${fmt(wVolume(last))} kg Volumen</div>`:'<div class="muted mini">Starte dein erstes Training. Jeder Satz wird gespeichert.</div>'}
-  <button class="btn gold full" data-act="start-empty">Leeres Training starten</button><button class="btn text sm" data-act="intro-open">So funktioniert REPIT →</button></div>
+  <button class="btn gold full" data-act="start-empty">Leeres Training starten</button><div class="row" style="justify-content:center;gap:4px;flex-wrap:wrap"><button class="btn text sm" data-act="intro-open">So funktioniert REPIT →</button><button class="btn text sm" data-act="guide">Alle Funktionen →</button></div></div>
   <div class="spread"><h2>Routinen</h2>${S.routines.filter(r=>r.folder!=='coach').length>1?'<button class="btn text sm" data-act="ro-open">Reihenfolge</button>':''}</div>
   ${weekBar()}${S.routines.filter(r=>r.folder!=='coach').length?`<div class="rgrid">${weekFilter(S.routines.filter(r=>r.folder!=='coach')).map(routineCard).join('')}</div>`:emptyRoutines()}
   <div class="sep"></div>
@@ -412,7 +412,7 @@ const INTRO=[
 function sIntro(){const i=S.introStep||0,x=INTRO[i];return `<div class="eyebrow">${esc(x.k)}</div><h2 style="margin-top:4px">${esc(x.h)}</h2><p class="mini" style="line-height:1.55;margin-top:8px">${esc(x.t)}</p>
  ${x.lad?`<div class="ladder">${[['Training 1','60 kg × 6','',''],['Training 2','60 kg × 7','','+1'],['Training 3','60 kg × 8','','+1'],['Training 4','60 kg × 9','g','über dem Ziel!'],['Training 5','62,5 kg × 6','o','neues Gewicht']].map(([a,b,c,d],j)=>`<div class="lad"><span class="muted">${a}</span><i class="${c}" style="width:${55+j*11}%">${b}${d?`<span style="margin-left:8px;font-weight:600;opacity:.8">${d}</span>`:''}</i></div>`).join('')}</div><p class="muted mini" style="line-height:1.5">Jeder Satz so nah wie möglich ans Muskelversagen, aber saubere Ausführung ist wichtiger als mehr Gewicht. Das gilt für jeden Satz einzeln: Schafft Satz 1 mehr als das Ziel, steigt nur dort das Gewicht. Bewerte jeden Satz ehrlich mit 1–4: 1 zu leicht, 2 letzte Wiederholung unsauber, 3 letzte Wiederholung nur halb geschafft, 4 alles gegeben, mehr ging nicht.</p>`:''}
  <div class="dots">${INTRO.map((_,j)=>`<span class="${j===i?'on':''}"></span>`).join('')}</div>
- <div class="row" style="gap:8px;flex-wrap:nowrap">${i>0?'<button class="btn ghost" style="flex:1" data-act="intro-prev">Zurück</button>':''}<button class="btn gold" style="flex:2" data-act="intro-next">${i<INTRO.length-1?'Weiter':'Los geht’s'}</button></div>`}
+ <div class="row" style="gap:8px;flex-wrap:nowrap">${i>0?'<button class="btn ghost" style="flex:1" data-act="intro-prev">Zurück</button>':''}<button class="btn gold" style="flex:2" data-act="intro-next">${i<INTRO.length-1?'Weiter':'Los geht’s'}</button></div>${i===INTRO.length-1?'<button class="btn ghost full" style="margin-top:8px" data-act="guide">Ganze Funktionsanleitung öffnen</button>':''}`}
 function introSeen(){try{return !!localStorage.getItem('hantelbuch.intro')}catch(e){return true}}
 function exCard(e,i,cur){
   const prev=prevFor(e.name)||[];const ssMid=!!e.ss&&ssLastIdx(e)!==i;const warm=isWarmEx(e.name);
@@ -722,7 +722,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 15:00';
+const APPV='30.10. 15:05';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
