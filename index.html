@@ -719,7 +719,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 13:55';
+const APPV='30.10. 14:05';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -881,6 +881,7 @@ function defaultName(){const h=new Date().getHours();return h<11?'Morgentraining
 
 function finishWorkout(update){
   const a=clone(S.active);const wasEdit=!!a.editOf;a.end=wasEdit?(a.end||Date.now()):Date.now();if(!wasEdit){for(const e of a.exercises)if(isCardio(e))for(const st of e.sets)if(st.done&&st.cstart){const pe=st.cstart+num(st.reps)*60000;if(pe>a.end)a.end=pe}if(S.rest&&/^Cardio/.test(S.rest.label||'')){S.rest=null;try{stopRestAudio()}catch(x){}}}delete a.editOf;if(wasEdit)update=false;
+  for(const e of a.exercises)if(isCardio(e))for(const st of e.sets)if(!st.done&&num(st.reps)>0)st.done=true;
   a.exercises=a.exercises.map(e=>({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.sets.length);
   const prs=[];
   for(const e of a.exercises){if(!sessions(e.name).length)continue;const b=bests(e.name,a.id);const bs=bestSet(e);if(!bs)continue;const kg=num(bs.kg),r=num(bs.reps);
