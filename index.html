@@ -38,6 +38,8 @@ header.top{display:flex;align-items:baseline;justify-content:space-between;gap:1
 .top{position:relative;margin-bottom:14px}.top::after{content:'';position:absolute;left:50%;bottom:0;width:100vw;height:1px;transform:translateX(-50%);background:rgba(201,162,74,.5);pointer-events:none}
 .brand{font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:.06em;text-transform:uppercase}
 .brand b{color:var(--gold)}
+.gymmode .store{display:none}
+.brand.gym{cursor:pointer;-webkit-user-select:none;user-select:none}.brand .swap{flex:none;margin-left:2px;color:var(--gold);align-self:center}.brand.gym:active{opacity:.7}
 .brand .tagline{white-space:nowrap;font-family:var(--f-body);font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--muted);margin-top:4px}
 .store{font-size:12px;color:var(--muted)}
 h2{font-family:var(--f-display);font-weight:600;font-size:22px;letter-spacing:.03em;text-transform:uppercase;margin:22px 0 10px;text-wrap:balance}
@@ -214,7 +216,7 @@ nav.tabs button.on{color:var(--gold)}
 
 <div class="wrap">
   <header class="top">
-    <div class="brand" style="display:flex;align-items:center;gap:10px"><svg width="38" height="38" viewBox="0 0 180 180" aria-hidden="true" style="flex:none;border-radius:10px;background:#0a0a0a;border:1px solid #2a2418"><rect x="50" y="85" width="80" height="10" rx="3" fill="#c9a24a"/><rect x="35" y="59" width="12" height="62" rx="4" fill="#e7c66d"/><rect x="49" y="66" width="10" height="48" rx="4" fill="#c9a24a"/><rect x="121" y="66" width="10" height="48" rx="4" fill="#c9a24a"/><rect x="133" y="59" width="12" height="62" rx="4" fill="#e7c66d"/></svg><span style="display:flex;flex-direction:column;line-height:1"><span>Rep<b>it.</b></span><span class="tagline">Rep it. Track it. Repeat.</span></span></div>
+    <div class="brand" id="brand" style="display:flex;align-items:center;gap:10px"><svg width="38" height="38" viewBox="0 0 180 180" aria-hidden="true" style="flex:none;border-radius:10px;background:#0a0a0a;border:1px solid #2a2418"><rect x="50" y="85" width="80" height="10" rx="3" fill="#c9a24a"/><rect x="35" y="59" width="12" height="62" rx="4" fill="#e7c66d"/><rect x="49" y="66" width="10" height="48" rx="4" fill="#c9a24a"/><rect x="121" y="66" width="10" height="48" rx="4" fill="#c9a24a"/><rect x="133" y="59" width="12" height="62" rx="4" fill="#e7c66d"/></svg><span style="display:flex;flex-direction:column;line-height:1"><span>Rep<b>it.</b></span><span class="tagline">Rep it. Track it. Repeat.</span></span></div>
     <div class="store" id="store">Lade …</div>
   </header>
   <main id="main"><div class="empty"><strong>Deine Daten werden geladen</strong>Gleich siehst du deine Routinen und dein letztes Training.</div></main>
@@ -322,6 +324,15 @@ function ago(t){const d=Math.round((new Date(dayKey()+'T12:00')-new Date(dayKey(
 function lastEx(name){const s=sessions(name)[0];return s?s.w.start:null}
 function lastRoutine(r){const w=S.workouts.find(w=>w.routineId===r.id||w.name===r.name);return w?w.start:null}
 function allNames(){const set=new Set([...LIB.map(x=>x[0]),...S.custom.map(x=>x[0])]);for(const w of S.workouts)for(const e of w.exercises)set.add(e.name);return [...set]}
+
+/* ---------- SOL-GYM ---------- */
+// Läuft REPIT in SOL-GYM, wechselt ein Tipp aufs Logo zu PREPIT.
+(function(){let emb=false;try{emb=window.top!==window.self}catch(e){emb=true}
+  if(!emb)return;const b=document.getElementById('brand');if(!b)return;
+  document.documentElement.classList.add('gymmode');b.classList.add('gym');b.setAttribute('role','button');b.setAttribute('aria-label','Zu PREPIT wechseln');
+  b.insertAdjacentHTML('beforeend','<svg class="swap" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>');
+  b.addEventListener('click',()=>{try{parent.postMessage('solgym:switch','*')}catch(e){}});
+})();
 
 /* ---------- Render ---------- */
 const ICONS={
@@ -724,7 +735,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 15:20';
+const APPV='30.10. 21:40';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);

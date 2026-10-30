@@ -15,22 +15,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Manrope:wght@500;600&display=swap" rel="stylesheet">
 <title>SOL-GYM</title>
 <!-- SOL-GYM: Hülle um PREPIT (/sol-tracker/) und REPIT (/repit/).
-     Beide Apps laufen unverändert in je einem Rahmen. Version: SOLGYM_V -->
+     Keine eigene Leiste: gewechselt wird per Tipp aufs Logo oben links in der jeweiligen App
+     (die App schickt postMessage('solgym:switch')). Version: SOLGYM_V -->
 <style>
 :root{--bg:#0b0b0c;--card:#141416;--gold:#c9a24a;--gold-hi:#e7c66d;--muted:#8a8a8f;--line:#232326}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:#fff;overflow:hidden;
   font-family:'Barlow Condensed','Arial Narrow',sans-serif}
-#app{position:fixed;inset:0;display:flex;flex-direction:column}
-header{flex:none;padding:calc(env(safe-area-inset-top) + 6px) calc(env(safe-area-inset-right) + 14px) 8px calc(env(safe-area-inset-left) + 14px);
-  display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);background:var(--bg)}
-.logo{font-weight:800;font-size:24px;letter-spacing:.5px;line-height:1;user-select:none;background:none;border:0;color:#fff;padding:0;font-family:inherit;cursor:pointer}
-.logo b{color:var(--gold);font-weight:800}
-.seg{margin-left:auto;display:flex;background:#151517;border:1px solid var(--line);border-radius:11px;padding:3px}
-.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;
-  font-size:16px;letter-spacing:.6px;padding:7px 14px;border-radius:8px;cursor:pointer;min-width:84px}
-.seg button.on{background:#232326;color:#fff}
-.seg button.on .it{color:var(--gold)}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
 main{flex:1;position:relative;background:#000}
 iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;background:var(--bg);display:none}
 iframe.on{display:block}
@@ -52,6 +44,7 @@ iframe.on{display:block}
 .pick .t .it{color:var(--gold)}
 .pick .d{font-family:Manrope,system-ui,sans-serif;font-weight:500;font-size:14px;color:var(--muted);margin-top:6px}
 .pick .ar{margin-left:auto;color:var(--gold);font-size:28px;font-weight:700}
+.hint{font-family:Manrope,system-ui,sans-serif;font-size:13px;color:var(--muted);margin-top:14px;display:flex;align-items:center;gap:8px}.hint svg{color:var(--gold);flex:none}
 .slogan{font-weight:700;font-size:15px;letter-spacing:2.5px;color:#555;margin-top:18px;text-transform:uppercase}
 #probe{position:fixed;bottom:0;left:0;width:0;height:env(safe-area-inset-bottom,0px);visibility:hidden}
 </style>
@@ -59,13 +52,6 @@ iframe.on{display:block}
 <body>
 <div id="probe"></div>
 <div id="app">
-  <header>
-    <button class="logo" data-home title="Zur Startseite">SOL<b>-GYM</b></button>
-    <nav class="seg" role="tablist">
-      <button data-tab="rep" role="tab">REP<span class="it">IT.</span></button>
-      <button data-tab="prep" role="tab">PREP<span class="it">IT.</span></button>
-    </nav>
-  </header>
   <main>
     <iframe id="f-prep" title="PREPIT – Ernährung" allow="clipboard-write; web-share; autoplay"></iframe>
     <iframe id="f-rep" title="REPIT – Training" allow="clipboard-write; web-share; autoplay"></iframe>
@@ -84,14 +70,15 @@ iframe.on{display:block}
     <div><div class="t">REP<span class="it">IT.</span></div><div class="d">Training · Routinen · Fortschritt</div></div>
     <span class="ar">›</span>
   </button>
+  <div class="hint"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>Wechseln: in der App oben links aufs Logo tippen.</div>
   <div class="slogan">Prep it. Rep it. Track it.</div>
 </section>
 
 <script>
-var SOLGYM_V='29.10. 22:45';
+var SOLGYM_V='30.10. 21:40';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab';
-var SAB=0;
+var SAB=0,CUR='rep';
 function get(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function measure(){
@@ -108,17 +95,19 @@ function show(t){
   load(t);
   ['prep','rep'].forEach(function(x){
     document.getElementById('f-'+x).classList.toggle('on',x===t);
-    var b=document.querySelector('.seg [data-tab="'+x+'"]');
-    b.classList.toggle('on',x===t);b.setAttribute('aria-selected',x===t);
   });
+  CUR=t;
   set(KEY,t);
   document.getElementById('home').classList.add('hide');
 }
 document.querySelectorAll('[data-tab]').forEach(function(b){
   b.addEventListener('click',function(){show(b.dataset.tab)});
 });
-document.querySelector('[data-home]').addEventListener('click',function(){
-  document.getElementById('home').classList.remove('hide');
+// Tipp aufs Logo in REPIT oder PREPIT schickt „solgym:switch“ → anderen Bereich zeigen.
+addEventListener('message',function(e){
+  if(e.origin!==location.origin)return;
+  if(e.data==='solgym:switch')show(CUR==='rep'?'prep':'rep');
+  else if(e.data==='solgym:home')document.getElementById('home').classList.remove('hide');
 });
 measure();addEventListener('resize',measure);
 var h=(location.hash||'').replace('#','');
