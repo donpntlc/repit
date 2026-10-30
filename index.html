@@ -694,7 +694,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 11:55';
+const APPV='30.10. 12:10';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -792,7 +792,7 @@ function isCardio(e){return !!(e&&(e.cardio||catOf(e.name)==='Cardio'||/stair|la
 function fShort(t){const d=new Date(t);return d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'2-digit'})}
 function growAll(root){(root||document).querySelectorAll('textarea.nt').forEach(grow)}
 function grow(el){el.rows=1;el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'}
-const EFF=[{v:'8',n:1,t:'Zu leicht',d:'Da wäre noch mehr gegangen. Nächstes Mal steigern.'},{v:'9',n:2,t:'Letzte unsauber',d:'Letzte Wiederholung geschafft, aber nicht mehr sauber. Nächstes Mal an der Ausführung arbeiten statt steigern.'},{v:'9.5',n:3,t:'Nur halb geschafft',d:'Gekämpft, aber mitten in der letzten Wiederholung ging die Kraft aus. Bei Wdh. trägst du nur die ganz geschafften ein (z. B. 6), die 3 heisst: danach noch eine halbe.'},{v:'10',n:4,t:'Alles gegeben | Muskelversagen',d:'Bis zum letzten Rest Kraft gekämpft und die letzte Wiederholung gerade noch geschafft. Mehr ging nicht.'}];
+const EFF=[{v:'8',n:1,t:'Zu leicht',d:'Da wäre noch mehr gegangen. Nächstes Mal steigern.'},{v:'9',n:2,t:'Letzte unsauber | Gewicht erstmal behalten',d:'Letzte Wiederholung geschafft, aber nicht mehr sauber. Nächstes Mal an der Ausführung arbeiten statt steigern.'},{v:'9.5',n:3,t:'Nur halb geschafft',d:'Gekämpft, aber mitten in der letzten Wiederholung ging die Kraft aus. Bei Wdh. trägst du nur die ganz geschafften ein (z. B. 6), die 3 heisst: danach noch eine halbe.'},{v:'10',n:4,t:'Alles gegeben | Muskelversagen',d:'Bis zum letzten Rest Kraft gekämpft und die letzte Wiederholung gerade noch geschafft. Mehr ging nicht.'}];
 function effBadge(r){const l=effLvl(r);return l?`<sup class="effs e${l}" title="Anstrengung ${l} von 4">${l}</sup>`:''}
 function effLvl(r){const x=num(r);if(!x)return 0;return x>=10?4:x>=9.5?3:x>=9?2:1}
 function poMode(){try{const m=localStorage.getItem('hantelbuch.pomode');if(m)return m;return localStorage.getItem('hantelbuch.pohint')==='0'?'off':'full'}catch(e){return 'full'}}
