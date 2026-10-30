@@ -660,7 +660,8 @@ function sEx({name}){
   <div class="stack">${ss.slice(0,12).map(({w,e})=>`<div><div class="spread mini"><span style="font-weight:700">${fDate(w.start)}</span><span class="muted">${esc(w.name)}</span></div><div class="muted mini num">${doneSets(e).map(s=>fmt(num(s.kg))+'×'+num(s.reps)).join(' · ')}</div></div>`).join('')}</div>`
   :'<div class="empty">Noch keine Sätze für diese Übung. Nach dem ersten Training siehst du hier Rekorde und Verlauf.</div>'}`;
 }
-function sConfirm({title,text,yes,act,v,danger,alt}){return `<h2>${title}</h2><p class="muted">${text}</p><div class="stack">${alt?`<button class="btn gold full" data-act="${alt.act}">${alt.label}</button>`:''}<button class="btn ${danger?'danger':alt?'ghost':'gold'} full" data-act="${act}" data-v="${v||''}">${yes}</button><button class="btn ghost full" data-act="close">Abbrechen</button></div>`}
+function finOpenList(){if(!S.active)return '';const rows=S.active.exercises.map((e,i)=>{const op=e.sets.map((st,j)=>[st,j]).filter(([st])=>!st.done);if(!op.length)return '';const c=isCardio(e);return `<div style="margin-top:10px"><div style="font-weight:700;color:var(--gold-hi)">${esc(e.name)}</div><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${op.map(([st,j])=>`<button class="chip" data-act="fin-tick" data-i="${i}" data-j="${j}">☐ Satz ${j+1}${st.reps!==''?' · '+(c?num(st.reps)+' min':(st.kg!==''?fmt(num(st.kg))+' kg × ':'')+num(st.reps)):''}</button>`).join('')}</div></div>`}).join('');return rows?`<div class="eyebrow" style="margin-top:6px">Nicht abgehakt – hast du es gemacht? Antippen zum Abhaken</div>${rows}<div style="height:14px"></div>`:''}
+function sConfirm({title,text,yes,act,v,danger,alt,fin}){if(fin&&S.active){const open=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>!s.done).length,0);text=open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt. Was du nicht abhakst, wird nicht gespeichert.`:'Alle Sätze sind abgehakt.'}return `<h2>${title}</h2><p class="muted">${text}</p>${fin?finOpenList():''}<div class="stack">${alt?`<button class="btn gold full" data-act="${alt.act}">${alt.label}</button>`:''}<button class="btn ${danger?'danger':alt?'ghost':'gold'} full" data-act="${act}" data-v="${v||''}">${yes}</button><button class="btn ghost full" data-act="close">Abbrechen</button></div>`}
 function sSummary({id}){
   const w=S.workouts.find(x=>x.id===id)||S.lastSaved;if(!w)return '';
   return `<div class="eyebrow">Gespeichert</div><h2 style="margin-top:2px">Starkes Training</h2>
@@ -685,6 +686,7 @@ const GUIDE=[
 ['Cardio & Pulszone','Cardio-Übung (z. B. Stairmaster): Minuten eintragen, Pulszone wählen (Puls messen: zwei Finger leicht an die rechte Halsschlagader, 6 Sekunden zählen, mal 10; Z1 100–120 Erholung, Z2 120–140 Fettverbrennung, Z3 140–160 Ausdauer, Z4 160–175 Schwelle, Z5 175+ Maximal) und abhaken. Dann läuft ein Cardio-Timer wie die Pause. Speicherst du das Training vorher, wird die restliche Cardiozeit schon zur Trainingsdauer dazugerechnet. Hast du doch mehr oder weniger gemacht: Verlauf → Training antippen → Minuten ändern, Dauer und kcal passen sich an.'],
 ['Kalorien','Die kcal werden geschätzt aus deinem Körpergewicht (Körper-Tab), der Trainingszeit, dem bewegten Gewicht und beim Cardio aus Gerät, Minuten und Pulszone.'],
 ['Check-in Essen & Gefühl','In Daten einschalten. Vor dem Start bewertest du dein Essen (Carbs voll?), nach dem Training dein Gefühl. Im Wochenbericht siehst du, bei welchem Essen deine Trainings am besten laufen.'],
+['Training beenden','Beim Beenden zeigt die App alle Sätze, die noch nicht abgehakt sind (auch Cardio). Antippen = doch gemacht, wird mitgespeichert. Was nicht abgehakt ist, wird nicht gespeichert.'],
 ['Verlauf & Bearbeiten','Verlauf → Training antippen: Start- und Endzeit, Notizen und Werte ändern, kcal werden neu gerechnet. „Bearbeiten“ öffnet das Training nochmal komplett.'],
 ['Wochenbericht','Verlauf → „Wochenbericht“: pro Übung besser, gleich oder schlechter, Volumen, kcal, Ø Anstrengung, Körpergewicht. Mit Export zum Teilen, z. B. für den Coach.'],
 ['Körper & Fotos','Körper: Gewicht eintragen, Start- und Zielgewicht setzen. Tag antippen für Tagesnotiz und Formcheck-Fotos (gross ansehen und löschen möglich).'],
@@ -719,7 +721,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 14:05';
+const APPV='30.10. 14:10';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -881,7 +883,6 @@ function defaultName(){const h=new Date().getHours();return h<11?'Morgentraining
 
 function finishWorkout(update){
   const a=clone(S.active);const wasEdit=!!a.editOf;a.end=wasEdit?(a.end||Date.now()):Date.now();if(!wasEdit){for(const e of a.exercises)if(isCardio(e))for(const st of e.sets)if(st.done&&st.cstart){const pe=st.cstart+num(st.reps)*60000;if(pe>a.end)a.end=pe}if(S.rest&&/^Cardio/.test(S.rest.label||'')){S.rest=null;try{stopRestAudio()}catch(x){}}}delete a.editOf;if(wasEdit)update=false;
-  for(const e of a.exercises)if(isCardio(e))for(const st of e.sets)if(!st.done&&num(st.reps)>0)st.done=true;
   a.exercises=a.exercises.map(e=>({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.sets.length);
   const prs=[];
   for(const e of a.exercises){if(!sessions(e.name).length)continue;const b=bests(e.name,a.id);const bs=bestSet(e);if(!bs)continue;const kg=num(bs.kg),r=num(bs.reps);
@@ -921,6 +922,7 @@ const ACT={
   'guide':()=>openSheet({type:'guide',back:S.sheet}),
 'pimg':()=>{try{localStorage.setItem('hantelbuch.pickimg',pImgOn()?'0':'1')}catch(e){}renderSheet()},
 'ex-zone':(el)=>{const e=S.active.exercises[+el.dataset.i],z=+el.dataset.v;e.zone=e.zone===z?null:z;saveActive();renderMain()},
+'fin-tick':(el)=>{const e=S.active.exercises[+el.dataset.i],st=e.sets[+el.dataset.j];if(st.reps===''){const p=(prevFor(e.name)||[])[+el.dataset.j];if(p){st.reps=String(num(p.reps));if(st.kg==='')st.kg=String(num(p.kg))}}if(st.reps===''){S.sheet=null;closeSheet();renderMain();setTimeout(()=>document.getElementById('rp-'+el.dataset.i+'-'+el.dataset.j)?.focus(),300);return toast(isCardio(e)?'Trag zuerst die Minuten ein.':'Trag zuerst die Wiederholungen ein.')}st.done=true;if(isCardio(e)&&!st.cstart)st.cstart=Date.now()-num(st.reps)*60000;saveActive();renderSheet();renderMain()},
 'intro-open':()=>{S.introStep=0;openSheet({type:'intro'})},
   'intro-prev':()=>{S.introStep=Math.max(0,(S.introStep||0)-1);renderSheet()},
   'intro-next':()=>{if((S.introStep||0)<INTRO.length-1){S.introStep=(S.introStep||0)+1;renderSheet()}else{try{localStorage.setItem('hantelbuch.intro','1')}catch(e){}closeSheet()}},
@@ -960,7 +962,7 @@ const ACT={
   finish:()=>{if(S.active.editOf){finishWorkout();return toast('Training aktualisiert')}const n=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0);
     if(!n)return openSheet({type:'confirm',title:'Noch kein Satz abgehakt',text:'Hake mindestens einen Satz ab, damit das Training gespeichert wird. Oder verwirf es.',yes:'Training verwerfen',act:'discard',danger:true});
     const open=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>!s.done).length,0);
-    openSheet({type:'confirm',title:'Training beenden?',text:open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt und ${open===1?'wird':'werden'} nicht gespeichert.`:'Alle Sätze sind abgehakt.',yes:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?'Nur speichern (Routine bleibt wie sie war)':'Training speichern',act:'finish-ok',alt:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?{act:'finish-upd',label:'Speichern & Routine überarbeiten'}:null})},
+    openSheet({type:'confirm',fin:true,title:'Training beenden?',text:open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt und ${open===1?'wird':'werden'} nicht gespeichert.`:'Alle Sätze sind abgehakt.',yes:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?'Nur speichern (Routine bleibt wie sie war)':'Training speichern',act:'finish-ok',alt:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?{act:'finish-upd',label:'Speichern & Routine überarbeiten'}:null})},
   'finish-ok':()=>{closeSheet();finishWorkout()},
   'finish-upd':()=>{closeSheet();finishWorkout(true);toast('Routine überarbeitet')},
   cancel:()=>S.active&&S.active.editOf?openSheet({type:'confirm',title:'Bearbeitung abbrechen?',text:'Das gespeicherte Training bleibt so, wie es war.',yes:'Abbrechen ohne Speichern',act:'discard',danger:true}):openSheet({type:'confirm',title:'Training verwerfen?',text:'Alle Einträge dieses Trainings gehen verloren.',yes:'Verwerfen',act:'discard',danger:true}),
