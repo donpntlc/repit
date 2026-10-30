@@ -558,17 +558,18 @@ function renderSheet(){
   sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);
 }
 function sPicker(){
-  return `<div class="spread"><h2>Übung wählen</h2><button class="btn text" data-act="picker-back">Zurück</button></div>
+  return `<div class="spread"><h2>Übung wählen</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
   <input class="field" id="pq" data-in="pq" placeholder="Suchen oder neue Übung eintippen" value="${esc(S.pq)}">
   <div class="cats"><button class="chip ${!S.pcat?'on':''}" data-act="pcat" data-v="">Alle</button>${CATS.map(c=>`<button class="chip ${S.pcat===c?'on':''}" data-act="pcat" data-v="${c}">${c}</button>`).join('')}</div>
   <div class="list" id="plist">${pList()}</div>`;
 }
+function pImgOn(){try{return localStorage.getItem('hantelbuch.pickimg')==='1'}catch(e){return false}}
 function pList(){
   const qq=S.pq.trim().toLowerCase();
   const names=allNames().filter(n=>(!S.pcat||catOf(n)===S.pcat)&&n.toLowerCase().includes(qq)).sort((a,b)=>a.localeCompare(b,'de'));
   const exact=allNames().some(n=>n.toLowerCase()===qq);
   return (qq&&!exact?`<button class="li" data-act="pick-new"><span class="name" style="color:var(--gold)">+ „${esc(S.pq.trim())}“ als eigene Übung anlegen</span></button>`:'')+
-    names.map(n=>`<button class="li" data-act="pick" data-v="${esc(n)}"><span class="name">${esc(n)}</span><span class="muted mini">${catOf(n)}</span></button>`).join('');
+    names.map(n=>`<button class="li" data-act="pick" data-v="${esc(n)}">${pImgOn()?`<span style="width:64px;flex:none;display:flex">${imgTag(n,'lithumb')}</span>`:''}<span class="name" style="flex:1;text-align:left">${esc(n)}</span><span class="muted mini">${catOf(n)}</span></button>`).join('');
 }
 function sMenu({i}){
   const e=S.active.exercises[i];
@@ -715,7 +716,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 12:45';
+const APPV='30.10. 12:50';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -909,6 +910,7 @@ const ACT={
   'ex-warm':(el)=>{const n=S.active.exercises[+el.dataset.i].name;let x=warmList();if(x.includes(n))x=x.filter(v=>v!==n);else if(!/warm|aufw[äa]rm/i.test(n))x.push(n);else return toast('Diese Übung heisst schon Aufwärmen.');try{localStorage.setItem('hantelbuch.warmex',JSON.stringify(x))}catch(e){}renderSheet();renderMain()},
   'po-mode':(el)=>{try{localStorage.setItem('hantelbuch.pomode',el.dataset.v)}catch(e){}renderSheet();renderMain()},
   'guide':()=>openSheet({type:'guide',back:S.sheet}),
+'pimg':()=>{try{localStorage.setItem('hantelbuch.pickimg',pImgOn()?'0':'1')}catch(e){}renderSheet()},
 'intro-open':()=>{S.introStep=0;openSheet({type:'intro'})},
   'intro-prev':()=>{S.introStep=Math.max(0,(S.introStep||0)-1);renderSheet()},
   'intro-next':()=>{if((S.introStep||0)<INTRO.length-1){S.introStep=(S.introStep||0)+1;renderSheet()}else{try{localStorage.setItem('hantelbuch.intro','1')}catch(e){}closeSheet()}},
