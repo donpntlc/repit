@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&family=Roboto:wght@400;500;700;900&family=Great+Vibes&display=swap" rel="stylesheet">
 <title>SOL-GYM</title>
 <!-- SOL-GYM: Hülle um PREPIT (/sol-tracker/) und REPIT (/repit/) plus eigene Ansicht GESAMT.
      Keine Leiste: Tipp aufs Logo oben links (in jeder App) öffnet die Auswahl REPIT · PREPIT · GESAMT
@@ -131,6 +131,15 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 .range button{border-radius:12px}
 .hq{letter-spacing:.02em;text-transform:none;font-size:14px;font-weight:700;color:var(--fg)}
 .opt .now{letter-spacing:.04em;text-transform:none;font-size:12px}
+
+/* SOL in eleganter Schreibschrift (31.10.) */
+.sol{font-family:"Great Vibes","Snell Roundhand","Apple Chancery",cursive;font-weight:400;letter-spacing:0;text-transform:none;color:var(--fg)}
+.hlogo{display:flex;align-items:baseline;gap:6px}
+.hlogo .sol{font-size:96px;line-height:.9}
+.hlogo b{font-size:44px;letter-spacing:.12em}
+.lg .w{display:flex;align-items:baseline;gap:4px}
+.lg .w .sol{font-size:36px;line-height:.8}
+.lg .w b{font-size:19px;letter-spacing:.12em}
 </style>
 </head>
 <body>
@@ -141,7 +150,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
     <iframe id="f-rep" title="REPIT – Training" allow="clipboard-write; web-share; autoplay"></iframe>
     <section id="all" aria-label="Gesamt-Übersicht">
       <div class="top">
-        <button class="lg" data-choose aria-label="Bereich wechseln"><span class="w">SOL<b>-GYM</b></span>
+        <button class="lg" data-choose aria-label="Bereich wechseln"><span class="w"><span class="sol">Sol</span><b>GYM</b></span>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg></button>
         <span class="tag">Gesamt</span>
       </div>
@@ -154,7 +163,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <section id="home">
-  <div class="hlogo">SOL<b>-GYM</b></div>
+  <div class="hlogo"><span class="sol">Sol</span><b>GYM</b></div>
   <div class="hsub">Ernährung und Training in einer App.</div>
   <div class="hq">Was möchtest du öffnen?</div>
   <button class="pick" data-tab="prep">
@@ -183,7 +192,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 00:30';
+var SOLGYM_V='31.10. 00:45';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
