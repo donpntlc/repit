@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <title>SOL-GYM</title>
 <!-- SOL-GYM: Hülle um PREPIT (/sol-tracker/) und REPIT (/repit/) plus eigene Ansicht GESAMT.
      Keine Leiste: Tipp aufs Logo oben links (in jeder App) öffnet die Auswahl REPIT · PREPIT · GESAMT
@@ -110,6 +110,27 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
 .pill.ok{border-color:rgba(201,162,74,.6);color:var(--fg)}
 #probe{position:fixed;bottom:0;left:0;width:0;height:env(safe-area-inset-bottom,0px);visibility:hidden}
+
+/* ===== PREPIT-Look (31.10.): Gesamt, Startseite und Auswahl wie PREPIT.
+   Zum Zurückstellen einfach diesen ganzen Block löschen. ===== */
+:root{--card:#17171a;--card2:#1f1f22;--muted:#a39e92}
+html,body,.d,.hlogo,.pick .t,.opt .t,.lg .w,h2,.kpi .v{font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif}
+.hlogo{font-weight:900;font-size:56px;letter-spacing:.03em}
+.pick,.opt{border-radius:16px}
+.pick .t,.opt .t{font-weight:900;letter-spacing:.06em;font-size:28px}
+.opt .t{font-size:23px}
+.lg .w{font-weight:900;font-size:22px;letter-spacing:.07em}
+.top .tag{letter-spacing:.04em;text-transform:none;font-size:13px;font-weight:700}
+h2{font-weight:700;font-size:19px;letter-spacing:0;text-transform:none;margin:24px 0 12px;display:inline-block;position:relative;padding-bottom:7px}
+h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;border-radius:2px;background:var(--gold)}
+.kpi,.card{border-radius:14px}
+.kpi .l{font-size:13px;letter-spacing:0;text-transform:none;font-weight:700;color:var(--fg)}
+.kpi .v{font-weight:900;font-size:27px;letter-spacing:0}
+.kpi .v small{font-size:14px;font-weight:500}
+.cmp .h{letter-spacing:0;text-transform:none;font-size:12px}
+.range button{border-radius:12px}
+.hq{letter-spacing:.02em;text-transform:none;font-size:14px;font-weight:700;color:var(--fg)}
+.opt .now{letter-spacing:.04em;text-transform:none;font-size:12px}
 </style>
 </head>
 <body>
@@ -162,7 +183,7 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 </div>
 
 <script>
-var SOLGYM_V='30.10. 23:55';
+var SOLGYM_V='31.10. 00:30';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';

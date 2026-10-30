@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0b0c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap">
 <style>
 /* Layout: phone-first app shell, one column (max 640px), fixed bottom tab bar, rest timer docked above it.
    Single deliberate dark look: black iron, brushed gold. */
@@ -212,6 +212,29 @@ nav.tabs button.on{color:var(--gold)}
 .sep{height:1px;background:var(--line);margin:14px 0}
 .ok{color:var(--ok)}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
+
+/* ===== PREPIT-Look (31.10.): REPIT optisch an PREPIT angeglichen.
+   Zum Zurückstellen einfach diesen ganzen Block löschen. ===== */
+:root{--f-display:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;--f-body:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --surface:#17171a;--surface2:#1f1f22;--muted:#a39e92;--r:14px}
+body{font-size:15px}
+.brand{font-weight:900;font-size:22px;letter-spacing:.07em}
+.brand .tagline{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);margin-top:5px}
+h2{font-weight:700;font-size:19px;letter-spacing:0;text-transform:none;margin:24px 0 12px;display:inline-block;position:relative;padding-bottom:7px}
+h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;border-radius:2px;background:var(--gold)}
+h3{font-weight:700;font-size:17px;letter-spacing:0}
+.eyebrow{font-size:13px;letter-spacing:0;text-transform:none;font-weight:700;color:var(--fg)}
+.empty strong{font-size:18px;font-weight:700;letter-spacing:0}
+.hero .big{font-size:32px;font-weight:900;letter-spacing:0}
+.wk-name{font-size:24px;letter-spacing:0}
+.stat .v{font-size:24px;font-weight:900;letter-spacing:0}
+.restbar .t{font-weight:900;letter-spacing:0}
+.sets th,.ntl,.geargrid label,.exsep{letter-spacing:.03em;text-transform:none;font-size:12px}
+.btn{border-radius:12px}
+nav.tabs button{font-size:12px;font-weight:500;gap:4px}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{font-weight:700;font-size:13px}
+nav.tabs button.on svg{width:26px;height:26px}
 </style>
 
 <div class="wrap">
@@ -735,7 +758,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='30.10. 21:40';
+const APPV='31.10. 00:30';
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
