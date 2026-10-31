@@ -50,6 +50,13 @@ iframe.on{display:block}
 .hint svg{color:var(--gold);flex:none}
 
 /* Auswahl beim Logo-Tipp */
+#wgate{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px}
+#wgate.on{display:flex}
+#wgate .box{width:100%;max-width:360px;background:var(--card);border:1px solid var(--gold);border-radius:16px;padding:20px}
+#wgate h3{margin:0 0 4px;font-size:20px}#wgate p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.45}
+#wgate input{width:100%;font:inherit;font-size:22px;font-weight:800;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--fg);text-align:center}
+#wgate .row{display:flex;gap:8px;margin-top:12px}#wgate button{flex:1;font:inherit;font-weight:800;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--fg)}
+#wgate button.g{background:var(--gold);color:#17130a;border-color:var(--gold)}
 #chooser{position:fixed;inset:0;z-index:30;display:none}
 #chooser.on{display:block}
 #chooser .bd{position:absolute;inset:0;background:rgba(0,0,0,.55)}
@@ -229,6 +236,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
   </main>
 </div>
 
+<div id="wgate" role="dialog" aria-modal="true"><div class="box"><h3>Gewicht heute</h3><p>Einmal eintragen, gilt automatisch in REPIT und PREPIT.</p><input id="wgIn" type="text" inputmode="decimal" placeholder="z. B. 82,5" autocomplete="off"><div class="row"><button id="wgSkip">Heute nicht</button><button class="g" id="wgSave">Speichern</button></div></div></div>
 <section id="home">
   <img class="hmark" src="sol-mark.png" alt=""><div class="hlogo"><span class="sol">SOL</span><i class="dash"></i><b>GYM</b></div>
   <div class="hsub">Ernährung und Training in einer App.</div>
@@ -261,7 +269,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 19:53';
+var SOLGYM_V='01.11. 00:20';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -291,6 +299,7 @@ function hookPrep(f){try{var d=f.contentDocument;if(!d||d.__solgym)return;d.__so
 }catch(e){}}
 function show(t){
   if(t!=='prep'&&t!=='all')t='rep';
+  if(t!==CUR)syncOnSwitch(t);
   if(t!=='all')load(t);
   ['prep','rep'].forEach(function(x){document.getElementById('f-'+x).classList.toggle('on',x===t)});
   $('#all').classList.toggle('on',t==='all');
@@ -648,11 +657,43 @@ function renderAll(){
   window._kItems=window._vItems=window._dItems=window._wkItems=null;
 }
 
+/* ---------- Gewicht: REPIT und PREPIT gemeinsam ----------
+   Beide Apps speichern ihr Gewicht getrennt (REPIT: hantelbuch.v1 → body, PREPIT: flutter.weight_history_v1).
+   SOL-GYM gleicht beide ab (fehlende Tage werden ergänzt) und fragt einmal am Tag nach dem Gewicht. */
+function todayK(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function locIso(){var d=new Date(),z=function(x){return ('0'+x).slice(-2)};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds())+'.000'}
+function wRead(){var rep=null;try{rep=JSON.parse(get('hantelbuch.v1')||'null')}catch(e){}var pm=pj(get('flutter.weight_history_v1'));return {rep:rep&&typeof rep==='object'?rep:null,pm:pm&&typeof pm==='object'?pm:null}}
+function pkg(v){return typeof v==='object'&&v?n(v.kg):n(v)}
+function wWrite(r,rc,pc){if(rc&&r.rep){r.rep.body.sort(function(a,b){return String(b.date).localeCompare(String(a.date))});set('hantelbuch.v1',JSON.stringify(r.rep))}
+  if(pc&&r.pm){set('flutter.weight_history_v1',JSON.stringify(JSON.stringify(r.pm)));var ks=Object.keys(r.pm).filter(function(k){return pkg(r.pm[k])>0}).sort();if(ks.length)set('flutter.current_weight_v1',JSON.stringify(pkg(r.pm[ks[ks.length-1]])))}}
+function syncWeights(){var r=wRead(),rc=false,pc=false;if(!r.rep&&!r.pm)return {rep:false,prep:false};
+  if(r.rep&&!Array.isArray(r.rep.body))r.rep.body=[];
+  var rmap={};if(r.rep)r.rep.body.forEach(function(b){if(b&&b.date&&n(b.weight)>0)rmap[b.date]=n(b.weight)});
+  if(r.pm&&r.rep)Object.keys(r.pm).forEach(function(k){var kg=pkg(r.pm[k]);if(kg>0&&!rmap[k]){var e=null;r.rep.body.forEach(function(b){if(b.date===k)e=b});if(e)e.weight=String(kg);else r.rep.body.push({date:k,weight:String(kg),photos:[]});rmap[k]=kg;rc=true}});
+  if(r.rep){if(!r.pm)r.pm={};Object.keys(rmap).forEach(function(k){if(!(pkg(r.pm[k])>0)){r.pm[k]=rmap[k];pc=true}})}
+  wWrite(r,rc,pc);return {rep:rc,prep:pc}}
+function hasTodayW(){var r=wRead(),k=todayK(),ok=false;if(r.pm&&pkg(r.pm[k])>0)ok=true;if(r.rep&&Array.isArray(r.rep.body))r.rep.body.forEach(function(b){if(b.date===k&&n(b.weight)>0)ok=true});return ok}
+function saveTodayW(kg){var r=wRead(),k=todayK();if(!r.rep)r.rep={routines:[],workouts:[],body:[]};if(!Array.isArray(r.rep.body))r.rep.body=[];var e=null;r.rep.body.forEach(function(b){if(b.date===k)e=b});if(e)e.weight=String(kg);else r.rep.body.push({date:k,weight:String(kg),photos:[]});
+  if(!r.pm)r.pm={};var old=r.pm[k];var ent={kg:kg,at:locIso()};if(old&&typeof old==='object'){if(old.img)ent.img=old.img;if(old.imgB64)ent.imgB64=old.imgB64}r.pm[k]=ent;wWrite(r,true,true)}
+function weightGate(done){try{syncWeights()}catch(e){}var r=wRead();var used=(r.rep&&(r.rep.workouts||[]).length)||r.pm;
+  if(!used||hasTodayW()||get('solgym.wask')===todayK())return done();
+  var g=$('#wgate'),inp=$('#wgIn');g.classList.add('on');setTimeout(function(){try{inp.focus()}catch(e){}},200);
+  var fin=function(){set('solgym.wask',todayK());g.classList.remove('on');try{inp.blur()}catch(e){}done()};
+  $('#wgSkip').onclick=fin;
+  $('#wgSave').onclick=function(){var kg=n(inp.value);if(!(kg>=25&&kg<=400)){inp.style.borderColor='#e5655b';return}saveTodayW(Math.round(kg*10)/10);fin()};
+  inp.onkeydown=function(e){if(e.key==='Enter')$('#wgSave').click()}}
+// Beim Wechsel abgleichen und die Ziel-App neu laden, falls sich dort etwas geändert hat.
+function syncOnSwitch(t){var ch;try{ch=syncWeights()}catch(e){return}var f=document.getElementById('f-'+t);if(!f||!f.src)return;
+  if(t==='rep'&&ch.rep){f.src=SRC.rep.split('?')[0]+'?v='+Date.now()}
+  if(t==='prep'&&ch.prep){try{f.contentWindow.location.reload()}catch(e){f.src=SRC.prep}}}
+
+weightGate(function(){
 var h=(location.hash||'').replace('#','');
 if(h==='rep'||h==='prep'||h==='all')show(h);
 // Beide Apps schon hinter der Startseite laden, damit sie sofort offen sind.
 load(get(KEY)==='prep'?'prep':'rep');
 setTimeout(function(){load('prep');load('rep')},800);
+});
 </script>
 </body>
 </html>
