@@ -105,7 +105,25 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .wk div{padding:8px 3px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
 .wk .h{font-size:11px;color:var(--muted);font-weight:700}
 .wk .r{text-align:right}.wk .ok{color:#7fbf7f}.wk .off{color:#e0a458}
-.big{font-size:15px;line-height:1.45;margin-top:4px}.big b{color:var(--gold-hi)}
+.seg2{display:flex;background:#0f0f11;border:1px solid var(--line);border-radius:11px;padding:3px;margin-bottom:14px}
+.seg2 button{appearance:none;flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:14px;padding:8px 0;border-radius:8px;cursor:pointer}
+.seg2 button.on{background:#232326;color:var(--fg)}
+.seg2.sm{width:150px;margin:0 0 10px;padding:2px}.seg2.sm button{font-size:12.5px;padding:5px 0}
+.hero .lbl{font-size:13px;color:var(--muted)}
+.hero .num{font-size:40px;font-weight:800;line-height:1.05;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .num small{font-size:17px;font-weight:600;color:var(--muted)}
+.hero .sub{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 4px;font-size:13px;color:var(--muted)}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--fg);font-weight:600;font-size:12.5px}
+.chip.ok{border-color:#3f6b45;color:#8fd19a;background:#14211a}
+.k.mini{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+.k i.line.gold{border-top-color:#c9a24a}
+.verdict{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:12px}
+.verdict.ok{border-color:#3f6b45;background:#121a14}
+.vrow{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}.vrow span{color:var(--muted)}.vrow b{font-variant-numeric:tabular-nums}
+.vtxt{font-size:13.5px;line-height:1.45;margin-top:8px}.vsmall{font-size:11.5px;color:var(--muted);margin-top:6px}
+details.more{margin-top:12px}details.more summary{cursor:pointer;color:var(--gold);font-weight:700;font-size:13.5px;list-style:none}
+details.more summary::-webkit-details-marker{display:none}details.more summary::after{content:' ›'}details.more[open] summary::after{content:' ‹'}
+details.more .wk{grid-template-columns:1.2fr 1fr 1fr;margin-top:8px}
 .note{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:8px}
 .empty{font-size:13px;color:var(--muted);line-height:1.5;padding:6px 0}
 .steps{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;color:var(--fg)}
@@ -243,7 +261,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 18:30';
+var SOLGYM_V='31.10. 19:45';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -392,6 +410,25 @@ function defChart(id,items,ref){
   s+='<line class="hl" x1="0" x2="0" y1="'+T+'" y2="'+(T+ih)+'" stroke="#f2eee5" stroke-opacity=".35" visibility="hidden"/>';
   return '<svg class="ch" id="'+id+'" viewBox="0 0 '+W+' '+H+'" role="img">'+s+'</svg>';
 }
+// Gewicht mit Ziellinie und Prognose (wie PREPIT Phasen-Ziel)
+function goalChart(id,pts,target,eta){
+  var W=340,H=160,L=34,R=10,T=12,B=22,iw=W-L-R,ih=H-T-B;
+  var vs=pts.map(function(p){return p.v});if(target)vs.push(target);
+  var lo=Math.min.apply(null,vs),hi=Math.max.apply(null,vs),pad=Math.max(0.5,(hi-lo)*0.12);lo=Math.floor(lo-pad);hi=Math.ceil(hi+pad);
+  var t0=pts[0].t,last=pts[pts.length-1],t1=eta?eta.getTime():last.t;if(t1<=t0)t1=t0+86400000;
+  function X(t){return L+iw*(t-t0)/(t1-t0)}function Y(v){return T+ih-ih*(v-lo)/(hi-lo)}
+  var s='';
+  [lo,(lo+hi)/2,hi].forEach(function(v){var y=Y(v);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="#222225"/><text x="'+(L-6)+'" y="'+(y+3)+'" text-anchor="end">'+fmt1(v).replace(/[.,]0$/,'')+'</text>'});
+  if(target){var ty=Y(target);s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+ty+'" y2="'+ty+'" stroke="#c9a24a" stroke-width="1.5" stroke-dasharray="5 4"/><text x="'+(L+4)+'" y="'+(ty-5)+'" style="fill:#e7c66d;font-weight:700">Ziel '+fmt1(target).replace(/[.,]0$/,'')+' kg</text>'}
+  if(eta&&target){s+='<line x1="'+X(last.t)+'" y1="'+Y(last.v)+'" x2="'+X(t1)+'" y2="'+Y(target)+'" stroke="#8f8a7e" stroke-width="1.5" stroke-dasharray="3 4"/><circle cx="'+X(t1)+'" cy="'+Y(target)+'" r="3.5" fill="#e7c66d"/>'}
+  var d=pts.map(function(p,i){return (i?'L':'M')+X(p.t).toFixed(1)+','+Y(p.v).toFixed(1)}).join('');
+  s+='<path d="'+d+'" fill="none" stroke="#c9a24a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+  pts.forEach(function(p){s+='<circle cx="'+X(p.t)+'" cy="'+Y(p.v)+'" r="'+(pts.length>40?1.8:2.6)+'" fill="#c9a24a"/>'});
+  s+='<circle cx="'+X(last.t)+'" cy="'+Y(last.v)+'" r="4.5" fill="#e7c66d" stroke="#141416" stroke-width="2"/>';
+  s+='<text x="'+L+'" y="'+(H-3)+'">'+ddmm(pts[0].day)+'</text><text x="'+(W-R)+'" y="'+(H-3)+'" text-anchor="end">'+(eta?ddmm(dk(eta))+String(eta.getFullYear()).slice(2):ddmm(last.day))+'</text>';
+  s+='<line class="hl" x1="0" x2="0" y1="'+T+'" y2="'+(T+ih)+'" stroke="#f2eee5" stroke-opacity=".35" visibility="hidden"/><circle class="hd" r="5" fill="#e7c66d" stroke="#141416" stroke-width="2" visibility="hidden"/>';
+  return {svg:'<svg class="ch" id="'+id+'" viewBox="0 0 '+W+' '+H+'" role="img">'+s+'</svg>',X:X,Y:Y};
+}
 function lineChart(id,pts){
   var W=340,H=150,L=34,R=8,T=10,B=22,iw=W-L-R,ih=H-T-B;
   var vs=pts.map(function(p){return p.v});var lo=Math.min.apply(null,vs),hi=Math.max.apply(null,vs);
@@ -469,8 +506,8 @@ function renderAll(){
   }
   h+='</div>';
 
-  // Defizit = eingespart (Bedarf − gegessen) + Training
-  h+='<h2>Defizit</h2><div class="card">';
+  // Defizit = eingespart (Bedarf − gegessen) + Training. Zwei Ansichten: Kalorien | Gewicht.
+  h+='<h2>Fortschritt</h2><div class="card">';
   var M=prep.maint,ph=prep.phase,bulk=ph&&ph.bulk===true;
   if(!M&&prep.goal&&ph&&n(ph.kcal)>0)M=prep.goal.kcal+(bulk?-1:1)*n(ph.kcal);
   if(!prep.has){h+='<div class="empty">Noch keine PREPIT-Daten in SOL-GYM.</div>'}
@@ -479,19 +516,57 @@ function renderAll(){
     var refDef=ph&&!bulk&&n(ph.kcal)>0?n(ph.kcal):(prep.bridgeGoal&&M-prep.bridgeGoal>50?M-prep.bridgeGoal:0);
     function dayDef(k){var d=prep.days[k],tr=trainDay[k]||0,t=!!(d&&d.kcal>50),sv=t?M-d.kcal:0;return {saved:sv,train:tr,tracked:t,total:sv+tr}}
     var dItems,tDays=keys.filter(function(k){return dayDef(k).tracked});
-    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?'Defizit '+fmt(x.total):'Überschuss '+fmt(-x.total))+' kcal</b> <span>· '+(x.saved>=0?fmt(x.saved)+' eingespart':fmt(-x.saved)+' zu viel gegessen')+(x.train?' + '+fmt(x.train)+' Training':'')+'</span>':'<b>nicht getrackt</b>'+(x.train?' <span>· Training '+fmt(x.train)+' kcal</span>':''))}
+    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?fmt(x.total)+' kcal Defizit':fmt(-x.total)+' kcal zu viel')+'</b> <span>· '+(x.saved>=0?fmt(x.saved)+' gespart':fmt(-x.saved)+' zu viel gegessen')+(x.train?' + '+fmt(x.train)+' Training':'')+'</span>':'<b>nicht getrackt</b>'+(x.train?' <span>· Training '+fmt(x.train)+' kcal</span>':''))}
     if(RANGE<=30){dItems=keys.map(function(k){var x=dayDef(k);x.label=k.slice(8,10);x.tip=tipDay(k);return x})}
     else{dItems=[];for(var s2=0;s2<keys.length;s2+=7){var wk2=keys.slice(s2,s2+7),tt=wk2.filter(function(k){return dayDef(k).tracked}),
       sv2=tt.length?tt.reduce(function(a,k){return a+dayDef(k).saved},0)/tt.length:0,tr2=wk2.reduce(function(a,k){return a+(trainDay[k]||0)},0)/wk2.length;
-      dItems.push({label:ddmm(wk2[0]).slice(0,5),saved:sv2,train:tr2,tracked:tt.length>0,tip:'Woche ab '+ddmm(wk2[0])+' · <b>Ø '+fmt(sv2+tr2)+' kcal/Tag</b> <span>· '+fmt(sv2)+' eingespart + '+fmt(tr2)+' Training</span>'})}}
+      dItems.push({label:ddmm(wk2[0]).slice(0,5),saved:sv2,train:tr2,tracked:tt.length>0,tip:'Woche ab '+ddmm(wk2[0])+' · <b>Ø '+fmt(sv2+tr2)+' kcal/Tag</b> <span>· '+fmt(sv2)+' gespart + '+fmt(tr2)+' Training</span>'})}}
     var sumDef=tDays.reduce(function(a,k){return a+dayDef(k).total},0),avgDef=tDays.length?sumDef/tDays.length:0;
-    h+='<div class="kpis" style="margin:0 0 12px"><div class="kpi"><div class="l">Ø Defizit pro Tag</div><div class="v">'+(tDays.length?(avgDef<0?'−':'')+fmt(Math.abs(avgDef)):'–')+'<small>kcal</small></div><div class="n">'+(refDef?'Ziel '+fmt(refDef):'eingespart + Training')+'</div></div>';
-    h+='<div class="kpi"><div class="l">≈ Fett</div><div class="v">'+(sumDef<0?'+':'−')+fmt1(Math.abs(sumDef)/7000)+'<small>kg</small></div><div class="n">'+fmt(sumDef)+' kcal ÷ 7000</div></div></div>';
-    h+='<div class="ctitle"><span class="t">'+(RANGE<=30?'Defizit pro Tag':'Ø pro Tag, je Woche')+'</span><span class="k"><span><i style="background:#c9a24a"></i>eingespart</span><span><i style="background:#f2e3b8"></i>Training</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+'</span></div>';
-    h+='<div class="readout" id="roD"></div>'+defChart('chD',dItems,refDef);window._dItems=dItems;
-    h+='<div class="note">Eingespart = dein Bedarf ('+fmt(M)+' kcal, aus PREPIT) minus gegessen. Training kommt oben drauf. Rot = mehr gegessen als gebraucht.</div>';
+    var DT=get('solgym.dtab')==='w'?'w':'k';
+    h+='<div class="seg2"><button data-dtab="k" class="'+(DT==='k'?'on':'')+'">Kalorien</button><button data-dtab="w" class="'+(DT==='w'?'on':'')+'">Gewicht</button></div>';
 
-    // Wochen-Check mit der Waage
+    // --- Ansicht Kalorien ---
+    var okGoal=refDef&&avgDef>=refDef*0.9;
+    h+='<div class="pane" data-pane="k"'+(DT==='k'?'':' hidden')+'>';
+    var DP=get('solgym.dper')==='w'?'w':'d';
+    h+='<div class="seg2 sm"><button data-dper="d" class="'+(DP==='d'?'on':'')+'">Tag</button><button data-dper="w" class="'+(DP==='w'?'on':'')+'">Woche</button></div>';
+    var avgSv=tDays.length?tDays.reduce(function(a,k){return a+dayDef(k).saved},0)/tDays.length:0,avgTr=tDays.length?avgDef-avgSv:0;
+    // Tag
+    h+='<div data-per="d"'+(DP==='d'?'':' hidden')+'><div class="hero"><div class="lbl">Ø Defizit pro Tag</div><div class="num">'+(tDays.length?(avgDef<0?'−':'')+fmt(Math.abs(avgDef)):'–')+'<small> kcal</small></div>';
+    h+='<div class="sub">'+(refDef?'<span class="chip '+(okGoal?'ok':'')+'">'+(okGoal?'✓ ':'')+'Ziel '+fmt(refDef)+'</span>':'')+'<span>Ernährung '+fmt(avgSv)+' · Training '+fmt(avgTr)+'</span></div></div>';
+    h+='<div class="readout" id="roD"></div>'+defChart('chD',dItems,refDef)+'</div>';
+    window._dItems=dItems;
+    // Woche (Montag–Sonntag)
+    var mon=new Date(today);mon.setHours(12,0,0,0);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
+    var nWk=Math.min(13,Math.max(4,Math.ceil(RANGE/7))),wkItems=[];
+    for(var wq=nWk-1;wq>=0;wq--){var ws=addDays(mon,-wq*7),days=[];for(var wz=0;wz<7;wz++){var dd=addDays(ws,wz);if(dd<=today)days.push(dk(dd))}
+      var sv=0,trw=0,nt=0;days.forEach(function(k){var x=dayDef(k);if(x.tracked){sv+=x.saved;nt++}trw+=x.train});
+      wkItems.push({label:ddmm(dk(ws)).slice(0,5),saved:sv,train:trw,tracked:nt>0,
+        tip:'Woche ab '+ddmm(dk(ws))+' · <b>'+fmt(sv+trw)+' kcal</b> <span>· Ernährung '+fmt(sv)+' + Training '+fmt(trw)+' · ≈ '+fmt1(Math.abs(sv+trw)/7000)+' kg Fett · '+nt+'/'+days.length+' Tage getrackt</span>'})}
+    var cw=wkItems[wkItems.length-1];window._wkItems=wkItems;
+    h+='<div data-per="w"'+(DP==='w'?'':' hidden')+'><div class="hero"><div class="lbl">Defizit diese Woche</div><div class="num">'+fmt(cw.saved+cw.train)+'<small> kcal</small></div>';
+    h+='<div class="sub"><span class="chip '+(cw.saved+cw.train>0?'ok':'')+'">≈ '+fmt1(Math.abs(cw.saved+cw.train)/7000)+' kg Fett</span><span>Ernährung '+fmt(cw.saved)+' · Training '+fmt(cw.train)+'</span></div></div>';
+    h+='<div class="readout" id="roDW"></div>'+defChart('chDW',wkItems,refDef?refDef*7:0)+'</div>';
+    h+='<div class="k mini"><span><i style="background:#c9a24a"></i>Ernährung (gespart)</span><span><i style="background:#f2e3b8"></i>Training</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+'</div>';
+    h+='</div>';
+
+    // --- Ansicht Gewicht ---
+    h+='<div class="pane" data-pane="w"'+(DT==='w'?'':' hidden')+'>';
+    var tw=ph&&n(ph.targetWeight)>0?n(ph.targetWeight):null;
+    var wPts=allW.filter(function(p){return p.day>=from});if(wPts.length<2)wPts=allW.slice(-8);
+    if(wPts.length<2){h+='<div class="empty">Trag dein Gewicht ein paar Mal ein (PREPIT oder REPIT → Körper), dann siehst du hier deine Kurve.</div>'}
+    else{
+      var last=wPts[wPts.length-1],eta=null;
+      if(tw){var rem=bulk?tw-last.v:last.v-tw,pace=n(ph.kcal)||avgDef;
+        if(ph.targetDate){try{eta=new Date(String(ph.targetDate)+'T12:00:00')}catch(e){}}
+        if(!eta&&rem>0&&pace>50)eta=addDays(new Date(last.day+'T12:00:00'),Math.ceil(rem*7000/pace));}
+      h+='<div class="hero"><div class="lbl">Gewicht heute</div><div class="num">'+fmt1(last.v)+'<small> kg</small></div>';
+      h+='<div class="sub">'+(tw?'<span class="chip">Ziel '+fmt1(tw)+' kg</span><span>noch '+fmt1(Math.abs(last.v-tw))+' kg'+(eta?' · ca. '+ddmm(dk(eta))+eta.getFullYear():'')+'</span>':'<span>Setz in PREPIT ein Phasen-Ziel, dann siehst du hier die Ziellinie.</span>')+'</div></div>';
+      var gc=goalChart('chG',wPts,tw,eta);window._gCh=gc;window._gPts=wPts;
+      h+='<div class="readout" id="roG"></div>'+gc.svg;
+      h+='<div class="k mini"><span><i style="background:#c9a24a"></i>dein Gewicht</span>'+(eta?'<span><i class="line"></i>Prognose</span>':'')+(tw?'<span><i class="line gold"></i>Ziel</span>':'')+'</div>';
+    }
+    // Abgleich: Kalorien vs. Waage, je Woche
     var wAvg=function(a,b){var l=allW.filter(function(p){return p.day>=a&&p.day<=b});return l.length?l.reduce(function(x,p){return x+p.v},0)/l.length:null};
     var nW=Math.min(13,Math.max(3,Math.ceil(RANGE/7))),rows=[],eatS=0,trS=0,dS=0;
     for(var q=nW-1;q>=0;q--){var e=addDays(today,-q*7),st=addDays(e,-6),a1=dk(st),b1=dk(e);
@@ -505,29 +580,23 @@ function renderAll(){
       rows.push({a:a1,exp:exp,act:act,n:tr.length});
       if(tr.length>=4&&act!=null){eatS+=tr.reduce(function(x,k){return x+prep.days[k].kcal},0)/tr.length*7;trS+=trn;dS+=act*7000}
     }
-    var shown=rows.filter(function(r){return r.exp!=null||r.act!=null});
-    h+='<div class="ctitle" style="margin-top:16px"><span class="t">Wochen-Check mit der Waage</span></div>';
-    if(!shown.length)h+='<div class="note">Sobald du ein paar Tage trackst und dich wiegst, siehst du hier, ob das Defizit auf der Waage ankommt.</div>';
-    else{
-      h+='<div class="wk"><div class="h">Woche ab</div><div class="h r">Defizit</div><div class="h r">erwartet</div><div class="h r">Waage</div>';
+    var lr=null;for(var r9=rows.length-1;r9>=0;r9--){if(rows[r9].exp!=null&&rows[r9].act!=null){lr=rows[r9];break}}
+    if(lr){var dif=lr.act-lr.exp,ok=Math.abs(dif)<=0.35;
+      h+='<div class="verdict '+(ok?'ok':'')+'"><div class="vrow"><span>Laut Kalorien</span><b>'+(lr.exp>=0?'−':'+')+fmt1(Math.abs(lr.exp))+' kg</b></div><div class="vrow"><span>Laut Waage</span><b>'+(lr.act>=0?'−':'+')+fmt1(Math.abs(lr.act))+' kg</b></div>';
+      h+='<div class="vtxt">'+(ok?'✓ Passt. Dein Defizit kommt auf der Waage an.':dif<0?'Die Waage hinkt hinterher. Oft ist das nur Wasser (Salz, Kohlenhydrate, hartes Training). Bleibt es 2–3 Wochen so, ist der Bedarf etwas zu hoch geschätzt.':'Du nimmst schneller ab als gerechnet. Achte auf genug Protein.')+'</div>';
+      h+='<div class="vsmall">Woche ab '+ddmm(lr.a)+', Wochenschnitt im Vergleich zur Vorwoche.</div></div>';
+    } else h+='<div class="note">Sobald du eine Woche trackst und dich mehrmals wiegst, siehst du hier, ob dein Defizit auf der Waage ankommt.</div>';
+    var shown=rows.filter(function(r){return r.exp!=null||r.act!=null}),wN=rows.filter(function(r){return r.n>=4&&r.act!=null}).length;
+    if(shown.length){
+      h+='<details class="more"><summary>Details pro Woche</summary><div class="wk"><div class="h">Woche ab</div><div class="h r">Kalorien</div><div class="h r">Waage</div>';
       shown.forEach(function(r){var good=r.exp!=null&&r.act!=null&&Math.abs(r.exp-r.act)<=0.35;
-        h+='<div>'+ddmm(r.a)+'</div><div class="r">'+(r.exp==null?'–':fmt(r.exp*7000))+'</div><div class="r">'+(r.exp==null?'–':(r.exp>=0?'−':'+')+fmt1(Math.abs(r.exp))+' kg')+'</div><div class="r '+(r.act==null||r.exp==null?'':good?'ok':'off')+'">'+(r.act==null?'–':(r.act>=0?'−':'+')+fmt1(Math.abs(r.act))+' kg')+'</div>'});
-      h+='</div><div class="note">Erwartet = Wochen-Defizit ÷ 7000. Waage = Wochenschnitt im Vergleich zur Vorwoche. Grün: passt (±0.3 kg).</div>';
-      var wN=rows.filter(function(r){return r.n>=4&&r.act!=null}).length;
-      if(wN>=2){var realM=(eatS-trS+dS)/(wN*7);
-        h+='<div class="big" style="margin-top:12px">Laut Waage liegt dein Bedarf bei ca. <b>'+fmt(realM)+' kcal</b>. PREPIT rechnet mit '+fmt(M)+' kcal.</div>';
-        var diff=realM-M;
-        h+='<div class="note">'+(Math.abs(diff)<150?'Passt gut. Dein Defizit kommt so auf der Waage an.':diff<0?'Du nimmst langsamer ab als gerechnet. Entweder ist der Bedarf etwas tiefer, oder es wird nicht alles getrackt. Tipp: In PREPIT im Phasen-Ziel „Intelligent (wöchentlich)“ wählen, dann passt sich das Ziel jede Woche an.':'Du nimmst schneller ab als gerechnet. Achte auf genug Protein, damit es Fett ist und nicht Muskeln.')+' Wasser schwankt, darum zählt der Trend über mehrere Wochen.</div>';
-      } else h+='<div class="note">Nach 2 Wochen mit Tracking (mind. 4 Tage pro Woche) und Gewicht siehst du hier deinen echten Bedarf laut Waage.</div>';
+        h+='<div>'+ddmm(r.a)+'</div><div class="r">'+(r.exp==null?'–':(r.exp>=0?'−':'+')+fmt1(Math.abs(r.exp))+' kg')+'</div><div class="r '+(r.act==null||r.exp==null?'':good?'ok':'off')+'">'+(r.act==null?'–':(r.act>=0?'−':'+')+fmt1(Math.abs(r.act))+' kg')+'</div>'});
+      h+='</div>';
+      if(wN>=2){var realM=(eatS-trS+dS)/(wN*7);h+='<div class="note" style="margin-top:8px">Bedarf laut Waage: ca. <b style="color:var(--gold-hi)">'+fmt(realM)+' kcal</b> (PREPIT rechnet mit '+fmt(M)+').</div>'}
+      h+='<div class="note">Kalorien = (gespart + Training) ÷ 7000. Bedarf '+fmt(M)+' kcal aus PREPIT.</div></details>';
     }
+    h+='</div>';
   }
-  h+='</div>';
-
-  // Gewicht
-  h+='<h2>Gewicht</h2><div class="card">';
-  if(wR.length<2){h+='<div class="empty">'+(allW.length?'Im gewählten Zeitraum gibt es noch zu wenig Gewichts-Einträge. Wähle einen längeren Zeitraum.':'Noch keine Gewichts-Einträge (PREPIT oder REPIT → Körper).')+'</div>'}
-  else{var lc=lineChart('chW',wR);window._wCh=lc;window._wPts=wR;
-    h+='<div class="ctitle"><span class="t">Verlauf</span><span class="k">'+wR.length+' Einträge</span></div><div class="readout" id="roW"></div>'+lc.svg}
   h+='</div>';
 
   // Training
@@ -566,10 +635,17 @@ function renderAll(){
   $('#allBody').innerHTML=h;
 
   if(window._kItems&&document.getElementById('chK'))hookBars('chK',window._kItems,'roK','<span>Tippe auf einen Balken für Details.</span>');
-  if(window._dItems&&document.getElementById('chD'))hookBars('chD',window._dItems,'roD','<span>Tippe auf einen Balken für Details.</span>');
+  if(window._dItems&&document.getElementById('chD'))hookBars('chD',window._dItems,'roD','<span>Tippe auf einen Tag.</span>');
+  if(window._wkItems&&document.getElementById('chDW'))hookBars('chDW',window._wkItems,'roDW','<span>Tippe auf eine Woche.</span>');
+  document.querySelectorAll('[data-dper]').forEach(function(b){b.addEventListener('click',function(){var t=b.dataset.dper;set('solgym.dper',t);
+    document.querySelectorAll('[data-dper]').forEach(function(x){x.classList.toggle('on',x===b)});
+    document.querySelectorAll('[data-per]').forEach(function(p){p.hidden=p.dataset.per!==t})})});
+  if(document.getElementById('chG'))hookLine('chG',window._gPts,window._gCh,'roG','<span>Tippe auf die Linie.</span>');
+  document.querySelectorAll('[data-dtab]').forEach(function(b){b.addEventListener('click',function(){var t=b.dataset.dtab;set('solgym.dtab',t);
+    document.querySelectorAll('[data-dtab]').forEach(function(x){x.classList.toggle('on',x===b)});
+    document.querySelectorAll('[data-pane]').forEach(function(p){p.hidden=p.dataset.pane!==t})})});
   if(window._vItems&&document.getElementById('chV'))hookBars('chV',window._vItems,'roV','<span>Tippe auf eine Woche.</span>');
-  if(document.getElementById('chW'))hookLine('chW',window._wPts,window._wCh,'roW','<span>Tippe auf die Linie.</span>');
-  window._kItems=window._vItems=window._dItems=null;
+  window._kItems=window._vItems=window._dItems=window._wkItems=null;
 }
 
 var h=(location.hash||'').replace('#','');
