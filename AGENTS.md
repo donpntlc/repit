@@ -96,6 +96,16 @@ Anstrengung 1–4 neu (Zu leicht · Letzte unsauber · Nur halb geschafft · All
 ### Erledigt 29.10. (APPV „29.10. 17:45“)
 Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis lesbar, „Ziel heute“-Hinweis je nach Fall (alle Stufe 2 → gleiche Wdh. sauber; gemischt → Satz für Satz).
 
+### Backlog vom 31.10. abends (Dean)
+- **Vorlagen als Ordner:** Splits/Vorlagen öffnen sich wie ein Ordner → Trainingstage sehen → Tag antippen → alle Übungen sehen und bearbeiten. App-Vorlagen in **Gold** markiert („SOL-Vorlage“), der 6er-Split heisst **„Dons Training“**; Dean fügt später 2–3 weitere App-Vorlagen hinzu. Eigene Coach-Vorlagen in **Grau** (z. B. „3er-Split Beinfokus“): Coach erstellt Vorlage, fügt Trainings hinzu, bearbeitet sie.
+- **Vorlage einem Kunden geben:** Kopie in die Kunden-Rubrik, dort pro Kunde frei bearbeiten (Original bleibt unverändert).
+- **Kunden löschen** (mit eigenem Bestätigungs-Sheet).
+- **Routine antippen = Detailansicht** (ohne Start): alle Übungen mit **kleinen Bildern links** (wie Strong), Sätze/Ziele, Notiz; direkt bearbeiten (Übung umbenennen, Variante eintippen, Sätze ändern) und speichern. Im jetzigen „Bearbeiten“ lässt sich die Variante nicht eintippen.
+- **Bilder (nur merken):**
+  - Bankdrücken Kurzhantel (Frau): Startposition auf die andere Seite, Arme in der Startposition weiter oben (nicht so tief).
+  - Chest Press (Cable) Mann + Frau: Griff falsch, **Daumen zeigen nach innen** (Handflächen nach unten), nicht nach oben; nach vorne rausdrücken.
+  - **Chest Press Cable 2. (to the ground)** ist eine andere Übung: stehend, Rollen **ganz oben** (muss fast springen, um die Griffe zu holen), Ellbogen hoch Richtung Kabel, dann nach unten Richtung Füsse drücken und die Hände zusammenführen → untere Brust. Eigenes Bild + eigene Beschreibung (statt Alias auf Chest Press Cable).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
