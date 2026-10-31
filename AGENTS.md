@@ -96,6 +96,13 @@ Anstrengung 1–4 neu (Zu leicht · Letzte unsauber · Nur halb geschafft · All
 ### Erledigt 29.10. (APPV „29.10. 17:45“)
 Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis lesbar, „Ziel heute“-Hinweis je nach Fall (alle Stufe 2 → gleiche Wdh. sauber; gemischt → Satz für Satz).
 
+### Erledigt 31.10. spät (APPV „31.10. 23:55“)
+- **SOL-Vorlage „3er-Split Bein & Po Fokus“** (`appTpls()` → `f3()`): Tag 1 Legs & Abs, Tag 2 Upper Body (Kabelrudern · mittelbreiter Griff, Schulterdrücken ohne Warm-up, Frontheben am Kabel zuletzt; Brust-/Armübung noch offen, Dean überlegt Schrägbank fliegend statt drücken), Tag 3 Glutes & Abs. Warm-up-Sätze als `type:'w'` im `plan`. Keine Wochentage, 1-2-3 im Wechsel mit Ruhetag.
+- Neue Übungen mit Bild m/w: Cable Side Kick (Kabel HINTER dem Standbein), Cable Glute Kickback, Stiff Leg Deadlift (Cable), Frontheben am Kabel. Schrägbankdrücken (Kurzhantel) Beschreibung: Brust raus, voller Bewegungsumfang, oben 2–3 Finger Abstand.
+- **Zwischenstand Kunde → Coach:** Daten → „Training mit Coach: Ich bin Kunde“ (`hantelbuch.coach` {on,name,coach,since,last,snooze}). Erinnerungskarte im Training-Reiter alle 14 Tage ab 5 Trainings (`reportDue`). Datei `*.repit.json` (`app:'repit-report'`). Coach: „Daten importieren“ → Sheet `report` (Trends, Ø Stufe, Gefühl/Essen, „bereit für mehr Gewicht“), „Bei Kunde speichern“ (`hantelbuch.reports`), Liste „Zwischenstände“ in der Kunden-Rubrik.
+- PREPIT: Extra-Schritte-Karte unter die Tagesübersicht-Leiste verschoben (sol-tracker `3749aa1`).
+- **Apple Health / Schritte:** Die Web-App kann Apple Health nicht lesen (geht nur in einer echten App-Store-App, `health`-Paket ist drin, wirkt aber im Web nicht). Möglicher Umweg: iPhone-Kurzbefehl, der die Schritte liest und PREPIT mit `?steps=…` öffnet – noch nicht gebaut, Dean fragen.
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
