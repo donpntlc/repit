@@ -195,7 +195,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 01:15';
+var SOLGYM_V='31.10. 09:50';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -210,7 +210,19 @@ function measure(){
 // REPIT bekommt den Abstand zum Home-Balken, damit die Leiste unten bündig sitzt.
 function passSab(f){try{if(f&&f.contentDocument&&f.contentDocument.documentElement)
   f.contentDocument.documentElement.style.setProperty('--sab',SAB+'px')}catch(e){}}
-function load(t){var f=document.getElementById('f-'+t);if(f&&!f.src){f.src=SRC[t];if(t==='rep')f.addEventListener('load',function(){passSab(f)})}return f}
+function load(t){var f=document.getElementById('f-'+t);if(f&&!f.src){f.src=SRC[t];
+  if(t==='rep')f.addEventListener('load',function(){passSab(f)});
+  if(t==='prep')f.addEventListener('load',function(){hookPrep(f)})}return f}
+// PREPIT (Flutter) verschluckt auf dem iPhone oft den ersten Fingertipp aufs Logo.
+// Darum erkennt SOL-GYM einen kurzen Tipp oben links in PREPIT selbst und öffnet die Auswahl sofort.
+function hookPrep(f){try{var d=f.contentDocument;if(!d||d.__solgym)return;d.__solgym=1;var sx=-1,sy=-1,st=0;
+  function inLogo(x,y){return x<200&&y<54}
+  d.addEventListener('pointerdown',function(e){sx=e.clientX;sy=e.clientY;st=Date.now()},true);
+  d.addEventListener('pointerup',function(e){
+    if(CUR!=='prep'||!inLogo(sx,sy)||!inLogo(e.clientX,e.clientY))return;
+    if(Math.abs(e.clientX-sx)>12||Math.abs(e.clientY-sy)>12||Date.now()-st>700)return;
+    DIRECT=Date.now();openChooser()},true);
+}catch(e){}}
 function show(t){
   if(t!=='prep'&&t!=='all')t='rep';
   if(t!=='all')load(t);
@@ -220,18 +232,20 @@ function show(t){
   CUR=t;set(KEY,t);
   $('#home').classList.add('hide');closeChooser();
 }
-function openChooser(){
+var OPENED=0;
+function openChooser(){OPENED=Date.now();
   document.querySelectorAll('#chooser .opt').forEach(function(o){o.classList.toggle('cur',o.dataset.tab===CUR);o.querySelector('.now').style.visibility=o.dataset.tab===CUR?'visible':'hidden'});
   $('#chooser').classList.add('on');$('#chooser').setAttribute('aria-hidden','false');
 }
 function closeChooser(){$('#chooser').classList.remove('on');$('#chooser').setAttribute('aria-hidden','true')}
 document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
-$('[data-close]').addEventListener('click',closeChooser);
+$('[data-close]').addEventListener('click',function(){if(Date.now()-OPENED>450)closeChooser()});
 $('[data-choose]').addEventListener('click',openChooser);
 // Tipp aufs Logo in REPIT oder PREPIT schickt „solgym:switch“ → Auswahl zeigen.
+var DIRECT=0;
 addEventListener('message',function(e){
   if(e.origin!==location.origin)return;
-  if(e.data==='solgym:switch')openChooser();
+  if(e.data==='solgym:switch'){if(Date.now()-DIRECT>900)openChooser()}
   else if(e.data==='solgym:home')$('#home').classList.remove('hide');
 });
 measure();addEventListener('resize',measure);
