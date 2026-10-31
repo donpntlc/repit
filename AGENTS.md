@@ -11,7 +11,7 @@
 - Antworte immer auf **Deutsch**, kurz, locker und praktisch. Dean ist Personal Trainer (St. Gallen, Schweiz), kein Programmierer. Erkläre Schritte so, dass er sie ohne Fachwissen versteht.
 - Er diktiert oft per Sprache. Tippfehler wie „Rapid“ = REPIT, „Soul“ = SOL.
 - **Lösche nie seine Trainingsdaten.** Ändere nie die localStorage-Schlüssel `hantelbuch.*` (sonst sind alle Daten der Nutzer weg).
-- Nach jeder Änderung: in der Daten-Ansicht die Versionsnummer hochzählen (`Version TT.MM. HH:MM` in `sData()`), damit Dean auf dem Handy sieht, ob die neue Version da ist.
+- Nach jeder Änderung: in der Daten-Ansicht die Versionsnummer hochzählen (`Version TT.MM. HH:MM` in `sData()`), damit Dean auf dem Handy sieht, ob die neue Version da ist. **Immer die echte aktuelle Uhrzeit (Zürich) nehmen, keine Zeit in der Zukunft.** Die Update-Prüfung vergleicht nur auf Ungleichheit, zurückstellen ist also unproblematisch.
 - Teste jede Änderung in einer Handy-Ansicht (390 × 844), bevor du pushst.
 
 ## 0b. Arbeitsweise (so hat Claude bisher mit Dean gearbeitet, bitte genauso)
