@@ -407,7 +407,7 @@ function vTraining(){
   if(S.active)return vActive();
   const last=S.workouts[0];
   const wk=S.workouts.filter(w=>w.start>Date.now()-7*864e5).length;
-  return `<div class="card hero stack"><div class="eyebrow">Diese Woche</div><div class="big num">${wk} ${wk===1?'Training':'Trainings'}</div>
+  return `${reportCard()}<div class="card hero stack"><div class="eyebrow">Diese Woche</div><div class="big num">${wk} ${wk===1?'Training':'Trainings'}</div>
   ${last?`<div class="muted mini">Zuletzt: ${esc(last.name)}, ${fDate(last.start)} · ${fmt(wVolume(last))} kg Volumen</div>`:'<div class="muted mini">Starte dein erstes Training. Jeder Satz wird gespeichert.</div>'}
   <button class="btn gold full" data-act="start-empty">Leeres Training starten</button><div class="row" style="justify-content:center;gap:4px;flex-wrap:wrap"><button class="btn text sm" data-act="intro-open">So funktioniert REPIT →</button><button class="btn text sm" data-act="guide">Alle Funktionen →</button></div></div>
   <div class="spread"><h2>Routinen</h2>${S.routines.filter(r=>r.folder!=='coach').length>1?'<button class="btn text sm" data-act="ro-open">Reihenfolge</button>':''}</div>
@@ -499,7 +499,7 @@ function sClient(){return `<div class="eyebrow">Coach</div><h2 style="margin-top
 function vRoutines(){const list=myRoutines(),coach=S.rfolder==='coach';
   return `<div class="row" style="gap:6px;margin-bottom:10px"><button class="chip ${!coach?'on':''}" data-act="rf" data-v="mine">Meine Trainings</button><button class="chip ${coach?'on':''}" data-act="rf" data-v="coach">Für Kunden (Coach)</button></div>
   ${coach?`<div class="cats" style="margin-bottom:8px"><button class="chip ${!S.rclient?'on':''}" data-act="rc" data-v="">Alle Kunden</button>${clients().map(c=>`<button class="chip ${S.rclient===c?'on':''}" data-act="rc" data-v="${esc(c)}">${esc(c)}</button>`).join('')}<button class="chip" data-act="cl-new">+ Kunde</button></div>
-  <div class="muted mini" style="margin-bottom:10px">${S.rclient?`Trainings für ${esc(S.rclient)}. Neue Trainings und die Vorlage landen direkt hier. „Plan teilen“ schickt ${esc(S.rclient)} alles auf einmal. <button class="btn text sm" style="padding:0;color:var(--bad)" data-act="cl-del" data-v="${esc(S.rclient)}">Kunde löschen</button>`:'Lege pro Kunde eine Rubrik an. Seine Trainings mischen sich nicht mit deinen eigenen. Über „Plan teilen“ schickst du sie als Datei oder Link.'}</div>`:''}
+  <div class="muted mini" style="margin-bottom:10px">${S.rclient?`Trainings für ${esc(S.rclient)}. Neue Trainings und die Vorlage landen direkt hier. „Plan teilen“ schickt ${esc(S.rclient)} alles auf einmal. <button class="btn text sm" style="padding:0;color:var(--bad)" data-act="cl-del" data-v="${esc(S.rclient)}">Kunde löschen</button>${reportList(S.rclient)?'</div>'+reportList(S.rclient)+'<div>':''}`:'Lege pro Kunde eine Rubrik an. Seine Trainings mischen sich nicht mit deinen eigenen. Über „Plan teilen“ schickst du sie als Datei oder Link.'}</div>`:''}
   <div class="spread"><h2>${coach?esc(S.rclient||'Kunden'):'Routinen'}</h2><span class="row" style="gap:6px;flex-wrap:nowrap">${list.length>1?'<button class="btn text sm" data-act="ro-open">Reihenfolge</button>':''}<button class="btn gold sm" style="white-space:nowrap" data-act="r-new">+ Neu</button></span></div>
   <div class="row" style="gap:8px;margin-bottom:12px;flex-wrap:nowrap"><button class="btn ghost" style="flex:1" data-act="tl-open">Vorlagen</button>${list.length?'<button class="btn ghost" style="flex:1" data-act="share-open">Plan teilen</button>':''}</div>
   ${!coach&&list.length>1?`<div class="spread" style="margin-bottom:10px"><span class="row" style="gap:6px"><button class="chip ${rLabel()!=='day'?'on':''}" data-act="r-label" data-v="num">1 · 2 · 3</button><button class="chip ${rLabel()==='day'?'on':''}" data-act="r-label" data-v="day">Wochentage</button></span></div>`:''}
@@ -604,7 +604,7 @@ function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
   sh.hidden=false;bd.hidden=false;
-  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView})[S.sheet.type];
+  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView,report:sReport})[S.sheet.type];
   sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);
 }
 function sPicker(){
@@ -692,6 +692,47 @@ function sTView({tid}){const t=tplById(tid);if(!t)return '<p class="muted">Vorla
  ${t.app?'':`<button class="btn ghost full" style="margin-top:10px" data-act="tv-addday">+ Trainingstag</button>`}
  <div class="card" style="margin-top:14px"><div class="eyebrow">Übernehmen für</div><div class="cats" style="margin-top:6px"><button class="chip ${!f?'on':''}" data-act="tv-for" data-v="">Mich</button>${cl.map(c=>`<button class="chip ${f===c?'on':''}" data-act="tv-for" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div><div class="muted mini" style="margin-top:6px">Es wird eine Kopie angelegt, ${f?'in der Rubrik von '+esc(f):'bei deinen Routinen'}. Die Kopie kannst du frei anpassen, die Vorlage bleibt gleich.</div><button class="btn gold full" style="margin-top:10px" data-act="tv-apply">Übernehmen</button></div>
  ${t.app?'':`<button class="btn danger full" style="margin-top:10px" data-act="tv-del">Vorlage löschen</button>`}`}
+/* ---------- Zwischenstand: Kunde → Coach ---------- */
+function coachCfg(){try{return JSON.parse(localStorage.getItem('hantelbuch.coach')||'{}')||{}}catch(e){return{}}}
+function setCoachCfg(c){try{localStorage.setItem('hantelbuch.coach',JSON.stringify(c))}catch(e){}}
+function repSince(){const c=coachCfg();return c.last||c.since||(Date.now()-14*864e5)}
+function reportDue(){const c=coachCfg();if(!c.on)return false;if(c.snooze&&Date.now()<c.snooze)return false;const s=repSince();return Date.now()-s>=13.5*864e5&&S.workouts.filter(w=>w.start>s).length>=5}
+function reportsAll(){try{return JSON.parse(localStorage.getItem('hantelbuch.reports')||'[]')}catch(e){return[]}}
+function saveReports(x){try{localStorage.setItem('hantelbuch.reports',JSON.stringify(x))}catch(e){toast('Speicher voll: alte Zwischenstände löschen.')}}
+function reportPayload(){const c=coachCfg();const from=Math.max(repSince(),Date.now()-56*864e5),to=Date.now();const ws=clone(S.workouts.filter(w=>w.start>=from)).sort((a,b)=>a.start-b.start);
+ return {app:'repit-report',v:1,name:(c.name||'').trim(),from,to,created:to,workouts:ws,body:S.body.filter(b=>b.weight&&b.date>=dayKey(from)).map(b=>({date:b.date,weight:b.weight})),routines:S.routines.filter(r=>r.folder!=='coach').map(r=>({name:r.name,exercises:r.exercises.map(e=>({name:e.name,target:e.target||'',sets:e.sets}))}))}}
+async function sendReport(){const pl=reportPayload();if(!pl.workouts.length)return toast('Noch keine Trainings im Zeitraum.');
+ const fname=('Zwischenstand-'+(pl.name||'REPIT')+'-'+fShort(pl.to)).replace(/[^\wäöüÄÖÜ.-]+/g,'-')+'.repit.json';const data=JSON.stringify(pl);const file=new File([data],fname,{type:'application/json'});
+ const done=()=>{const c=coachCfg();c.last=Date.now();delete c.snooze;setCoachCfg(c);renderMain();if(S.sheet&&S.sheet.type==='data')renderSheet();toast('Zwischenstand erstellt')};
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'REPIT Zwischenstand',text:'Mein Zwischenstand aus REPIT ('+fShort(pl.from)+' – '+fShort(pl.to)+')'});return done()}}catch(e){if(e&&e.name==='AbortError')return}
+ if(downloads){try{await downloads.save({filename:fname,data});return done()}catch(e){}}
+ const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=fname;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);done()}
+function reportCard(){if(!reportDue())return '';const n=S.workouts.filter(w=>w.start>repSince()).length;const c=coachCfg();
+ return `<div class="card" style="border-color:var(--gold);margin-bottom:12px"><div class="eyebrow" style="color:var(--gold)">Zwischenstand</div><div style="font-weight:800;margin-top:4px">Zeit für deinen Zwischenstand${c.coach?' an '+esc(c.coach):''}</div><div class="muted mini" style="margin-top:4px">${n} Trainings seit dem letzten Mal. Schick deinem Coach die Datei, dann kann er deine Fortschritte ansehen und den Plan anpassen.</div><div class="row" style="gap:6px;margin-top:10px;flex-wrap:nowrap"><button class="btn gold sm" style="flex:1" data-act="rep-send">An Coach schicken</button><button class="btn ghost sm" data-act="rep-later">Später</button></div></div>`}
+function upperT(t){const m=String(t||'').match(/(\d+)\s*$/)||String(t||'').match(/(\d+)/);return m?+m[1]:0}
+function repData(d){const ws=(d.workouts||[]).slice().sort((a,b)=>a.start-b.start);const names=[];ws.forEach(w=>(w.exercises||[]).forEach(e=>{if(!isCardio(e)&&doneSets(e).length&&!names.includes(e.name))names.push(e.name)}));
+ const rows=names.map(n=>{const ss=ws.map(w=>({w,e:w.exercises.find(x=>x.name===n)})).filter(x=>x.e&&doneSets(x.e).length);const b=x=>{const s=bestSet(x.e);return s?e1rm(num(s.kg),num(s.reps)):0};const f=ss[0],l=ss[ss.length-1];const d0=b(f),d1=b(l);const dd=d0?(d1-d0)/d0:0;
+  const effs=[];ss.forEach(x=>doneSets(x.e).forEach(s=>{const v=effLvl(s.rpe);if(v)effs.push(v)}));const eff=effs.length?effs.reduce((a,c)=>a+c,0)/effs.length:0;
+  const up=upperT(l.e.target);const lastSets=doneSets(l.e);const ready=up&&lastSets.length&&lastSets.every(s=>num(s.reps)>=up)&&lastSets.every(s=>{const v=effLvl(s.rpe);return !v||v<=2});
+  const txt=x=>doneSets(x.e).map(s=>`${fmt(num(s.kg))}×${num(s.reps)}${effBadge(s.rpe)}`).join(' · ');
+  return {n,count:ss.length,trend:ss.length<2?'neu':dd>0.01?'up':dd<-0.01?'down':'same',first:txt(f),last:txt(l),target:l.e.target||'',eff,ready,note:l.e.note||''}});
+ const vol=ws.reduce((a,w)=>a+wVolume(w),0);const ae=[];ws.forEach(w=>w.exercises.forEach(e=>doneSets(e).forEach(s=>{const v=effLvl(s.rpe);if(v)ae.push(v)})));const fl=ws.filter(w=>w.feel).map(w=>w.feel);
+ return {ws,rows,vol,eff:ae.length?ae.reduce((a,c)=>a+c,0)/ae.length:0,feel:fl.length?fl.reduce((a,c)=>a+c,0)/fl.length:0}}
+function sReport({pl,id}){let d=pl,saved=null;if(id){saved=reportsAll().find(r=>r.id===id);d=saved&&saved.data}if(!d)return '<p class="muted">Zwischenstand nicht gefunden.</p>';const r=repData(d);const c=d.name?d.name:'Kunde';const cl=clients();const pick=S.repCl!=null?S.repCl:(cl.includes(d.name)?d.name:'');
+ const dec=x=>x?x.toFixed(1).replace('.',','):'–';const bw=(d.body||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ return `<div class="spread"><div style="min-width:0"><div class="eyebrow">Zwischenstand${saved?' · gespeichert':''}</div><h2 style="margin-top:2px">${esc(saved?saved.client:c)}</h2></div><button class="btn text sm" data-act="close">Schliessen</button></div>
+ <div class="muted mini">${fShort(d.from)} – ${fShort(d.to)}</div>
+ <div class="stats" style="margin-top:10px"><div class="stat"><div class="v num">${r.ws.length}</div><div class="k">Trainings</div></div><div class="stat"><div class="v num">${fmt(Math.round(r.vol))}</div><div class="k">Volumen kg</div></div><div class="stat"><div class="v num">${dec(r.eff)}</div><div class="k">Ø Anstrengung (1–4)</div></div><div class="stat"><div class="v num">${r.feel?dec(r.feel)+'/4':'–'}</div><div class="k">Ø Gefühl nach dem Training</div></div></div>
+ ${bw.length?`<div class="card" style="margin-top:10px"><div class="spread"><span class="eyebrow">Körpergewicht</span><span class="num" style="font-weight:800">${fmt(num(bw[bw.length-1].weight))} → ${fmt(num(bw[0].weight))} kg</span></div></div>`:''}
+ ${saved?'':`<div class="card" style="margin-top:10px"><div class="eyebrow">Bei Kunde speichern</div><div class="cats" style="margin-top:6px">${cl.map(x=>`<button class="chip ${pick===x?'on':''}" data-act="rep-cl" data-v="${esc(x)}">${esc(x)}</button>`).join('')}${d.name&&!cl.includes(d.name)?`<button class="chip ${pick===d.name?'on':''}" data-act="rep-cl" data-v="${esc(d.name)}">+ ${esc(d.name)} (neu)</button>`:''}</div><button class="btn gold full" style="margin-top:10px" data-act="rep-save">Speichern${pick?' bei '+esc(pick):''}</button></div>`}
+ <div class="row" style="gap:6px;margin:14px 0 6px">${['up','same','down','neu'].map(k=>`<span class="chip" style="color:${TR[k][2]}">${TR[k][0]} ${r.rows.filter(x=>x.trend===k).length} ${TR[k][1]}</span>`).join('')}</div>
+ <div class="list">${r.rows.map(x=>`<div class="li" style="display:block;padding:10px 0"><div class="spread" style="align-items:flex-start"><span class="name" style="min-width:0">${exTitle(x.n)}</span><span style="color:${TR[x.trend][2]};font-weight:800;white-space:nowrap;margin-left:8px">${TR[x.trend][0]} ${TR[x.trend][1]}</span></div>
+  <div class="muted mini num" style="margin-top:2px">${x.count}× · ${x.target?'Ziel x'+esc(String(x.target).replace(/^x/i,''))+' · ':''}Ø Stufe ${dec(x.eff)}</div>
+  <div class="mini num" style="margin-top:2px"><span class="muted">Anfang:</span> ${x.first}</div>${x.count>1?`<div class="mini num"><span class="muted">Zuletzt:</span> ${x.last}</div>`:''}
+  ${x.ready?'<div class="mini" style="color:var(--ok);margin-top:3px">Sauber am oberen Ziel → bereit für mehr Gewicht oder weniger Wiederholungen</div>':''}${x.note?`<div class="mini" style="color:var(--gold);margin-top:2px">${esc(x.note)}</div>`:''}</div>`).join('')||'<div class="muted mini">Keine Kraftübungen im Zeitraum.</div>'}</div>
+ <div class="eyebrow" style="margin-top:14px">Trainings</div><div class="list">${r.ws.slice().reverse().map(w=>`<div class="li" style="display:block;padding:8px 0"><div class="spread"><span class="name">${esc(w.name||'Training')}</span><span class="muted mini">${fShort(w.start)}</span></div><div class="muted mini">${w.feel?'Gefühl: '+esc(CI_FEEL[w.feel-1]||w.feel):''}${w.feel&&w.food?' · ':''}${w.food?'Essen: '+esc(CI_FOOD[w.food-1]||w.food):''}${(w.feel||w.food)?' · ':''}${fmt(Math.round(wVolume(w)))} kg</div>${w.note?`<div class="mini" style="margin-top:2px">${esc(w.note)}</div>`:''}</div>`).join('')}</div>
+ ${saved?`<div class="stack" style="margin-top:14px"><button class="btn ghost full" data-act="rep-goto" data-v="${esc(saved.client)}">Routinen von ${esc(saved.client)} anpassen</button><button class="btn danger full" data-act="rep-del" data-v="${saved.id}">Zwischenstand löschen</button></div>`:''}`}
+function reportList(cl){const x=reportsAll().filter(r=>r.client===cl).sort((a,b)=>b.to-a.to);if(!x.length)return '';return `<div class="eyebrow" style="margin:6px 0">Zwischenstände</div><div class="list" style="margin-bottom:12px">${x.map(r=>`<button class="li" data-act="rep-open" data-v="${r.id}"><span style="flex:1;text-align:left"><span class="name">${fShort(r.from)} – ${fShort(r.to)}</span><span class="muted mini" style="display:block">${(r.data.workouts||[]).length} Trainings</span></span><span style="color:var(--muted);font-size:20px">›</span></button>`).join('')}</div>`}
 function weekData(){const now=Date.now(),t0=now-7*864e5,t1=now-14*864e5;const ws=S.workouts.filter(w=>w.start>=t0);const wsPrev=S.workouts.filter(w=>w.start>=t1&&w.start<t0);
  const effs=[];ws.forEach(w=>w.exercises.forEach(e=>(e.sets||[]).forEach(s=>{const l=effLvl(s.rpe);if(l)effs.push(l)})));
  const names=[...new Set(ws.flatMap(w=>w.exercises.filter(e=>!isCardio(e)).map(e=>e.name)))];
@@ -780,6 +821,7 @@ const GUIDE=[
 ['Verlauf & Bearbeiten','Verlauf → Training antippen: Start- und Endzeit, Notizen und Werte ändern, kcal werden neu gerechnet. „Bearbeiten“ öffnet das Training nochmal komplett.'],
 ['Routine ansehen','Tipp auf eine Routine zeigt alle Übungen mit Bild, Ziel und Startgewichten, ohne das Training zu starten. Über „Bearbeiten“ und einen Tipp auf die Übung änderst du Variante, Ziel, Gewichte, Pause und Notiz.'],
 ['Vorlagen','Routinen → „Vorlagen“: SOL-Vorlagen (gold, z. B. Dons Training) und deine eigenen (grau). Eine Vorlage ist wie ein Ordner mit Trainingstagen. „Übernehmen für“ legt eine Kopie bei dir oder bei einem Kunden an, die du dort frei anpasst.'],
+['Zwischenstand an den Coach','Daten → „Training mit Coach: Ich bin Kunde“. Alle 2 Wochen (ab 5 Trainings) erscheint im Training-Reiter eine Erinnerung. „An Coach schicken“ erstellt eine Datei. Der Coach öffnet sie über „Daten importieren“, sieht Fortschritte, Anstrengung, Gefühl und Notizen und speichert sie beim Kunden.'],
 ['Wochenbericht','Verlauf → „Wochenbericht“: pro Übung besser, gleich oder schlechter (antippen = nur diese anzeigen), Volumen, kcal, Ø Anstrengung, Körpergewicht. Mit Export zum Teilen, z. B. für den Coach.'],
 ['Körper & Fotos','Körper: Gewicht eintragen, Start- und Zielgewicht setzen. Tag antippen für Tagesnotiz und Formcheck-Fotos (gross ansehen und löschen möglich).'],
 ['Coach & Teilen','Routinen → „Für Kunden (Coach)“: eine Rubrik pro Kunde. „Plan teilen“ verschickt einen Tag oder Split als Datei oder Link, mit Gewichtsrechner.'],
@@ -792,6 +834,7 @@ function sData(){
   <button class="btn ghost full" data-act="export">Backup speichern</button>
   <button class="btn ghost full" data-act="intro-open">So funktioniert REPIT</button>
   <div class="eyebrow" style="margin-top:6px">Check-in vor und nach dem Training</div><div class="row" style="gap:6px">${[[1,'An'],[0,'Aus']].map(([k,l])=>`<button class="chip ${ciOn()===!!k?'on':''}" data-act="ci-mode" data-v="${k}">${l}</button>`).join('')}</div><p class="muted mini">Vor dem Start bewertest du kurz dein Essen (Carbs voll?), nach dem Training dein Gefühl. Im Verlauf und Wochenbericht siehst du dann, was dir liegt.</p>
+  <div class="eyebrow" style="margin-top:6px">Training mit Coach</div><div class="row" style="gap:6px">${[[1,'Ich bin Kunde'],[0,'Aus']].map(([k,l])=>`<button class="chip ${!!coachCfg().on===!!k?'on':''}" data-act="co-mode" data-v="${k}">${l}</button>`).join('')}</div>${coachCfg().on?`<input class="field" data-in="co-name" value="${esc(coachCfg().name||'')}" placeholder="Dein Name (sieht der Coach)" style="margin-top:6px"><input class="field" data-in="co-coach" value="${esc(coachCfg().coach||'')}" placeholder="Name deines Coaches (optional)" style="margin-top:6px"><button class="btn gold full" style="margin-top:6px" data-act="rep-send">Zwischenstand jetzt schicken</button>`:''}<p class="muted mini">Alle 2 Wochen (ab 5 Trainings) erinnert dich REPIT, deinem Coach einen Zwischenstand zu schicken. Der Coach öffnet die Datei über „Daten importieren“ und sieht deine Fortschritte, Bewertungen und Notizen.${coachCfg().last?' Zuletzt geschickt: '+fShort(coachCfg().last)+'.':''}</p>
   <div class="eyebrow" style="margin-top:6px">Hinweise im Training</div><div class="row" style="gap:6px">${[['full','Anfängerhilfe'],['short','Trainingshinweis'],['off','Aus']].map(([k,l])=>`<button class="chip ${poMode()===k?'on':''}" data-act="po-mode" data-v="${k}">${l}</button>`).join('')}</div><p class="muted mini">${poMode()==='full'?'Ausführliche Erklärung bei jeder Übung, ideal zum Lernen.':poMode()==='short'?'Nur das Wichtigste, z. B. „Gewicht hoch in Satz 1 · sonst +1 Wdh.“':'Keine Hinweise und keine vorausgefüllten Ziele.'}</p>
   <p class="muted mini">Beim Importieren erkennt REPIT die Datei selbst: dein Backup, ein Trainingsplan vom Coach oder ein CSV-Export aus einer anderen Tracking-App. Doppelte Trainings werden nicht doppelt angelegt.</p>
   <div class="eyebrow" style="margin-top:6px">Übungsbilder</div><div class="row" style="gap:6px"><button class="chip ${gender()==='m'?'on':''}" data-act="gender" data-v="m">Mann</button><button class="chip ${gender()==='w'?'on':''}" data-act="gender" data-v="w">Frau</button></div><div class="eyebrow" style="margin-top:6px">Abo</div><button class="btn ghost full" data-act="pay-open">${TIERS[tier()].n}${PAYWALL?'':' (Testphase: alles frei)'}</button><p class="muted mini">Version ${APPV}</p></div>`;
@@ -813,7 +856,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='31.10. 23:35'
+const APPV='31.10. 23:55'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -1037,6 +1080,15 @@ const ACT={
     saveMeta();S.rfolder=cl?'coach':'mine';S.rclient=cl;S.tab='routinen';S.sheet=null;renderAll();toast(t.days.length+' Trainingstage übernommen'+(cl?' für '+cl:''))},
   'cl-del':(el)=>{const n=el.dataset.v;const k=S.routines.filter(r=>r.folder==='coach'&&r.client===n).length;openSheet({type:'confirm',title:n+' löschen?',text:(k?`Die ${k} Routine${k===1?'':'n'} von ${n} werden auch gelöscht. `:'')+'Deine Vorlagen und dein eigener Verlauf bleiben erhalten.',yes:'Kunde löschen',act:'cl-del-ok',v:n,danger:true})},
   'cl-del-ok':(el)=>{const n=el.dataset.v;S.routines=S.routines.filter(r=>!(r.folder==='coach'&&r.client===n));saveClients(clients().filter(c=>c!==n));if(S.rclient===n)S.rclient='';saveMeta();closeSheet();renderMain();toast(n+' gelöscht')},
+  'co-mode':(el)=>{const c=coachCfg();c.on=el.dataset.v==='1';if(c.on&&!c.since)c.since=Date.now()-14*864e5;setCoachCfg(c);renderSheet();renderMain()},
+  'rep-send':()=>sendReport(),
+  'rep-later':()=>{const c=coachCfg();c.snooze=Date.now()+2*864e5;setCoachCfg(c);renderMain();toast('Erinnerung in 2 Tagen')},
+  'rep-cl':(el)=>{S.repCl=el.dataset.v;renderSheet()},
+  'rep-save':()=>{const d=S.sheet.pl;const cl=S.repCl!=null?S.repCl:(clients().includes(d.name)?d.name:'');if(!cl)return toast('Wähle zuerst den Kunden.');const x=clients();if(!x.includes(cl)){x.push(cl);saveClients(x)}const all=reportsAll();if(!all.some(r=>r.client===cl&&r.from===d.from&&r.to===d.to))all.push({id:uid(),client:cl,from:d.from,to:d.to,data:d});saveReports(all);S.repCl=null;const id=all.find(r=>r.client===cl&&r.from===d.from&&r.to===d.to).id;openSheet({type:'report',id});toast('Bei '+cl+' gespeichert')},
+  'rep-open':(el)=>openSheet({type:'report',id:el.dataset.v}),
+  'rep-goto':(el)=>{S.tab='routinen';S.rfolder='coach';S.rclient=el.dataset.v;S.sheet=null;renderAll()},
+  'rep-del':(el)=>openSheet({type:'confirm',title:'Zwischenstand löschen?',text:'Nur diese Auswertung wird gelöscht.',yes:'Löschen',act:'rep-del-ok',v:el.dataset.v,danger:true}),
+  'rep-del-ok':(el)=>{saveReports(reportsAll().filter(r=>r.id!==el.dataset.v));closeSheet();renderMain()},
   'week-open':()=>{S.weekF=null;openSheet({type:'week'})},
   'week-f':(el)=>{const v=el.dataset.v;S.weekF=S.weekF===v?null:v;renderSheet()},
   'week-export':()=>weekExport(),
@@ -1199,6 +1251,7 @@ document.addEventListener('input',e=>{
   else if(k==='exq'){S.exq=el.value;$('#exlist').innerHTML=exList()}
   else if(k==='pq'){S.pq=el.value;$('#plist').innerHTML=pList()}
   else if(k==='rname'){S.edit.name=el.value}
+  else if(k==='co-name'||k==='co-coach'){const c=coachCfg();c[k==='co-name'?'name':'coach']=el.value;setCoachCfg(c)}
   else if(k==='rnote'){S.edit.note=el.value;grow(el)}
   else if(k==='rxvar'){const e=S.edit.exercises[+el.dataset.i];e.name=baseName(e.name)+(el.value.trim()?' · '+el.value.trim():'')}
   else if(k==='rxtgt'){S.edit.exercises[+el.dataset.i].target=el.value.replace(/^x/i,'').trim()}
@@ -1313,6 +1366,7 @@ async function importCSV(txt){closeSheet();STRONG_CUTOFF=S.workouts.some(w=>w.im
 $('#csvIn').addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(f)importCSV(await f.text())});
 async function importAny(f){const txt=await f.text();const t=txt.trim();
  if(t[0]==='{'||t[0]==='['){let d;try{d=JSON.parse(t)}catch(e){return toast('Die Datei ist beschädigt.')}
+  if(d&&d.app==='repit-report'&&Array.isArray(d.workouts)){closeSheet();S.repCl=null;return openSheet({type:'report',pl:d})}
   if(d&&d.app==='hantelbuch'&&Array.isArray(d.routines)){closeSheet();return openSheet({type:'planin',pl:d})}
   if(d&&Array.isArray(d.workouts)&&Array.isArray(d.routines))return backupIn(d);
   return toast('Diese Datei kennt REPIT nicht.')}
