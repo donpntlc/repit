@@ -238,7 +238,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 14:45';
+var SOLGYM_V='31.10. 15:05';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -387,7 +387,7 @@ function hookBars(id,items,ro,def){
     var rects=svg.querySelectorAll('rect[data-i]');for(var i=0;i<rects.length;i++){var b=rects[i].getBoundingClientRect();if(cx>=b.left&&cx<b.right){
       var it=items[i];out.innerHTML=it.tip;var bx=+rects[i].getAttribute('x')+(+rects[i].getAttribute('width'))/2;hl.setAttribute('x1',bx);hl.setAttribute('x2',bx);hl.setAttribute('visibility','visible');return}}}
   svg.addEventListener('pointermove',at);svg.addEventListener('pointerdown',at);
-  svg.addEventListener('pointerleave',function(){hl.setAttribute('visibility','hidden');out.innerHTML=def});
+  svg.addEventListener('pointerleave',function(ev){if(ev.pointerType!=='mouse')return;hl.setAttribute('visibility','hidden');out.innerHTML=def});
 }
 function hookLine(id,pts,ch,ro,def){
   var svg=document.getElementById(id),out=document.getElementById(ro);if(!svg)return;out.innerHTML=def;
@@ -398,7 +398,7 @@ function hookLine(id,pts,ch,ro,def){
     hd.setAttribute('cx',x);hd.setAttribute('cy',y);hd.setAttribute('visibility','visible');
     out.innerHTML=ddmm(p.day)+' · <b>'+fmt1(p.v)+' kg</b> <span>('+p.src+')</span>'}
   svg.addEventListener('pointermove',at);svg.addEventListener('pointerdown',at);
-  svg.addEventListener('pointerleave',function(){hl.setAttribute('visibility','hidden');hd.setAttribute('visibility','hidden');out.innerHTML=def});
+  svg.addEventListener('pointerleave',function(ev){if(ev.pointerType!=='mouse')return;hl.setAttribute('visibility','hidden');hd.setAttribute('visibility','hidden');out.innerHTML=def});
 }
 
 function renderAll(){
