@@ -96,6 +96,16 @@ Anstrengung 1–4 neu (Zu leicht · Letzte unsauber · Nur halb geschafft · All
 ### Erledigt 29.10. (APPV „29.10. 17:45“)
 Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis lesbar, „Ziel heute“-Hinweis je nach Fall (alle Stufe 2 → gleiche Wdh. sauber; gemischt → Satz für Satz).
 
+### Erledigt 31.10. (REPIT, APPV „31.10. 19:55“)
+- Alle Übungsbilder fertig (Mann + Frau im neuen Outfit, Cardio, Kampfsport, eigene Übungen); neue Bilder in 1024 px. Bankdrücken Langhantel Mann (war Frau) ersetzt.
+- Umbenennungen inkl. Verlauf: „Chest Press (Band)“ → „Chest Press (Cable)“ (`cpc1`), „Chest Press Band 2. (to the ground)“ → „Chest Press Cable 2. (to the ground)“ (`cpc2`, eigene Übung: stehend, Rollen ganz oben, nach unten zu den Füssen drücken, untere Brust). Chest Press Cable: Daumen innen.
+- Reverse Butterfly: Brust an kleiner Bank (90°), Blick zum Turm, Kabel überkreuzt, ohne Griffe (Kabelkugel), Zug nach aussen-unten ca. 75°.
+- Wochenbericht: besser/gleich/schlechter/neu antippen filtert.
+- **Routine antippen** = Ansicht `rview` (Bilder links, Ziel, Startgewichte, Notiz; Start/Bearbeiten). Im Editor Übung antippen → `rx`: Variante, Ziel, Startgewichte pro Satz (`plan`), Pause, Notiz.
+- **Vorlagen-Ordner:** Knopf „Vorlagen“ → `tlist`. App-Vorlagen `appTpls()` gold mit „SOL-Vorlage“ („Dons Training“ = SPLIT6); eigene Coach-Vorlagen `S.tpls` (in `hantelbuch.v1` → `tpls`) grau. `tview`: Trainingstage, „+ Trainingstag“, „Übernehmen für“ Mich/Kunde (Kopie), löschen. Dons Training übernimmt über Level/Körpergewicht (`applySplit`, Ziel `S.tplTarget`).
+- **Kunde löschen** (Link in der Kunden-Rubrik; löscht seine Routinen, Vorlagen bleiben).
+- **Nur merken:** ältere 640-px-Bilder in 1024 px aus den ChatGPT-Chats neu holen, wenn Kapazität da ist. Bild „Lat Pull (Single Arm) - Front“ wartet auf Deans Foto.
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
