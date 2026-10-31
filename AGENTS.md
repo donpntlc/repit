@@ -13,6 +13,7 @@
 - **Lösche nie seine Trainingsdaten.** Ändere nie die localStorage-Schlüssel `hantelbuch.*` (sonst sind alle Daten der Nutzer weg).
 - Nach jeder Änderung: in der Daten-Ansicht die Versionsnummer hochzählen (`Version TT.MM. HH:MM` in `sData()`), damit Dean auf dem Handy sieht, ob die neue Version da ist.
 - Teste jede Änderung in einer Handy-Ansicht (390 × 844), bevor du pushst.
+- **Achtung APPV:** `const APPV='…'` kommt ein zweites Mal im Regex der Update-Prüfung vor (`t.match(/const APPV='([^']+)'/)`). Beim Hochzählen nur das **erste** Vorkommen ersetzen (nie `sed` ohne Zähler), sonst startet die App nicht mehr (31.10. passiert).
 
 ## 0b. Arbeitsweise (so hat Claude bisher mit Dean gearbeitet, bitte genauso)
 1. **Erst kurz sagen, was du machst, dann direkt machen.** Nicht lange planen oder nachfragen, wenn die Aufgabe klar ist. Nur bei echten Unklarheiten **eine** kurze Frage.
