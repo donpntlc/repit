@@ -164,6 +164,26 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 .hlogo .dash{width:16px;height:4px;margin:6px 10px 0}
 .lg .w .sol,.lg .w b{font-size:22px;line-height:1}
 .lg .w .dash{width:7px;height:2px;margin:2px 5px 0}
+
+/* Anleitung: Daten umziehen */
+#guide{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;
+  padding:calc(env(safe-area-inset-top,0px) + 8px) 16px calc(env(safe-area-inset-bottom,0px) + 32px)}
+#guide.on{display:block}
+#guide .gh{display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg);padding:8px 0 12px;z-index:2}
+#guide .gh h1{font-size:20px;font-weight:700;margin:0;flex:1}
+#guide .x{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;font:inherit;font-weight:700;padding:8px 14px;cursor:pointer}
+#guide .lead{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 16px}
+.gbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 6px;margin-bottom:14px}
+.gbox .gt{font-family:"Roboto",system-ui,sans-serif;font-weight:900;font-size:20px;letter-spacing:.06em;margin-bottom:2px}
+.gbox .gt b{color:var(--gold)}
+.gbox .gs{font-size:13px;color:var(--muted);margin-bottom:10px}
+.gstep{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--grid)}
+.gstep .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#17130a;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+.gstep .tx{font-size:14.5px;line-height:1.45}
+.gstep .tx .w{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.gstep .tx b{color:var(--gold-hi)}
+.gtip{font-size:13px;line-height:1.5;color:var(--muted);border-left:3px solid var(--gold);padding:4px 0 4px 10px;margin:4px 0 14px}
+.glink{appearance:none;background:none;border:0;padding:0;margin-top:12px;color:var(--gold);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -203,8 +223,10 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
     <span class="ar">›</span>
   </button>
   <div class="hint"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>Wechseln: oben links aufs Logo tippen.</div>
+  <button class="glink" data-guide>Daten aus REPIT &amp; SOL Tracker holen ›</button>
 </section>
 
+<section id="guide" aria-label="Daten umziehen"><div class="gh"><h1>Daten in SOL-GYM holen</h1><button class="x" data-guide-close>Fertig</button></div><p class="lead">Einmal machen, ca. 2 Minuten. Pro App: <b>in der alten App sichern</b> und <b>in SOL-GYM laden</b>. Die alten Apps bleiben dabei unverändert.</p><div class="gbox"><div class="gt">REP<b>IT.</b></div><div class="gs">Training</div><div class="gstep"><span class="n">1</span><div class="tx"><span class="w">Alte REPIT-App</span><br>Unten <b>Verlauf</b> → oben rechts <b>Daten</b> → <b>Backup speichern</b>.</div></div><div class="gstep"><span class="n">2</span><div class="tx"><span class="w">Teilen-Menü</span><br><b>In Dateien sichern</b> wählen und speichern.</div></div><div class="gstep"><span class="n">3</span><div class="tx"><span class="w">SOL-GYM → REPIT</span><br>Unten <b>Verlauf</b> → <b>Daten importieren</b> (steht in der Mitte, solange noch nichts drin ist; sonst oben rechts <b>Daten</b>).</div></div><div class="gstep"><span class="n">4</span><div class="tx"><span class="w">Dateien</span><br>Die Datei <b>REPIT-Backup-…</b> antippen. Fertig: deine Trainings sind da.</div></div></div><div class="gbox"><div class="gt">PREP<b>IT.</b></div><div class="gs">Ernährung (die alte App heisst „SOL Tracker“)</div><div class="gstep"><span class="n">1</span><div class="tx"><span class="w">Alte SOL-Tracker-App</span><br>Einmal ganz schliessen und neu öffnen (damit sie aktuell ist). Unten <b>Einstellungen</b> → ganz oben <b>Daten sichern (Datei)</b>.</div></div><div class="gstep"><span class="n">2</span><div class="tx"><span class="w">Teilen-Menü</span><br><b>In Dateien sichern</b> wählen und speichern.</div></div><div class="gstep"><span class="n">3</span><div class="tx"><span class="w">SOL-GYM → PREPIT</span><br>Unten <b>Einstellungen</b> → <b>Daten laden (Datei)</b> → <b>Datei wählen</b>.</div></div><div class="gstep"><span class="n">4</span><div class="tx"><span class="w">Dateien</span><br>Die Datei <b>PREPIT-Backup-…</b> antippen. PREPIT startet kurz neu, dann sind alle Daten da.</div></div></div><div class="gtip"><b>Wichtig:</b> Danach nur noch in SOL-GYM tracken. Trägst du weiter in den alten Apps ein, landen die Daten nicht automatisch in SOL-GYM.</div><div class="gtip">PREPIT ersetzt beim Laden die Ernährungsdaten in SOL-GYM durch die aus der Datei. Also am besten zuerst umziehen und erst dann in SOL-GYM loslegen. REPIT ergänzt nur, da geht nichts verloren.</div></section>
 <div id="chooser" aria-hidden="true">
   <div class="bd" data-close></div>
   <div class="sh" role="dialog" aria-label="Bereich wählen">
@@ -216,7 +238,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 13:10';
+var SOLGYM_V='31.10. 13:40';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -262,6 +284,9 @@ function closeChooser(){$('#chooser').classList.remove('on');$('#chooser').setAt
 document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
 $('[data-close]').addEventListener('click',function(){if(Date.now()-OPENED>450)closeChooser()});
 $('[data-choose]').addEventListener('click',openChooser);
+function openGuide(){$('#guide').classList.add('on');$('#guide').scrollTop=0}
+document.addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('[data-guide]');if(g){openGuide()}
+  if(e.target.closest&&e.target.closest('[data-guide-close]'))$('#guide').classList.remove('on')});
 // Tipp aufs Logo in REPIT oder PREPIT schickt „solgym:switch“ → Auswahl zeigen.
 var DIRECT=0;
 addEventListener('message',function(e){
@@ -453,10 +478,8 @@ function renderAll(){
   // Daten holen
   h+='<h2>Daten in SOL-GYM holen</h2><div class="card">';
   h+='<div class="src"><span class="pill'+(rep.workouts.length?' ok':'')+'">REPIT: '+rep.workouts.length+' Trainings</span><span class="pill'+(prep.has?' ok':'')+'">PREPIT: '+Object.keys(prep.days).length+' Tage</span></div>';
-  h+='<ol class="steps" style="margin-top:12px">';
-  h+='<li><b>REPIT:</b> In der alten REPIT-App → Verlauf → Daten → <b>Backup speichern</b>. Dann hier in SOL-GYM → REPIT → Verlauf → Daten → <b>Daten importieren</b> und die Datei wählen.</li>';
-  h+='<li><b>PREPIT:</b> In der alten PREPIT-App → Einstellungen → <b>Daten sichern (Datei)</b>. Dann hier in SOL-GYM → PREPIT → Einstellungen → <b>Daten laden (Datei)</b>.</li>';
-  h+='</ol><div class="note">Deine alten Apps bleiben dabei unverändert. Danach nur noch SOL-GYM benutzen, sonst laufen die Daten wieder auseinander.</div></div>';
+  h+='<div class="note" style="margin-top:10px">Ziehe einmal deine Daten aus den alten Apps hierher. Dauert ca. 2 Minuten.</div>';
+  h+='<button class="glink" data-guide>Schritt-für-Schritt-Anleitung öffnen ›</button></div>';
   $('#allBody').innerHTML=h;
 
   if(window._kItems&&document.getElementById('chK'))hookBars('chK',window._kItems,'roK','<span>Tippe auf einen Balken für Details.</span>');
