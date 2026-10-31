@@ -76,6 +76,8 @@ h3{font-family:var(--f-display);font-weight:600;font-size:19px;letter-spacing:.0
 .timer{font-family:var(--f-display);font-size:20px;color:var(--gold)}
 .ex{padding:12px 12px 8px}
 .exthumb{width:64px;height:43px;border-radius:8px;object-fit:cover;flex:none;background:#000;border:1px solid var(--line)}
+textarea.field{font-family:inherit}
+.tcard{display:flex;width:100%;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);text-align:left;font:inherit;cursor:pointer}.tcard .name{font-weight:800}.tcard:not(.app) .name{color:#cfc9bd}.tcard.app{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,162,74,.16),rgba(201,162,74,.03))}.tcard.app .name{color:var(--gold-hi)}.ttag{display:inline-block;margin-left:8px;font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--gold-ink);background:var(--gold);border-radius:999px;padding:2px 7px;vertical-align:2px}.rvli{cursor:pointer;align-items:center}.rvli .lithumb{width:56px;height:56px}.rcard{cursor:pointer}.rxset{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.rxset .field{margin:0;flex:1;min-width:0}
 .lithumb{width:54px;height:36px;border-radius:6px;object-fit:cover;flex:none;background:#000;margin-right:10px;border:1px solid var(--line)}
 .exhero{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:12px;display:block;margin:10px 0 6px;background:#000;border:1px solid var(--line)}
 .ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -293,10 +295,10 @@ const catOf=n=>(LIB.find(x=>x[0]===n)||S.custom.find(x=>x[0]===n)||LIB.find(x=>x
 /* ---------- Speicherung ---------- */
 const LS='hantelbuch.v1';
 function lsLoad(){try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}}
-function lsSave(){if(refs)return;try{localStorage.setItem(LS,JSON.stringify({routines:S.routines,custom:S.custom,seeded:S.seeded||[],gear:S.gear||{},goal:S.goal||null,workouts:S.workouts,body:S.body.map(b=>({...b,photos:(b.photos||[]).filter(p=>String(p.id).startsWith('local-'))})),active:S.active,restDefault:S.restDefault}))}catch(e){}}
+function lsSave(){if(refs)return;try{localStorage.setItem(LS,JSON.stringify({routines:S.routines,custom:S.custom,seeded:S.seeded||[],tpls:S.tpls||[],gear:S.gear||{},goal:S.goal||null,workouts:S.workouts,body:S.body.map(b=>({...b,photos:(b.photos||[]).filter(p=>String(p.id).startsWith('local-'))})),active:S.active,restDefault:S.restDefault}))}catch(e){}}
 const queues={};
 function q(key,fn){const p=(queues[key]||Promise.resolve()).then(fn).catch(e=>{console.warn(e);toast(e&&e.code==='quota_exceeded'?'Speicher voll. Lösche alte Einträge.':'Speichern fehlgeschlagen. Prüfe deine Verbindung.')});queues[key]=p;return p}
-function saveMeta(){if(refs){const d=clone({routines:S.routines,custom:S.custom,gear:S.gear||{},goal:S.goal||null,restDefault:S.restDefault,seeded:S.seeded||[],soundId:S.soundId||null,soundRaw:!!S.soundRaw});q('meta',()=>refs.meta.set(d))}else lsSave()}
+function saveMeta(){if(refs){const d=clone({routines:S.routines,tpls:S.tpls||[],custom:S.custom,gear:S.gear||{},goal:S.goal||null,restDefault:S.restDefault,seeded:S.seeded||[],soundId:S.soundId||null,soundRaw:!!S.soundRaw});q('meta',()=>refs.meta.set(d))}else lsSave()}
 let actT;function saveActive(now){clearTimeout(actT);const go=()=>{if(refs){const a=S.active?clone(S.active):null;q('active',()=>a?refs.active.set({w:a}):refs.active.delete())}else lsSave()};now?go():actT=setTimeout(go,600)}
 function saveWorkout(w){if(refs){const d=clone(w);return q('w'+w.id,()=>refs.workouts.doc(w.id).set(d))}lsSave();return Promise.resolve()}
 function delWorkout(id){S.workouts=S.workouts.filter(w=>w.id!==id);if(refs)q('w'+id,()=>refs.workouts.doc(id).delete());else lsSave()}
@@ -325,13 +327,13 @@ async function init(){
     refs={meta,active:d.doc(base+'/active'),workouts:meta.collection('workouts'),body:meta.collection('body')};
     let n=0;const ready=()=>{if(++n===3){S.ready=true;renderAll()}};
     let m1=false,m2=false,m3=false;
-    meta.onSnapshot(s=>{const v=s.data()||{};S.routines=clone(v.routines||[]);S.custom=clone(v.custom||[]);S.gear=clone(v.gear||{});S.goal=v.goal||null;if(v.restDefault)S.restDefault=v.restDefault;S.seeded=v.seeded||[];if(v.soundId!==S.soundId){S.soundId=v.soundId||null;S.soundRaw=!!v.soundRaw;customBuf=null;if(rawEl){rawEl.remove();rawEl=null}if(S.soundRaw)loadRaw()}if(!m1){m1=true;seedRoutines();ready()}else soft()},fail);
+    meta.onSnapshot(s=>{const v=s.data()||{};S.routines=clone(v.routines||[]);S.tpls=clone(v.tpls||[]);S.custom=clone(v.custom||[]);S.gear=clone(v.gear||{});S.goal=v.goal||null;if(v.restDefault)S.restDefault=v.restDefault;S.seeded=v.seeded||[];if(v.soundId!==S.soundId){S.soundId=v.soundId||null;S.soundRaw=!!v.soundRaw;customBuf=null;if(rawEl){rawEl.remove();rawEl=null}if(S.soundRaw)loadRaw()}if(!m1){m1=true;seedRoutines();ready()}else soft()},fail);
     refs.workouts.orderBy('start','desc').limit(1000).onSnapshot(s=>{S.workouts=s.docs.map(x=>x.data());if(!m2){m2=true;ready()}else soft()},fail);
     refs.body.orderBy('date','desc').limit(1000).onSnapshot(s=>{S.body=s.docs.map(x=>clone(x.data()));if(!m3){m3=true;ready()}else soft()},fail);
     try{const a=await refs.active.get();if(a.exists&&a.data().w)S.active=clone(a.data().w)}catch(e){}
     if(S.ready)renderAll();
   }else{
-    const v=lsLoad();Object.assign(S,{routines:v.routines||[],custom:v.custom||[],workouts:v.workouts||[],body:v.body||[],active:v.active||null,restDefault:v.restDefault||90,seeded:v.seeded||[],gear:v.gear||{},goal:v.goal||null,ready:true,canPhotos:true});
+    const v=lsLoad();Object.assign(S,{routines:v.routines||[],tpls:v.tpls||[],custom:v.custom||[],workouts:v.workouts||[],body:v.body||[],active:v.active||null,restDefault:v.restDefault||90,seeded:v.seeded||[],gear:v.gear||{},goal:v.goal||null,ready:true,canPhotos:true});
     seedRoutines();renderAll();
   }
   $('#store').textContent=S.mode==='cloud'?'In deinem Konto gespeichert':'Nur auf diesem Gerät gespeichert';
@@ -387,7 +389,7 @@ function rLabel(){if(!S.rlabel){try{S.rlabel=localStorage.getItem('hantelbuch.rl
 function nextRid(list){if(!list||list.length<2)return list&&list[0]?list[0].id:null;const ids=list.map(r=>r.id);const w=S.workouts.find(w=>ids.includes(w.routineId));if(!w)return list[0].id;return ids[(ids.indexOf(w.routineId)+1)%ids.length]}
 function routineCard(r,i,list){const lt=lastRoutine(r);const day=rLabel()==='day';const today=WD[(new Date().getDay()+6)%7];const isNext=Array.isArray(list)&&r.folder!=='coach'&&(day&&list.some(x=>x.day)?r.day===today:nextRid(list)===r.id);
  const badge=Array.isArray(list)?(day?`<button class="rbadge" data-act="r-day" data-v="${r.id}" aria-label="Wochentag wählen">${r.day?esc(r.day):'+ Tag'}</button>`:`<span class="rbadge">${i+1}</span>`):'';
- return `<div class="card rcard${isNext?' next':''}"><div class="rtop">${badge}${isNext?`<span class="nexttag">${day&&list.some(x=>x.day)?'Heute':'Als Nächstes'}</span>`:''}${r.week?`<span class="muted mini" style="margin-left:auto;font-weight:800">${r.week}</span>`:''}</div><h3>${esc(r.name)}</h3><div class="mini" style="color:${lt?'var(--gold)':'var(--muted)'}">${lt?'Zuletzt '+ago(lt):'Noch nie gemacht'}</div><div class="muted mini">${r.exercises.length} Übungen</div><div class="rfoot"><button class="btn gold sm" data-act="start-r" data-v="${r.id}">Start</button><button class="btn ghost sm" data-act="r-edit" data-v="${r.id}" aria-label="Routine bearbeiten">✎</button></div></div>`}
+ return `<div class="card rcard${isNext?' next':''}" data-act="r-view" data-v="${r.id}"><div class="rtop">${badge}${isNext?`<span class="nexttag">${day&&list.some(x=>x.day)?'Heute':'Als Nächstes'}</span>`:''}${r.week?`<span class="muted mini" style="margin-left:auto;font-weight:800">${r.week}</span>`:''}</div><h3>${esc(r.name)}</h3><div class="mini" style="color:${lt?'var(--gold)':'var(--muted)'}">${lt?'Zuletzt '+ago(lt):'Noch nie gemacht'}</div><div class="muted mini">${r.exercises.length} Übungen</div><div class="rfoot"><button class="btn gold sm" data-act="start-r" data-v="${r.id}">Start</button><button class="btn ghost sm" data-act="r-edit" data-v="${r.id}" aria-label="Routine bearbeiten">✎</button></div></div>`}
 function routineCardOld(r){const lt=lastRoutine(r);return `<div class="card"><div class="spread"><h3>${esc(r.name)}</h3><button class="btn text sm" data-act="r-edit" data-v="${r.id}">Bearbeiten</button></div>
 <div class="mini" style="margin-top:2px;color:${lt?'var(--gold)':'var(--muted)'}">${lt?'Zuletzt '+ago(lt)+' · '+fDate(lt):'Noch nie gemacht'}</div>
 <div class="muted mini" style="margin:6px 0 12px">${r.exercises.map(e=>`${e.sets} × ${esc(e.name)}${(e.target||TARGETS[e.name])?` <span style="color:var(--gold)">x${esc(String(e.target||TARGETS[e.name]).replace(/^x/i,''))}</span>`:''}`).join(' · ')||'Noch keine Übungen'}</div>
@@ -405,7 +407,7 @@ function vTraining(){
   <div class="sep"></div>
   <div class="spread mini"><span class="muted">Standard-Pause</span><button class="chip on" data-act="rest-default">${mmss(S.restDefault)} ändern</button></div>`;
 }
-function emptyRoutines(){return `<div class="empty"><strong>Noch keine Routinen</strong>Leg deine Trainingstage an, z. B. Legday Kraft und Legday Athletik.<div class="row" style="justify-content:center;margin-top:12px"><button class="btn gold sm" data-act="r-new">Routine erstellen</button><button class="btn ghost sm" data-act="tpl-open">6er-Split übernehmen</button></div></div>`}
+function emptyRoutines(){return `<div class="empty"><strong>Noch keine Routinen</strong>Leg deine Trainingstage an, z. B. Legday Kraft und Legday Athletik.<div class="row" style="justify-content:center;margin-top:12px"><button class="btn gold sm" data-act="r-new">Routine erstellen</button><button class="btn ghost sm" data-act="tl-open">Vorlage wählen</button></div></div>`}
 
 function curIdx(){const x=S.active?S.active.exercises:[];if(S.active&&S.active.hold!=null){if(S.rest&&x[S.active.hold])return S.active.hold;delete S.active.hold}const f=x.findIndex(e=>e.sets.length&&e.sets.some(s=>!s.done));if(f<0||!x[f].ss)return f;
  let best=f,bd=1e9;x.forEach((e,i)=>{if(e.ss!==x[f].ss||!e.sets.some(s=>!s.done))return;const d=e.sets.filter(s=>s.done).length;if(d<bd){bd=d;best=i}});return best}
@@ -489,9 +491,9 @@ function sClient(){return `<div class="eyebrow">Coach</div><h2 style="margin-top
 function vRoutines(){const list=myRoutines(),coach=S.rfolder==='coach';
   return `<div class="row" style="gap:6px;margin-bottom:10px"><button class="chip ${!coach?'on':''}" data-act="rf" data-v="mine">Meine Trainings</button><button class="chip ${coach?'on':''}" data-act="rf" data-v="coach">Für Kunden (Coach)</button></div>
   ${coach?`<div class="cats" style="margin-bottom:8px"><button class="chip ${!S.rclient?'on':''}" data-act="rc" data-v="">Alle Kunden</button>${clients().map(c=>`<button class="chip ${S.rclient===c?'on':''}" data-act="rc" data-v="${esc(c)}">${esc(c)}</button>`).join('')}<button class="chip" data-act="cl-new">+ Kunde</button></div>
-  <div class="muted mini" style="margin-bottom:10px">${S.rclient?`Trainings für ${esc(S.rclient)}. Neue Trainings und die Vorlage landen direkt hier. „Plan teilen“ schickt ${esc(S.rclient)} alles auf einmal.`:'Lege pro Kunde eine Rubrik an. Seine Trainings mischen sich nicht mit deinen eigenen. Über „Plan teilen“ schickst du sie als Datei oder Link.'}</div>`:''}
+  <div class="muted mini" style="margin-bottom:10px">${S.rclient?`Trainings für ${esc(S.rclient)}. Neue Trainings und die Vorlage landen direkt hier. „Plan teilen“ schickt ${esc(S.rclient)} alles auf einmal. <button class="btn text sm" style="padding:0;color:var(--bad)" data-act="cl-del" data-v="${esc(S.rclient)}">Kunde löschen</button>`:'Lege pro Kunde eine Rubrik an. Seine Trainings mischen sich nicht mit deinen eigenen. Über „Plan teilen“ schickst du sie als Datei oder Link.'}</div>`:''}
   <div class="spread"><h2>${coach?esc(S.rclient||'Kunden'):'Routinen'}</h2><span class="row" style="gap:6px;flex-wrap:nowrap">${list.length>1?'<button class="btn text sm" data-act="ro-open">Reihenfolge</button>':''}<button class="btn gold sm" style="white-space:nowrap" data-act="r-new">+ Neu</button></span></div>
-  <div class="row" style="gap:8px;margin-bottom:12px;flex-wrap:nowrap"><button class="btn ghost" style="flex:1" data-act="tpl-open">6er-Split Vorlage</button>${list.length?'<button class="btn ghost" style="flex:1" data-act="share-open">Plan teilen</button>':''}</div>
+  <div class="row" style="gap:8px;margin-bottom:12px;flex-wrap:nowrap"><button class="btn ghost" style="flex:1" data-act="tl-open">Vorlagen</button>${list.length?'<button class="btn ghost" style="flex:1" data-act="share-open">Plan teilen</button>':''}</div>
   ${!coach&&list.length>1?`<div class="spread" style="margin-bottom:10px"><span class="row" style="gap:6px"><button class="chip ${rLabel()!=='day'?'on':''}" data-act="r-label" data-v="num">1 · 2 · 3</button><button class="chip ${rLabel()==='day'?'on':''}" data-act="r-label" data-v="day">Wochentage</button></span></div>`:''}
   ${!coach?weekBar():''}${list.length?`<div class="rgrid">${(coach?list:weekFilter(list)).map(routineCard).join('')}</div>`:emptyRoutines()}
   ${!coach?`<button class="btn ghost full" style="margin-top:14px" data-act="rest-default">Pause &amp; Timer-Ton einstellen</button>`:''}
@@ -594,7 +596,7 @@ function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
   sh.hidden=false;bd.hidden=false;
-  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear})[S.sheet.type];
+  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView})[S.sheet.type];
   sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);
 }
 function sPicker(){
@@ -631,17 +633,52 @@ function sRestDefault(){return `<h2>Pause &amp; Timer-Ton</h2><div class="eyebro
 <button class="btn ghost full" style="margin-top:8px" data-act="sound-pick">${(S.soundId||customBuf||rawEl)?'Anderen Sound wählen':'Eigenen Sound wählen'}</button>${(S.soundId||customBuf||rawEl)?'<button class="btn text full" style="margin-top:4px" data-act="sound-reset">Standard-Sound verwenden</button>':''}${(S.soundId||customBuf||rawEl)?`<div class="eyebrow" style="margin:14px 0 6px">Wie soll dein Ton klingen?</div><div class="row" style="gap:6px"><button class="chip ${soundMode()!=='replace'?'on':''}" data-act="sound-mode" data-v="before">Eigener Ton, dann Glocke</button><button class="chip ${soundMode()==='replace'?'on':''}" data-act="sound-mode" data-v="replace">Nur eigener Ton</button></div>`:''}<div class="muted mini" style="margin-top:8px">Audio oder Video vom Handy wählen, der Ton wird übernommen. Du kannst ihn vor die Glocke setzen oder die Glocke ganz ersetzen.</div>`}
 function sRoutine(){
   const r=S.edit;
-  return `<div class="spread"><h2>${r.isNew?'Neue Routine':'Routine bearbeiten'}</h2><button class="btn text" data-act="close">Abbrechen</button></div>
+  return `<div class="spread"><h2>${r._tpl?(r.isNew?'Neuer Trainingstag':'Trainingstag bearbeiten'):r.isNew?'Neue Routine':'Routine bearbeiten'}</h2><button class="btn text" data-act="close">Abbrechen</button></div>
   <input class="field" id="rname" data-in="rname" value="${esc(r.name)}" placeholder="Name, z. B. Legday Kraft">
-  ${r.folder==='coach'&&clients().length?`<div class="eyebrow" style="margin-top:10px">Kunde</div><div class="cats" style="margin-top:6px">${clients().map(c=>`<button class="chip ${r.client===c?'on':''}" data-act="r-client" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
-  ${r.folder!=='coach'?`<div class="eyebrow" style="margin-top:10px">Gilt für</div><div class="row" style="gap:6px;margin-top:6px">${[['','Jede Woche'],['A','Woche A'],['B','Woche B']].map(([k,l])=>`<button class="chip ${(r.week||'')===k?'on':''}" data-act="r-week" data-v="${k}">${l}</button>`).join('')}</div><div class="muted mini" style="margin-top:4px">Für Wochenwechsel, z. B. Woche A Kraft, Woche B Athletik. Die App zeigt automatisch die Routinen der aktuellen Woche.</div>`:''}
-  <div class="list" style="margin-top:8px">${r.exercises.map((e,i)=>`<div class="li"><span class="name" data-act="ex-open" data-v="${esc(e.name)}" style="cursor:pointer">${exTitle(e.name)}${isWarmEx(e.name)?'<span class="rtag w">Aufwärmen</span>':''}${e.ss?`<span class="rtag s">${r.exercises.filter(x=>x.ss===e.ss).length>2?'Zirkel':'Supersatz'}</span>`:''}</span>
-  <span class="row" style="flex-wrap:nowrap;gap:4px"><button class="btn ghost sm" data-act="r-sets" data-i="${i}" data-v="-1" aria-label="Satz weniger">−</button><span class="num" style="min-width:52px;text-align:center">${e.sets} Sätze</span><button class="btn ghost sm" data-act="r-sets" data-i="${i}" data-v="1" aria-label="Satz mehr">+</button>
-  <button class="btn text sm" data-act="r-up" data-i="${i}" aria-label="Nach oben">↑</button><button class="btn text sm" data-act="r-rm" data-i="${i}" aria-label="Entfernen" style="color:var(--bad)">✕</button></span></div>`).join('')||'<div class="muted mini" style="padding:12px 0">Füge die erste Übung hinzu.</div>'}</div>
+  <textarea class="field" data-in="rnote" placeholder="Notiz zur Routine (optional)" style="margin-top:8px">${esc(r.note||'')}</textarea>
+  ${!r._tpl&&r.folder==='coach'&&clients().length?`<div class="eyebrow" style="margin-top:10px">Kunde</div><div class="cats" style="margin-top:6px">${clients().map(c=>`<button class="chip ${r.client===c?'on':''}" data-act="r-client" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>`:''}
+  ${!r._tpl&&r.folder!=='coach'?`<div class="eyebrow" style="margin-top:10px">Gilt für</div><div class="row" style="gap:6px;margin-top:6px">${[['','Jede Woche'],['A','Woche A'],['B','Woche B']].map(([k,l])=>`<button class="chip ${(r.week||'')===k?'on':''}" data-act="r-week" data-v="${k}">${l}</button>`).join('')}</div><div class="muted mini" style="margin-top:4px">Für Wochenwechsel, z. B. Woche A Kraft, Woche B Athletik. Die App zeigt automatisch die Routinen der aktuellen Woche.</div>`:''}
+  <div class="list" style="margin-top:8px">${r.exercises.map((e,i)=>`<div class="li" style="display:block;padding:10px 0"><div data-act="rx-open" data-i="${i}" style="display:flex;align-items:center;cursor:pointer;min-width:0">${imgTag(e.name,'lithumb')}<span style="flex:1;min-width:0"><span class="name">${exTitle(e.name)}</span>${isWarmEx(e.name)?'<span class="rtag w">Aufwärmen</span>':''}${e.ss?`<span class="rtag s">${r.exercises.filter(x=>x.ss===e.ss).length>2?'Zirkel':'Supersatz'}</span>`:''}<span class="muted mini" style="display:block">${[e.target?'Ziel x'+esc(String(e.target).replace(/^x/i,'')):'',planTxt(e)].filter(Boolean).join(' · ')||'Antippen: Variante, Ziel, Gewichte'}</span></span><span style="color:var(--muted);font-size:20px;margin-left:6px">›</span></div>
+  <div class="row" style="flex-wrap:nowrap;gap:4px;margin-top:6px;justify-content:flex-end"><button class="btn ghost sm" data-act="r-sets" data-i="${i}" data-v="-1" aria-label="Satz weniger">−</button><span class="num" style="min-width:60px;text-align:center">${e.sets} Sätze</span><button class="btn ghost sm" data-act="r-sets" data-i="${i}" data-v="1" aria-label="Satz mehr">+</button>
+  <button class="btn text sm" data-act="r-up" data-i="${i}" aria-label="Nach oben">↑</button><button class="btn text sm" data-act="r-rm" data-i="${i}" aria-label="Entfernen" style="color:var(--bad)">✕</button></div></div>`).join('')||'<div class="muted mini" style="padding:12px 0">Füge die erste Übung hinzu.</div>'}</div>
   <div class="stack" style="margin-top:12px"><button class="btn ghost full" data-act="add-ex-r">+ Übung hinzufügen</button>
-  <button class="btn gold full" data-act="r-save">Routine speichern</button>
+  <button class="btn gold full" data-act="r-save">${r._tpl?'Trainingstag speichern':'Routine speichern'}</button>
   ${r.isNew?'':`<button class="btn danger full" data-act="r-del">Routine löschen</button>`}</div>`;
 }
+/* ---------- Vorlagen-Ordner + Routine-Ansicht ---------- */
+function appTpls(){return [{id:'app-split6',app:true,name:'Dons Training',sub:'6er-Split · Startgewichte nach Level und Körpergewicht',days:SPLIT6.map(r=>({id:'s6-'+r.k,name:r.name,note:PO_TXT,exercises:r.ex.map(e=>({name:e.n,target:e.t,sets:e.p.length,rest:e.r,plan:e.p.map(([kg,reps,rest])=>({kg:kg?String(kg):'',reps:String(reps||''),rest}))}))}))}]}
+function allTpls(){return appTpls().concat(S.tpls||[])}
+function tplById(id){return allTpls().find(t=>t.id===id)}
+function planTxt(e){const p=(e.plan||[]).slice(0,e.sets||99).filter(x=>x&&(x.kg||x.reps));if(!p.length)return '';return p.map(x=>(x.kg?fmt(num(x.kg))+' kg':'')+(x.reps?(x.kg?' × ':'')+x.reps:'')).join(' · ')}
+function exRows(list){return list.map(e=>`<div class="li rvli" data-act="ex-open" data-v="${esc(e.name)}">${imgTag(e.name,'lithumb')}<span style="flex:1;min-width:0;text-align:left"><span class="name">${e.sets||0} × ${exTitle(e.name)}</span><span class="muted mini" style="display:block">${[e.target?'Ziel x'+esc(String(e.target).replace(/^x/i,'')):'',planTxt(e)].filter(Boolean).join(' · ')||catOf(baseName(e.name))}</span>${e.note?`<span class="mini" style="display:block;color:var(--gold)">${esc(e.note)}</span>`:''}</span></div>`).join('')||'<div class="muted mini" style="padding:12px 0">Noch keine Übungen.</div>'}
+function sRView({rid,tid,di}){const t=tid?tplById(tid):null;const r=t?t.days[di]:S.routines.find(x=>x.id===rid);if(!r)return '<p class="muted">Nicht gefunden.</p>';const lt=!t&&lastRoutine(r);
+ return `<div class="spread"><div style="min-width:0"><div class="eyebrow">${t?esc(t.name):r.client?esc(r.client):'Routine'}</div><h2 style="margin-top:2px">${esc(r.name)}</h2></div><button class="btn text sm" data-act="${t?'tv-back':'close'}">${t?'‹ Zurück':'Schliessen'}</button></div>
+ <div class="mini" style="color:${lt?'var(--gold)':'var(--muted)'}">${t?r.exercises.length+' Übungen':lt?'Zuletzt '+ago(lt)+' · '+r.exercises.length+' Übungen':'Noch nie gemacht · '+r.exercises.length+' Übungen'}</div>
+ ${r.note?`<details class="oldnotes" style="margin-top:6px"><summary class="muted mini">${esc(r.note.slice(0,80))}${r.note.length>80?' … ▾':''}</summary><div class="mini" style="white-space:pre-wrap;margin-top:6px;line-height:1.5">${esc(r.note)}</div></details>`:''}
+ <div class="list" style="margin-top:10px">${exRows(r.exercises)}</div>
+ <div class="stack" style="margin-top:14px">${t?'':`<button class="btn gold full" data-act="rv-start" data-v="${r.id}">Training starten</button>`}${t&&t.app?'<div class="muted mini">Das ist eine SOL-Vorlage. Übernimm sie, dann kannst du deine Kopie frei bearbeiten.</div>':`<button class="btn ghost full" data-act="rv-edit">Bearbeiten</button>`}</div>`}
+function sRx({i}){const e=S.edit&&S.edit.exercises[i];if(!e)return '';const n=e.sets||1;e.plan=e.plan||[];while(e.plan.length<n)e.plan.push({...(e.plan[e.plan.length-1]||{kg:'',reps:''})});
+ return `<div class="spread"><div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap;min-width:0">${imgTag(e.name,'lithumb')}<h2 style="margin:0">${esc(baseName(e.name))}</h2></div><button class="btn text sm" data-act="rx-done">Fertig</button></div>
+ <div class="eyebrow" style="margin-top:10px">Variante (eigener Verlauf)</div><input class="field" data-in="rxvar" data-i="${i}" value="${esc(variantOf(e.name))}" placeholder="z. B. Aufwärmen oder +kg"><div class="muted mini" style="margin-top:4px">Gleiche Übung mit eigenen Werten, z. B. „Seated“ oder „+kg“. Leer lassen = normale Übung.</div>
+ <div class="eyebrow" style="margin-top:12px">Ziel-Wiederholungen</div><input class="field num" data-in="rxtgt" data-i="${i}" value="${esc(String(e.target||'').replace(/^x/i,''))}" placeholder="z. B. 8-10">
+ <div class="eyebrow" style="margin-top:12px">Sätze (Startwerte)</div>
+ <div>${e.plan.slice(0,n).map((p,j)=>`<div class="rxset"><span class="num muted" style="width:22px">${j+1}</span><input class="field num" inputmode="decimal" data-in="rxkg" data-i="${i}" data-j="${j}" value="${esc(p.kg||'')}" placeholder="kg"><input class="field num" inputmode="numeric" data-in="rxreps" data-i="${i}" data-j="${j}" value="${esc(p.reps||'')}" placeholder="Wdh."></div>`).join('')}</div>
+ <div class="row" style="gap:6px;margin-top:8px"><button class="btn ghost sm" data-act="rx-sets" data-i="${i}" data-v="-1">− Satz</button><button class="btn ghost sm" data-act="rx-sets" data-i="${i}" data-v="1">+ Satz</button></div>
+ <div class="eyebrow" style="margin-top:12px">Pause</div><div class="row">${[45,60,90,120,150,180,240].map(s=>`<button class="chip ${(e.rest||S.restDefault)===s?'on':''}" data-act="rx-rest" data-i="${i}" data-v="${s}">${mmss(s)}</button>`).join('')}</div>
+ <div class="eyebrow" style="margin-top:12px">Notiz</div><textarea class="field" data-in="rxnote" data-i="${i}" placeholder="z. B. Sitz Stufe 4">${esc(e.note||'')}</textarea>
+ <button class="btn gold full" style="margin-top:14px" data-act="rx-done">Fertig</button>`}
+function tplCard(t){return `<button class="tcard${t.app?' app':''}" data-act="tv-open" data-v="${t.id}"><span style="flex:1;min-width:0"><span class="name">${esc(t.name)}</span>${t.app?'<span class="ttag">SOL-Vorlage</span>':''}<span class="muted mini" style="display:block;margin-top:2px">${t.days.length} Trainingstage</span></span><span style="color:var(--muted);font-size:20px">›</span></button>`}
+function sTList(){const own=S.tpls||[];return `<div class="spread"><h2>Vorlagen</h2><button class="btn text sm" data-act="close">Schliessen</button></div>
+ <div class="eyebrow" style="margin-top:8px">Von REPIT</div><div class="stack" style="margin-top:6px">${appTpls().map(tplCard).join('')}</div>
+ <div class="eyebrow" style="margin-top:16px">Meine Vorlagen</div><div class="stack" style="margin-top:6px">${own.map(tplCard).join('')||'<div class="muted mini">Noch keine eigenen Vorlagen. Leg z. B. einen „3er-Split Beinfokus“ an und gib ihn später jedem Kunden mit einem Tipp.</div>'}</div>
+ <button class="btn gold full" style="margin-top:12px" data-act="tpl-new">+ Eigene Vorlage</button>`}
+function sTView({tid}){const t=tplById(tid);if(!t)return '<p class="muted">Vorlage nicht gefunden.</p>';const cl=clients();const f=S.tplFor&&cl.includes(S.tplFor)?S.tplFor:'';
+ return `<div class="spread"><div class="eyebrow">${t.app?'SOL-Vorlage':'Meine Vorlage'}</div><button class="btn text sm" data-act="tl-back">‹ Vorlagen</button></div>
+ ${t.app?`<h2 style="margin-top:2px">${esc(t.name)}</h2><div class="muted mini">${esc(t.sub||'')}</div>`:`<input class="field" data-in="tvname" value="${esc(t.name)}" placeholder="Name, z. B. 3er-Split Beinfokus" style="margin-top:4px;font-weight:800">`}
+ <div class="list" style="margin-top:10px">${t.days.map((d,i)=>`<button class="li" data-act="tv-day" data-i="${i}" style="align-items:center"><span class="rbadge">${i+1}</span><span style="flex:1;text-align:left;min-width:0;margin-left:10px"><span class="name">${esc(d.name)}</span><span class="muted mini" style="display:block">${d.exercises.length} Übungen</span></span><span style="color:var(--muted);font-size:20px">›</span></button>`).join('')||'<div class="muted mini" style="padding:10px 0">Noch keine Trainingstage. Füge den ersten hinzu.</div>'}</div>
+ ${t.app?'':`<button class="btn ghost full" style="margin-top:10px" data-act="tv-addday">+ Trainingstag</button>`}
+ <div class="card" style="margin-top:14px"><div class="eyebrow">Übernehmen für</div><div class="cats" style="margin-top:6px"><button class="chip ${!f?'on':''}" data-act="tv-for" data-v="">Mich</button>${cl.map(c=>`<button class="chip ${f===c?'on':''}" data-act="tv-for" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div><div class="muted mini" style="margin-top:6px">Es wird eine Kopie angelegt, ${f?'in der Rubrik von '+esc(f):'bei deinen Routinen'}. Die Kopie kannst du frei anpassen, die Vorlage bleibt gleich.</div><button class="btn gold full" style="margin-top:10px" data-act="tv-apply">Übernehmen</button></div>
+ ${t.app?'':`<button class="btn danger full" style="margin-top:10px" data-act="tv-del">Vorlage löschen</button>`}`}
 function weekData(){const now=Date.now(),t0=now-7*864e5,t1=now-14*864e5;const ws=S.workouts.filter(w=>w.start>=t0);const wsPrev=S.workouts.filter(w=>w.start>=t1&&w.start<t0);
  const effs=[];ws.forEach(w=>w.exercises.forEach(e=>(e.sets||[]).forEach(s=>{const l=effLvl(s.rpe);if(l)effs.push(l)})));
  const names=[...new Set(ws.flatMap(w=>w.exercises.filter(e=>!isCardio(e)).map(e=>e.name)))];
@@ -728,6 +765,8 @@ const GUIDE=[
 ['Check-in Essen & Gefühl','Nach dem Speichern fragt die App immer zuerst: „Wie hat sich das Training angefühlt?“ (1–4), danach siehst du alle Werte. Die Frage vor dem Start zum Essen (Carbs voll?) schaltest du in Daten ein. Im Wochenbericht siehst du, bei welchem Essen deine Trainings am besten laufen.'],
 ['Training beenden','Beim Beenden zeigt die App alle Sätze, die noch nicht abgehakt sind (auch Cardio). Antippen = doch gemacht, wird mitgespeichert. Was nicht abgehakt ist, wird nicht gespeichert.'],
 ['Verlauf & Bearbeiten','Verlauf → Training antippen: Start- und Endzeit, Notizen und Werte ändern, kcal werden neu gerechnet. „Bearbeiten“ öffnet das Training nochmal komplett.'],
+['Routine ansehen','Tipp auf eine Routine zeigt alle Übungen mit Bild, Ziel und Startgewichten, ohne das Training zu starten. Über „Bearbeiten“ und einen Tipp auf die Übung änderst du Variante, Ziel, Gewichte, Pause und Notiz.'],
+['Vorlagen','Routinen → „Vorlagen“: SOL-Vorlagen (gold, z. B. Dons Training) und deine eigenen (grau). Eine Vorlage ist wie ein Ordner mit Trainingstagen. „Übernehmen für“ legt eine Kopie bei dir oder bei einem Kunden an, die du dort frei anpasst.'],
 ['Wochenbericht','Verlauf → „Wochenbericht“: pro Übung besser, gleich oder schlechter (antippen = nur diese anzeigen), Volumen, kcal, Ø Anstrengung, Körpergewicht. Mit Export zum Teilen, z. B. für den Coach.'],
 ['Körper & Fotos','Körper: Gewicht eintragen, Start- und Zielgewicht setzen. Tag antippen für Tagesnotiz und Formcheck-Fotos (gross ansehen und löschen möglich).'],
 ['Coach & Teilen','Routinen → „Für Kunden (Coach)“: eine Rubrik pro Kunde. „Plan teilen“ verschickt einen Tag oder Split als Datei oder Link, mit Gewichtsrechner.'],
@@ -761,7 +800,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='31.10. 15:00'
+const APPV='31.10. 19:30'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -898,7 +937,7 @@ const SPLIT6=[{"k":1,"name":"Armtraining","ex":[{"n":"Bicep Curl (Machine)","t":
 const PO_TXT='Progressive Overload: Geh in jedem Satz so nah wie möglich ans Muskelversagen und versuch, jedes Training mindestens eine Wiederholung mehr zu schaffen. Bei jeder Übung steht eine Ziel-Wiederholungszahl (z. B. x6-8). Schaffst du eine Wiederholung über dem oberen Ziel, erhöhst du beim nächsten Mal das Gewicht. Saubere Ausführung geht immer vor.';
 const LEVELS={a:['Anfänger',0.4,0],f:['Fortgeschritten',0.65,0.4],p:['Profi',0.85,0.75]};
 function rnd25(x){if(x<=0)return 0;return x<10?Math.max(1,Math.round(x)):Math.round(x/2.5)*2.5}
-function sTpl(){const lv=S.tplLv||'f',bw=S.tplBw||'';return `<div class="spread"><h2>Vorlage: 6er-Split</h2><button class="btn text sm" data-act="close">Abbrechen</button></div>
+function sTpl(){const lv=S.tplLv||'f',bw=S.tplBw||'';return `<div class="spread"><h2>Dons Training (6er-Split)</h2><button class="btn text sm" data-act="close">Abbrechen</button></div>
  <p class="muted mini" style="margin:4px 0 10px">${SPLIT6.map(r=>esc(r.name)).join(' · ')}</p>
  <div class="card" style="margin-bottom:12px"><div class="mini" style="line-height:1.5">${esc(PO_TXT)}</div></div>
  <div class="eyebrow" style="margin-bottom:6px">Dein Level</div><div class="row" style="gap:6px;margin-bottom:12px">${Object.entries(LEVELS).map(([k,v])=>`<button class="chip ${lv===k?'on':''}" data-act="tpl-lv" data-v="${k}">${v[0]}</button>`).join('')}</div>
@@ -906,10 +945,10 @@ function sTpl(){const lv=S.tplLv||'f',bw=S.tplBw||'';return `<div class="spread"
  <div class="muted mini" style="margin-top:6px">Die Startgewichte werden einmalig aus Level und Körpergewicht geschätzt. Danach passt du sie selbst an, das ist nur ein Richtwert.</div>
  <button class="btn gold full" style="margin-top:14px" data-act="tpl-apply">6er-Split übernehmen</button>`}
 function applySplit(){const lv=LEVELS[S.tplLv||'f'];const bw=num(S.tplBw)||75;const f=Math.min(1.3,Math.max(0.6,bw/80))*(gender()==='w'?0.65:1);let n=0;
- const inCoach=S.rfolder==='coach'&&S.tab==='routinen';const cl=inCoach?(S.rclient||''):'';for(const r of SPLIT6){if(S.routines.some(x=>x.name===r.name&&(x.folder==='coach')===inCoach&&(x.client||'')===cl))continue;
-  S.routines.push({id:uid(),name:r.name,note:PO_TXT,fromTemplate:'split6',folder:S.rfolder==='coach'&&S.tab==='routinen'?'coach':undefined,client:cl||undefined,exercises:r.ex.map(e=>{const add=/\+kg/i.test(e.n);const fac=add?lv[2]:lv[1]*f;return {name:e.n,target:e.t,sets:e.p.length,rest:e.r,plan:e.p.map(([kg,reps,rest])=>({kg:kg?String(rnd25(kg*fac)||''):'',reps:String(reps||''),rpe:'',rest}))}})});
+ const T=S.tplTarget;S.tplTarget=null;const inCoach=T?T.coach:S.rfolder==='coach'&&S.tab==='routinen';const cl=T?T.client:inCoach?(S.rclient||''):'';for(const r of SPLIT6){if(S.routines.some(x=>x.name===r.name&&(x.folder==='coach')===inCoach&&(x.client||'')===cl))continue;
+  S.routines.push({id:uid(),name:r.name,note:PO_TXT,fromTemplate:'split6',folder:inCoach?'coach':undefined,client:cl||undefined,exercises:r.ex.map(e=>{const add=/\+kg/i.test(e.n);const fac=add?lv[2]:lv[1]*f;return {name:e.n,target:e.t,sets:e.p.length,rest:e.r,plan:e.p.map(([kg,reps,rest])=>({kg:kg?String(rnd25(kg*fac)||''):'',reps:String(reps||''),rpe:'',rest}))}})});
   for(const e of r.ex)if(!LIB.some(x=>x[0]===e.n)&&!S.custom.some(x=>x[0]===e.n))S.custom.push([e.n,e.n==='Stairmaster'?'Cardio':guessCat(e.n)]);n++}
- saveMeta();closeSheet();renderMain();toast(n?n+' Trainings aus dem 6er-Split angelegt':'Der 6er-Split ist schon angelegt')}
+ saveMeta();if(S.sheet)S.sheet.back=null;closeSheet();if(T){S.rfolder=inCoach?'coach':'mine';S.rclient=cl;S.tab='routinen';renderAll()}else renderMain();toast(n?n+' Trainings aus Dons Training angelegt':'Der 6er-Split ist schon angelegt')}
 function sROrder(){const x=(S.tab==='routinen'?myRoutines():S.routines.filter(r=>r.folder!=='coach'));return `<div class="spread"><h2>Reihenfolge</h2><button class="btn gold sm" data-act="close">Fertig</button></div><div class="muted mini" style="margin-bottom:8px">Bestimmt, welche Routine an Platz 1, 2, 3 … steht.</div>
  <div>${x.map((r,i)=>`<div class="orderli"><span class="name" style="min-width:0;overflow-wrap:anywhere">${i+1}. ${esc(r.name)}</span><span class="row" style="flex-wrap:nowrap;gap:4px"><button class="btn ghost sm" data-act="ro-mv" data-i="${i}" data-v="-1" aria-label="Nach oben" ${i===0?'disabled':''}>↑</button><button class="btn ghost sm" data-act="ro-mv" data-i="${i}" data-v="1" aria-label="Nach unten" ${i===x.length-1?'disabled':''}>↓</button></span></div>`).join('')}</div>`}
 function sOrder(){const x=S.active.exercises;return `<div class="spread"><h2>Reihenfolge</h2><button class="btn gold sm" data-act="close">Fertig</button></div>
@@ -961,6 +1000,29 @@ function finishWorkout(update){
 
 const ACT={
   'sound-mode':(el)=>{try{localStorage.setItem('hantelbuch.soundmode',el.dataset.v)}catch(e){}renderSheet();ACT['sound-test']&&ACT['sound-test']()},
+  'r-view':(el)=>openSheet({type:'rview',rid:el.dataset.v}),
+  'rv-start':(el)=>{closeSheet();ACT['start-r'](el)},
+  'rv-edit':()=>{const s=S.sheet;if(s.tid){const t=tplById(s.tid);if(!t||t.app)return;S.edit=clone(t.days[s.di]);S.edit._tpl=t.id;S.edit._di=s.di}else{const r=S.routines.find(x=>x.id===s.rid);if(!r)return;S.edit=clone(r)}openSheet({type:'routine'})},
+  'rx-open':(el)=>openSheet({type:'rx',i:+el.dataset.i}),
+  'rx-done':()=>openSheet({type:'routine'}),
+  'rx-sets':(el)=>{const e=S.edit.exercises[+el.dataset.i];const v=+el.dataset.v;e.plan=(e.plan||[]).slice(0,e.sets||1);if(v>0){e.plan.push({...(e.plan[e.plan.length-1]||{kg:'',reps:''})});e.sets=(e.sets||1)+1}else if((e.sets||1)>1){e.sets--;e.plan.length=e.sets}renderSheet()},
+  'rx-rest':(el)=>{S.edit.exercises[+el.dataset.i].rest=+el.dataset.v;renderSheet()},
+  'tl-open':()=>{S.tplFor=S.rfolder==='coach'?(S.rclient||''):'';openSheet({type:'tlist'})},
+  'tl-back':()=>openSheet({type:'tlist'}),
+  'tv-open':(el)=>openSheet({type:'tview',tid:el.dataset.v}),
+  'tv-back':()=>openSheet({type:'tview',tid:S.sheet.tid}),
+  'tv-day':(el)=>openSheet({type:'rview',tid:S.sheet.tid,di:+el.dataset.i}),
+  'tv-for':(el)=>{S.tplFor=el.dataset.v;renderSheet()},
+  'tpl-new':()=>{S.tpls=S.tpls||[];const t={id:uid(),name:'',days:[]};S.tpls.push(t);saveMeta();openSheet({type:'tview',tid:t.id});setTimeout(()=>{const i=document.querySelector('[data-in="tvname"]');if(i)i.focus()},150)},
+  'tv-addday':()=>{const tid=S.sheet.tid;S.edit={id:uid(),name:'',note:'',exercises:[],isNew:true,_tpl:tid,_di:-1};openSheet({type:'routine'})},
+  'tv-del':()=>openSheet({type:'confirm',title:'Vorlage löschen?',text:'Routinen, die du schon daraus übernommen hast, bleiben erhalten.',yes:'Löschen',act:'tv-del-ok',v:S.sheet.tid,danger:true}),
+  'tv-del-ok':(el)=>{S.tpls=(S.tpls||[]).filter(t=>t.id!==el.dataset.v);saveMeta();openSheet({type:'tlist'})},
+  'tv-apply':()=>{const t=tplById(S.sheet.tid);if(!t)return;const cl=S.tplFor&&clients().includes(S.tplFor)?S.tplFor:'';if(!t.days.length)return toast('Die Vorlage hat noch keine Trainingstage.');
+    if(t.app){S.tplTarget={coach:!!cl,client:cl};return openSheet({type:'tpl',back:{type:'tview',tid:t.id}})}
+    for(const d of t.days){const c=clone(d);c.id=uid();c.fromTpl=t.id;if(cl){c.folder='coach';c.client=cl}else{delete c.folder;delete c.client}S.routines.push(c)}
+    saveMeta();S.rfolder=cl?'coach':'mine';S.rclient=cl;S.tab='routinen';S.sheet=null;renderAll();toast(t.days.length+' Trainingstage übernommen'+(cl?' für '+cl:''))},
+  'cl-del':(el)=>{const n=el.dataset.v;const k=S.routines.filter(r=>r.folder==='coach'&&r.client===n).length;openSheet({type:'confirm',title:n+' löschen?',text:(k?`Die ${k} Routine${k===1?'':'n'} von ${n} werden auch gelöscht. `:'')+'Deine Vorlagen und dein eigener Verlauf bleiben erhalten.',yes:'Kunde löschen',act:'cl-del-ok',v:n,danger:true})},
+  'cl-del-ok':(el)=>{const n=el.dataset.v;S.routines=S.routines.filter(r=>!(r.folder==='coach'&&r.client===n));saveClients(clients().filter(c=>c!==n));if(S.rclient===n)S.rclient='';saveMeta();closeSheet();renderMain();toast(n+' gelöscht')},
   'week-open':()=>{S.weekF=null;openSheet({type:'week'})},
   'week-f':(el)=>{const v=el.dataset.v;S.weekF=S.weekF===v?null:v;renderSheet()},
   'week-export':()=>weekExport(),
@@ -1038,9 +1100,9 @@ const ACT={
   'r-sets':(el)=>{const e=S.edit.exercises[+el.dataset.i];e.sets=Math.max(1,Math.min(12,e.sets+(+el.dataset.v)));renderSheet()},
   'r-up':(el)=>{const i=+el.dataset.i,x=S.edit.exercises;if(i>0){[x[i-1],x[i]]=[x[i],x[i-1]];renderSheet()}},
   'r-rm':(el)=>{S.edit.exercises.splice(+el.dataset.i,1);renderSheet()},
-  'r-save':()=>{const r=S.edit;r.name=(r.name||'').trim()||'Neue Routine';delete r.isNew;const i=S.routines.findIndex(x=>x.id===r.id);if(i>=0)S.routines[i]=r;else S.routines.push(r);saveMeta();closeSheet();renderMain();toast('Routine gespeichert')},
+  'r-save':()=>{const r=S.edit;if(r._tpl){const t=(S.tpls||[]).find(x=>x.id===r._tpl);const di=r._di;delete r._tpl;delete r._di;delete r.isNew;r.name=(r.name||'').trim()||'Trainingstag';if(!t)return closeSheet();if(di>=0)t.days[di]=r;else t.days.push(r);saveMeta();S.edit=null;openSheet({type:'tview',tid:t.id});return toast('Trainingstag gespeichert')}r.name=(r.name||'').trim()||'Neue Routine';delete r.isNew;const i=S.routines.findIndex(x=>x.id===r.id);if(i>=0)S.routines[i]=r;else S.routines.push(r);saveMeta();closeSheet();renderMain();toast('Routine gespeichert')},
   'r-del':()=>openSheet({type:'confirm',title:'Routine löschen?',text:'Deine bisherigen Trainings bleiben erhalten.',yes:'Löschen',act:'r-del-ok',danger:true}),
-  'r-del-ok':()=>{S.routines=S.routines.filter(x=>x.id!==S.edit.id);saveMeta();closeSheet();renderMain()},
+  'r-del-ok':()=>{if(S.edit&&S.edit._tpl){const t=(S.tpls||[]).find(x=>x.id===S.edit._tpl);if(t&&S.edit._di>=0)t.days.splice(S.edit._di,1);saveMeta();const id=S.edit._tpl;S.edit=null;return openSheet({type:'tview',tid:id})}S.routines=S.routines.filter(x=>x.id!==S.edit.id);saveMeta();closeSheet();renderMain()},
   'sound-pick':()=>{unlockAudio();$('#soundIn').click()},
   'sound-reset':()=>{S.soundId=null;S.soundRaw=false;customBuf=null;if(rawEl){rawEl.remove();rawEl=null}try{localStorage.removeItem('hantelbuch.soundRaw')}catch(e){}try{localStorage.removeItem('hantelbuch.sound')}catch(e){}saveMeta();renderSheet&&renderSheet();toast('Standard-Sound aktiv')},
   'gear':(el)=>openSheet({type:'gear',name:el.dataset.v,back:S.sheet&&S.sheet.type==='ex'?S.sheet:null}),
@@ -1123,6 +1185,12 @@ document.addEventListener('input',e=>{
   else if(k==='exq'){S.exq=el.value;$('#exlist').innerHTML=exList()}
   else if(k==='pq'){S.pq=el.value;$('#plist').innerHTML=pList()}
   else if(k==='rname'){S.edit.name=el.value}
+  else if(k==='rnote'){S.edit.note=el.value;grow(el)}
+  else if(k==='rxvar'){const e=S.edit.exercises[+el.dataset.i];e.name=baseName(e.name)+(el.value.trim()?' · '+el.value.trim():'')}
+  else if(k==='rxtgt'){S.edit.exercises[+el.dataset.i].target=el.value.replace(/^x/i,'').trim()}
+  else if(k==='rxkg'||k==='rxreps'){const e=S.edit.exercises[+el.dataset.i];const p=e.plan&&e.plan[+el.dataset.j];if(p)p[k==='rxkg'?'kg':'reps']=el.value.trim()}
+  else if(k==='rxnote'){S.edit.exercises[+el.dataset.i].note=el.value;grow(el)}
+  else if(k==='tvname'){const tt=(S.tpls||[]).find(x=>x.id===S.sheet.tid);if(tt){tt.name=el.value;saveMeta()}}
   else if(k==='variant'){const i=+el.dataset.i,e=S.active.exercises[i];const old=e.name;const nn=baseName(old)+(el.value.trim()?' · '+el.value.trim():'');if(nn===old)return;e.name=nn;const r=S.active.routineId&&S.routines.find(x=>x.id===S.active.routineId);if(r){const re=r.exercises.find(x=>x.name===old);if(re){re.name=nn;saveMeta()}}if(S.sheet)S.sheet.title=nn;saveActive();clearTimeout(window._vt);window._vt=setTimeout(()=>{pendingRender=true},300)}
   else if(k==='tplbw'){S.tplBw=el.value}
   else if(k==='photodate'){S.photoDate=el.value}
