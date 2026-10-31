@@ -223,7 +223,11 @@ body{font-size:15px}
 .brand{font-weight:900;font-size:18px;letter-spacing:.07em}
 .brand>svg{width:32px;height:32px;border-radius:9px!important}
 /* Kopfleiste gleich hoch wie bei PREPIT (49 px, Logo mittig) */
-header.top{margin:-22px -13px 14px -13px;padding-block:8px 9px;align-items:center;min-height:49px;box-sizing:border-box}.brand .swap{width:19px;height:19px}
+header.top{margin:-22px -13px 14px -13px;padding-block:8px 9px;align-items:center;min-height:49px;box-sizing:border-box}
+/* Kopfzeile bleibt oben stehen; nur der Inhalt scrollt (kein Mitwackeln der ganzen Seite) */
+html{height:100%;overflow:hidden}
+body{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none}
+header.top{position:sticky;top:0;z-index:15;background:var(--bg);box-shadow:0 0 0 100vmax var(--bg);clip-path:inset(-60px -100vmax 0 -100vmax)}.brand .swap{width:19px;height:19px}
 .brand .tagline{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--muted);margin-top:4px}
 h2{font-weight:700;font-size:19px;letter-spacing:0;text-transform:none;margin:24px 0 12px;display:inline-block;position:relative;padding-bottom:7px}
 h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;border-radius:2px;background:var(--gold)}
@@ -802,7 +806,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='31.10. 20:45'
+const APPV='31.10. 20:55'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -976,7 +980,8 @@ function ciLine(w){if(!w||(!w.food&&!w.feel))return '';return `${w.food?'Essen '
 function sCheckin(){const a=S.active;if(!a)return '';return `<div class="eyebrow">Check-in vor dem Training</div><h2 style="margin-top:2px">Wie gut hast du gegessen?</h2><p class="muted mini">Sind die Speicher voll, vor allem Kohlenhydrate? Später siehst du, bei welchem Essen deine Trainings am besten laufen.</p>
  <div class="stack" style="margin-top:10px">${CI_FOOD.map((t,k)=>`<button class="btn ${a.food===k+1?'gold':'ghost'} full" style="justify-content:flex-start" data-act="ci-food" data-v="${k+1}"><b style="margin-right:10px">${k+1}</b>${t}</button>`).join('')}</div>
  <button class="btn text full" style="margin-top:8px" data-act="close">Überspringen</button>`}
-function startWorkout(name,exs,rid){S.active={id:uid(),name,start:Date.now(),routineId:rid||null,exercises:exs};S.tab='training';saveActive(true);renderAll();window.scrollTo(0,0);if(ciOn())setTimeout(()=>openSheet({type:'checkin'}),250)}
+function pageScroll(a,b){const el=document.body;try{if(a&&typeof a==='object')el.scrollTo(a);else el.scrollTo(a||0,b||0)}catch(e){el.scrollTop=b||0}}
+function startWorkout(name,exs,rid){S.active={id:uid(),name,start:Date.now(),routineId:rid||null,exercises:exs};S.tab='training';saveActive(true);renderAll();pageScroll(0,0);if(ciOn())setTimeout(()=>openSheet({type:'checkin'}),250)}
 function defaultName(){const h=new Date().getHours();return h<11?'Morgentraining':h<17?'Mittagstraining':'Abendtraining'}
 
 function finishWorkout(update){
@@ -1032,7 +1037,7 @@ const ACT={
   'wk-view':(el)=>{S.wkView=el.dataset.v;renderMain()},
   'wk-swap':()=>{try{localStorage.setItem('hantelbuch.wkoff',String((wkOff()+1)%2))}catch(e){}S.wkView=null;renderMain();toast('Diese Woche ist jetzt Woche '+curWeek())},
   'ex-ss':(el)=>{const x=S.active.exercises,i=+el.dataset.i,e=x[i];if(e.ss){const id=e.ss;delete e.ss;const rest=x.filter(o=>o.ss===id);if(rest.length<2)rest.forEach(o=>delete o.ss);toast('Aus der Gruppe gelöst')}else{const o=(x[i-1]&&x[i-1].ss)?x[i-1]:(x[i+1]||x[i-1]);if(!o)return toast('Dafür braucht es eine zweite Übung.');const id=o.ss||('ss'+uid());e.ss=id;o.ss=id;const n=x.filter(z=>z.ss===id).length;toast(n>2?'Zirkel: '+n+' Übungen im Wechsel':'Supersatz: im Wechsel trainieren')}saveActive();renderSheet();renderMain()},
-  'h-edit':(el)=>{if(S.active&&!S.active.editOf)return toast('Beende zuerst das laufende Training.');const w=S.workouts.find(x=>x.id===el.dataset.v);if(!w)return;const a=clone(w);a.editOf=w.id;a.exercises=a.exercises.map(e=>({...e,sets:e.sets.map(s=>({...s,done:true}))}));S.active=a;S.tab='training';closeSheet();saveActive(true);renderAll();window.scrollTo(0,0);toast('Bearbeiten: ändern, dann „Änderungen speichern“')},
+  'h-edit':(el)=>{if(S.active&&!S.active.editOf)return toast('Beende zuerst das laufende Training.');const w=S.workouts.find(x=>x.id===el.dataset.v);if(!w)return;const a=clone(w);a.editOf=w.id;a.exercises=a.exercises.map(e=>({...e,sets:e.sets.map(s=>({...s,done:true}))}));S.active=a;S.tab='training';closeSheet();saveActive(true);renderAll();pageScroll(0,0);toast('Bearbeiten: ändern, dann „Änderungen speichern“')},
   'ph-big':(el)=>{if(!el.src)return;const o=document.createElement('div');o.className='lbox';o.innerHTML=`<img src="${el.src}" alt=""><span>Tippen zum Schliessen</span>`;o.onclick=()=>o.remove();document.body.appendChild(o)},
   'day-open':(el)=>{openSheet({type:'day',date:el.dataset.v});setTimeout(hydratePhotos,50)},
   'day-photo':(el)=>{S.photoDate=el.dataset.v;closeSheet();ACT.photo()},
@@ -1058,7 +1063,7 @@ const ACT={
   'ex-mode':(el)=>{S.exMode=el.dataset.v;try{localStorage.setItem('hantelbuch.exmode',el.dataset.v)}catch(e){}renderMain()},
   'ex-cat':(el)=>{S.exCat=el.dataset.v;renderMain()},
   'pay-open':()=>{S.payWhy='';S.payNeed=tier()==='free'?'pro':'coach';openSheet({type:'pay'})},
-  tab:(el)=>{S.tab=el.dataset.v;renderNav();renderMain();window.scrollTo(0,0)},
+  tab:(el)=>{S.tab=el.dataset.v;renderNav();renderMain();pageScroll(0,0)},
   'start-empty':()=>startWorkout(defaultName(),[]),
   'start-r':(el)=>{if(S.active)return toast('Beende zuerst das laufende Training.');const r=S.routines.find(x=>x.id===el.dataset.v);startWorkout(r.name,r.exercises.map(e=>({name:e.name,rest:e.rest||S.restDefault,sets:planSets(e),note:e.note||lastNotes(e.name).note,next:e.next!=null?e.next:lastNotes(e.name).next,nextDate:e.next!=null?(e.nextDate||null):lastNotes(e.name).nextDate,uni:!!e.uni,uniRest:e.uniRest,ss:e.ss,zone:e.zone||null,target:e.target||lastNotes(e.name).target||TARGETS[e.name]||''})),r.id);applyGoals();if(r.note){S.active.note=r.note;saveActive();renderMain()}},
   'add-ex':()=>{S.pq='';S.pcat='';openSheet({type:'picker',target:'active'})},
@@ -1161,7 +1166,7 @@ const ACT={
 };
 function pickEx(name){
   if(S.sheet.target==='routine'){S.edit.exercises.push({name,sets:3,rest:S.restDefault});openSheet({type:'routine'})}
-  else{const ln=lastNotes(name);S.active.exercises.push({name,rest:S.restDefault,sets:blankSets(3),note:ln.note,next:ln.next,nextDate:ln.nextDate,target:ln.target||TARGETS[name]||''});saveActive();closeSheet();renderMain();setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),30)}
+  else{const ln=lastNotes(name);S.active.exercises.push({name,rest:S.restDefault,sets:blankSets(3),note:ln.note,next:ln.next,nextDate:ln.nextDate,target:ln.target||TARGETS[name]||''});saveActive();closeSheet();renderMain();setTimeout(()=>pageScroll({top:document.body.scrollHeight,behavior:'smooth'}),30)}
 }
 document.addEventListener('click',e=>{
   if(e.target.id==='backdrop')return closeSheet();
