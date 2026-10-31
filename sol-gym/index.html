@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" href="sol-icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&family=Roboto:wght@400;500;700;900&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@500;600;700&family=Roboto:wght@400;500;700;900&family=Cinzel:wght@600;700;800;900&display=swap" rel="stylesheet">
 <title>SOL-GYM</title>
 <!-- SOL-GYM: Hülle um PREPIT (/sol-tracker/) und REPIT (/repit/) plus eigene Ansicht GESAMT.
      Keine Leiste: Tipp aufs Logo oben links (in jeder App) öffnet die Auswahl REPIT · PREPIT · GESAMT
@@ -134,15 +134,19 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 
 /* SOL-GYM-Logo im SOL-Tracker-Stil (31.10.): Monogramm + Cinzel */
 .sol,.hlogo b,.lg .w b{font-family:"Cinzel","Trajan Pro","Times New Roman",serif;text-transform:none}
-.sol{font-weight:600;color:var(--fg)}
+.sol{font-weight:800;color:var(--fg)}
 .hmark{width:150px;height:auto;margin:0 0 10px -22px;display:block;-webkit-mask-image:radial-gradient(closest-side,#000 70%,transparent 100%);mask-image:radial-gradient(closest-side,#000 70%,transparent 100%)}
-.hlogo{display:flex;align-items:baseline;gap:14px}
-.hlogo .sol{font-size:54px;letter-spacing:.12em;line-height:1}
-.hlogo b{font-size:30px;font-weight:600;letter-spacing:.2em}
+.hlogo{display:flex;align-items:center;gap:0}
+.hlogo .sol{font-size:50px;letter-spacing:.02em;line-height:1}
+.hlogo b{font-size:50px;font-weight:800;letter-spacing:.02em;line-height:1}
 .lg .mk{width:36px;height:auto;margin:-3px -3px -3px -5px;display:block;-webkit-mask-image:radial-gradient(closest-side,#000 70%,transparent 100%);mask-image:radial-gradient(closest-side,#000 70%,transparent 100%)}
-.lg .w{display:flex;align-items:baseline;gap:7px}
-.lg .w .sol{font-size:18px;letter-spacing:.12em;line-height:1}
-.lg .w b{font-size:12.5px;font-weight:600;letter-spacing:.2em}
+.lg .w{display:flex;align-items:center;gap:0}
+.lg .w .sol{font-size:18px;letter-spacing:.02em;line-height:1}
+.lg .w b{font-size:18px;font-weight:800;letter-spacing:.02em;line-height:1}
+/* kleiner Bindestrich zwischen SOL und GYM */
+.dash{display:inline-block;flex:none;background:var(--gold);border-radius:1px}
+.hlogo .dash{width:16px;height:4px;margin:4px 9px 0}
+.lg .w .dash{width:7px;height:2px;margin:1px 4px 0}
 </style>
 </head>
 <body>
@@ -153,7 +157,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
     <iframe id="f-rep" title="REPIT – Training" allow="clipboard-write; web-share; autoplay"></iframe>
     <section id="all" aria-label="Gesamt-Übersicht">
       <div class="top">
-        <button class="lg" data-choose aria-label="Bereich wechseln"><img class="mk" src="sol-mark.png" alt=""><span class="w"><span class="sol">SOL</span><b>GYM</b></span>
+        <button class="lg" data-choose aria-label="Bereich wechseln"><img class="mk" src="sol-mark.png" alt=""><span class="w"><span class="sol">SOL</span><i class="dash"></i><b>GYM</b></span>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg></button>
         <span class="tag">Gesamt</span>
       </div>
@@ -166,7 +170,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <section id="home">
-  <img class="hmark" src="sol-mark.png" alt=""><div class="hlogo"><span class="sol">SOL</span><b>GYM</b></div>
+  <img class="hmark" src="sol-mark.png" alt=""><div class="hlogo"><span class="sol">SOL</span><i class="dash"></i><b>GYM</b></div>
   <div class="hsub">Ernährung und Training in einer App.</div>
   <div class="hq">Was möchtest du öffnen?</div>
   <button class="pick" data-tab="prep">
@@ -195,7 +199,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 10:05';
+var SOLGYM_V='31.10. 10:15';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
