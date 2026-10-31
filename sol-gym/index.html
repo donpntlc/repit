@@ -162,37 +162,10 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 .hlogo .dash{width:16px;height:4px;margin:6px 10px 0}
 .lg .w .sol,.lg .w b{font-size:22px;line-height:1}
 .lg .w .dash{width:7px;height:2px;margin:2px 5px 0}
-
-/* Meissel-Look (31.10.): flache Farben + SVG-Licht, Mittelkante pro Buchstabe */
-.hlogo .sol,.hlogo b,.lg .w .sol,.lg .w b{background:none;-webkit-text-fill-color:currentColor}
-.hlogo .sol,.lg .w .sol{color:#f4ead2}
-.hlogo b,.lg .w b{color:#d4ad58}
-.hlogo .sol,.hlogo b,.hlogo .dash{filter:url(#chisel)}
-.lg .w .sol,.lg .w b{filter:url(#chisel-s)}
 </style>
 </head>
 <body>
 <div id="probe"></div>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <!-- Meissel-Effekt: Mittelkante pro Strich, eine Seite hell, eine Seite im Schatten (wie im SOL-Monogramm) -->
-  <filter id="chisel" x="-6%" y="-15%" width="112%" height="135%" color-interpolation-filters="sRGB">
-    <feMorphology in="SourceAlpha" operator="erode" radius="0.6" result="e"/>
-    <feGaussianBlur in="e" stdDeviation="2.4" result="h"/>
-    <feDiffuseLighting in="h" surfaceScale="7" diffuseConstant="1.45" lighting-color="#ffffff" result="d"><feDistantLight azimuth="235" elevation="38"/></feDiffuseLighting>
-    <feSpecularLighting in="h" surfaceScale="7" specularConstant=".9" specularExponent="22" lighting-color="#fff6e0" result="sp"><feDistantLight azimuth="235" elevation="38"/></feSpecularLighting>
-    <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.05" k2="0" k3="0" k4="0" result="lit"/>
-    <feComposite in="sp" in2="SourceAlpha" operator="in" result="spi"/>
-    <feComposite in="lit" in2="spi" operator="arithmetic" k1="0" k2="1" k3=".55" k4="0" result="all"/>
-    <feComposite in="all" in2="SourceAlpha" operator="in"/>
-  </filter>
-  <filter id="chisel-s" x="-6%" y="-15%" width="112%" height="135%" color-interpolation-filters="sRGB">
-    <feGaussianBlur in="SourceAlpha" stdDeviation="0.9" result="h"/>
-    <feDiffuseLighting in="h" surfaceScale="4" diffuseConstant="1.2" lighting-color="#ffffff" result="d"><feDistantLight azimuth="235" elevation="40"/></feDiffuseLighting>
-    <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.05" k2="0" k3="0" k4="0" result="lit"/>
-    <feComposite in="lit" in2="SourceAlpha" operator="in"/>
-  </filter>
-</defs></svg>
-
 <div id="app">
   <main>
     <iframe id="f-prep" title="PREPIT – Ernährung" allow="clipboard-write; web-share; autoplay"></iframe>
@@ -241,7 +214,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='31.10. 12:45';
+var SOLGYM_V='31.10. 12:00';
 var SRC={prep:'../../sol-tracker/',rep:'../'};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
