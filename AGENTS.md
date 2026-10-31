@@ -96,16 +96,6 @@ Anstrengung 1–4 neu (Zu leicht · Letzte unsauber · Nur halb geschafft · All
 ### Erledigt 29.10. (APPV „29.10. 17:45“)
 Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis lesbar, „Ziel heute“-Hinweis je nach Fall (alle Stufe 2 → gleiche Wdh. sauber; gemischt → Satz für Satz).
 
-### Backlog vom 31.10. abends (Dean)
-- **Vorlagen als Ordner:** Splits/Vorlagen öffnen sich wie ein Ordner → Trainingstage sehen → Tag antippen → alle Übungen sehen und bearbeiten. App-Vorlagen in **Gold** markiert („SOL-Vorlage“), der 6er-Split heisst **„Dons Training“**; Dean fügt später 2–3 weitere App-Vorlagen hinzu. Eigene Coach-Vorlagen in **Grau** (z. B. „3er-Split Beinfokus“): Coach erstellt Vorlage, fügt Trainings hinzu, bearbeitet sie.
-- **Vorlage einem Kunden geben:** Kopie in die Kunden-Rubrik, dort pro Kunde frei bearbeiten (Original bleibt unverändert).
-- **Kunden löschen** (mit eigenem Bestätigungs-Sheet).
-- **Routine antippen = Detailansicht** (ohne Start): alle Übungen mit **kleinen Bildern links** (wie Strong), Sätze/Ziele, Notiz; direkt bearbeiten (Übung umbenennen, Variante eintippen, Sätze ändern) und speichern. Im jetzigen „Bearbeiten“ lässt sich die Variante nicht eintippen.
-- **Bilder (nur merken):**
-  - Bankdrücken Kurzhantel (Frau): Startposition auf die andere Seite, Arme in der Startposition weiter oben (nicht so tief).
-  - Chest Press (Cable) Mann + Frau: Griff falsch, **Daumen zeigen nach innen** (Handflächen nach unten), nicht nach oben; nach vorne rausdrücken.
-  - **Chest Press Cable 2. (to the ground)** ist eine andere Übung: stehend, Rollen **ganz oben** (muss fast springen, um die Griffe zu holen), Ellbogen hoch Richtung Kabel, dann nach unten Richtung Füsse drücken und die Hände zusammenführen → untere Brust. Eigenes Bild + eigene Beschreibung (statt Alias auf Chest Press Cable).
-
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
@@ -139,6 +129,8 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **Neues SOL-Logo (31.10. 14:45):** Dean hat mit ChatGPT eine schärfere Version erstellt (1678×937, per Chat geschickt). Quadrat um das Monogramm (x 362–1299, y 0–937) → `sol-gym/sol-mark.png` (720 px) und App-Symbole `sol-gym/sol-v2-icon-{180,192,512}.png` (neuer Name gegen iPhone-Cache). Logo-Grösse angepasst (`.hmark` 168 px, `.lg .mk` 40 px), weil das Monogramm mehr vom Bild füllt. Sicherung davor `sicherung-31-10-vor-neues-logo`.
 - **Diagramme in Gesamt (31.10. 15:05):** Ein Tipp auf einen Balken/Punkt lässt die Auswahl stehen (vorher verschwand sie beim Loslassen, man musste gedrückt halten). `pointerleave` setzt nur noch bei Maus zurück. Sicherung davor `sicherung-31-10-vor-tipp-auswahl`.
 - **Startseite (31.10. 15:20):** Reihenfolge der Karten REPIT · PREPIT · GESAMT (wie in der Auswahl beim Logo-Tipp). Sicherung davor `sicherung-31-10-vor-reihenfolge`. Erklärbilder (8 Karten, Willkommen/iPhone/Wechseln/Gesamt/Umzug/Coach 1+2/Kunde) wurden für Dean erstellt.
+- **Defizit in Gesamt (31.10. 18:30):** Neuer Bereich „Defizit“ in `sol-gym/index.html`: Defizit pro Tag = eingespart (PREPIT-Bedarf − gegessen) + Training (REPIT), gestapelte Balken (`defChart`, Überschuss rot nach unten), Ziellinie = Phasen-Ziel kcal/Tag (`flutter.phase_goal_v1`), KPIs Ø Defizit/Tag und ≈ Fett (÷ 7000). „Wochen-Check mit der Waage“: pro Woche erwartet (kg) vs. Wochenschnitt-Gewicht zur Vorwoche (grün ±0.3 kg), ab 2 Wochen „Bedarf laut Waage“. Bedarf kommt aus dem neuen PREPIT-Schlüssel `sol_gym_bridge_v1` ({maint, goal, mode, at}, geschrieben in `_saveAppState`), Fallback Ziel + Phasen-Defizit. Sicherung davor `sicherung-31-10-vor-defizit` (repit), `sicherung-31-10-vor-schritte-defizit-source`/`-live` (sol-tracker).
+- **PREPIT 31.10. abends:** Advanced-Modus hat Schalter „Schritte anzeigen“ (Einstellungen → Advanced, Schlüssel `advanced_show_steps_v1`, Getter `_showStepsCard`) → Schritte-Karte wie im Aggressiv Cut. Texte vereinfacht: „Letzte Mahlzeit: wie viel?“ (Normaler Anteil / Alles, was übrig ist / Etwas für Snacks übrig lassen) und „Tag auffüllen“ (ein Satz).
 - **iPhone-Hinweis:** Jedes Home-Bildschirm-Icon hat einen eigenen Speicher. Daten aus dem einzelnen REPIT-Icon einmal per Backup → „Daten importieren“ in SOL-GYM übernehmen. Echter Abgleich erst mit Konten (Supabase).
 - **Danach (Verknüpfung):**
   1. **Trainingsbewertung:** Am Ende jedes Trainings eine Bewertung 1–3 (schlecht · normal · sehr gut). Auswertung zusammen mit der Ernährung und dem Wohlbefinden: Was habe ich an Tagen mit sehr gutem Training gegessen?
