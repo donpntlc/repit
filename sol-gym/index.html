@@ -31,7 +31,7 @@ iframe.on{display:block}
 #f-prep{height:calc(100% - var(--sab,0px))}
 
 /* Startseite */
-#home{position:fixed;inset:0;z-index:10;background:var(--bg);display:flex;flex-direction:column;overflow:auto;
+#home{position:fixed;inset:0;z-index:10;overscroll-behavior:none;background:var(--bg);display:flex;flex-direction:column;overflow:auto;
   padding:calc(env(safe-area-inset-top) + 48px) calc(env(safe-area-inset-right) + 24px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 24px);
   transition:opacity .25s ease}
 #home.hide{opacity:0;pointer-events:none}
@@ -73,7 +73,7 @@ iframe.on{display:block}
 .opt .now{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase}
 
 /* GESAMT */
-#all{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);display:none;
+#all{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg);display:none;
   padding:0 16px calc(28px + var(--sab,0px))}
 #all.on{display:block}
 .top{display:flex;align-items:center;gap:10px;padding:10px 0 12px;position:relative}
@@ -196,7 +196,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 .lg .w .dash{width:7px;height:2px;margin:2px 5px 0}
 
 /* Anleitung: Daten umziehen */
-#guide{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;
+#guide{position:fixed;inset:0;z-index:40;overscroll-behavior:none;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;
   padding:calc(env(safe-area-inset-top,0px) + 8px) 16px calc(env(safe-area-inset-bottom,0px) + 32px)}
 #guide.on{display:block}
 #guide .gh{display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg);padding:8px 0 12px;z-index:2}
@@ -269,7 +269,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='01.11. 00:20';
+var SOLGYM_V='06.11. 09:42';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
