@@ -105,6 +105,13 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - PREPIT: Extra-Schritte-Karte unter die Tagesübersicht-Leiste verschoben (sol-tracker `3749aa1`).
 - **Apple Health / Schritte:** Die Web-App kann Apple Health nicht lesen (geht nur in einer echten App-Store-App, `health`-Paket ist drin, wirkt aber im Web nicht). Dean (31.10.): Schritte-Sync vorerst **so lassen**, erst in der echten App (App Store) angehen, keinen Web-Umweg bauen.
 
+### Erledigt 06.11. (APPV „06.11. 10:30“, SOLGYM_V „06.11. 11:10“)
+- **Übung heute auslassen:** ••• → „Heute auslassen (z. B. zur Schonung)“ (`e.skip`). Wird als `{name,skip:true,sets:[]}` gespeichert; `prevFor`/`sessions` überspringen sie automatisch, Karte zeigt „Letztes Mal (Datum) ausgelassen“ (`lastSkip`). Verlauf: „· ausgelassen“.
+- **iOS-Textvergrösserung** (Ziel-Hinweis riesig im SOL-GYM-Rahmen): `html{-webkit-text-size-adjust:100%}`.
+- **Hilfestellung für Anfänger** (`hantelbuch.help`, neu = an, bestehende Nutzer = aus): nach jedem Arbeitssatz Sheet „Bewerte den Satz“ (`sRpe` mit `help`), am Ende im Summary „Möchtest du weiterhin mit Hilfestellung trainieren? Ja/Nein“; Schalter in Daten.
+- **SOL-GYM Gesamt „Wann am Ziel?“:** Umschalter Nur Ernährung / Mit Cardio. Basis: Defizit aus Phasen-Ziel (`phase_goal_v1.kcal`, sonst Ø), Ziel `targetWeight`, 7000 kcal/kg. Cardio: Gerät, Zone (MET × Zonenfaktor wie REPIT), Minuten, Mal/Woche (`solgym.cardio`), zeigt kcal pro Einheit/Woche/Tag, Tage + Datum und „X Tage früher“.
+- **Offen (Bild, braucht Mac/ChatGPT):** Cable Crunch Sideways neu: Seil mit der **äusseren** Hand (weg vom Turm) halten und die **äussere** Bauchseite trainieren (leuchtend schräge Bauchmuskeln der turmfernen Seite).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.

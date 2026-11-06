@@ -112,6 +112,13 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .wk div{padding:8px 3px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
 .wk .h{font-size:11px;color:var(--muted);font-weight:700}
 .wk .r{text-align:right}.wk .ok{color:#7fbf7f}.wk .off{color:#e0a458}
+#goalCard .glbl{font-size:12px;color:var(--muted);margin:10px 0 5px;font-weight:600}
+#goalCard .gsel,#goalCard .gin{width:100%;font:inherit;font-size:15px;font-weight:700;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0f0f11;color:var(--fg)}
+#goalCard .zrow{display:flex;gap:5px}#goalCard .zrow button{flex:1;appearance:none;border:1px solid var(--line);background:#0f0f11;color:var(--fg);font:inherit;font-weight:800;font-size:14px;padding:7px 0;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:1px}
+#goalCard .zrow button small{font-size:9.5px;font-weight:600;color:var(--muted)}#goalCard .zrow button.on{border-color:var(--gold);color:var(--gold-hi)}
+#goalCard .grow{display:flex;gap:8px}#goalCard .grow label{flex:1}
+#goalCard .cgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0 4px}#goalCard .cgrid>div{background:#0f0f11;border:1px solid var(--line);border-radius:10px;padding:8px}#goalCard .cgrid .glbl{margin:0 0 3px}#goalCard .cgrid b{font-size:15px}#goalCard .cgrid small{display:block;color:var(--muted);font-size:11px}
+#goalRes{margin-top:12px}
 .seg2{display:flex;background:#0f0f11;border:1px solid var(--line);border-radius:11px;padding:3px;margin-bottom:14px}
 .seg2 button{appearance:none;flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:14px;padding:8px 0;border-radius:8px;cursor:pointer}
 .seg2 button.on{background:#232326;color:var(--fg)}
@@ -269,7 +276,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='06.11. 09:42';
+var SOLGYM_V='06.11. 11:10';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -370,6 +377,34 @@ function readPrep(){
   var maint=br&&n(br.maint)>800?n(br.maint):null,phase=ph&&typeof ph==='object'?ph:null;
   return {has:!!tf,days:days,weights:weights,goal:goal&&goal.kcal>0?goal:null,maint:maint,phase:phase,bridgeGoal:br?n(br.goal):0};
 }
+
+/* ---------- Wann am Ziel? (Cardio-Rechner) ---------- */
+var CARDIO_T=['Stairmaster','Laufband (Steigung gehen)','Laufband','Crosstrainer','Fahrrad-Ergometer','Rudergerät','Air Bike','Joggen (draussen)','Spazieren (zügig)'];
+var ZN=[[1,'Locker',.75],[2,'Fettverbr.',.9],[3,'Ausdauer',1],[4,'Tempo',1.2],[5,'Vollgas',1.4]];
+function cMet(x){x=String(x).toLowerCase();return /stair|treppe/.test(x)?9:/steigung|incline/.test(x)?6:/spazier|walk|gehen/.test(x)?4.3:/lauf|run|sprint|jogg/.test(x)?8.5:/rad|bike|spin/.test(x)?7:/ski|row|ruder|cross|ellip/.test(x)?7:7}
+function cardioCfg(){var c=pj(get('solgym.cardio'))||{};return {type:CARDIO_T.indexOf(c.type)>=0?c.type:'Stairmaster',zone:[1,2,3,4,5].indexOf(+c.zone)>=0?+c.zone:2,min:n(c.min)>0?Math.round(n(c.min)):60,per:n(c.per)>0?Math.min(14,Math.round(n(c.per))):3}}
+function saveCardio(c){set('solgym.cardio',JSON.stringify(c))}
+function goalCalc(){var el=document.getElementById('goalRes'),b=window._goalBase;if(!el||!b)return;var GT=get('solgym.gtab')==='c'?'c':'n';
+  var rem=b.w-b.tw;if(rem<=0){el.innerHTML='<div class="hero"><div class="lbl">Ziel</div><div class="num">Erreicht</div><div class="sub"><span>Du bist bei '+fmt1(b.w)+' kg, Ziel '+fmt1(b.tw)+' kg.</span></div></div>';return}
+  var kcal=rem*7000,base=b.pace;
+  function eta(perDay){if(!(perDay>50))return null;var d=Math.ceil(kcal/perDay);return {days:d,date:addDays(new Date(),d)}}
+  function dstr(x){return x?x.date.toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}):'–'}
+  var e0=eta(base),h='';
+  if(GT==='n'){
+    h+='<div class="hero"><div class="lbl">Nur mit Ernährung</div><div class="num">'+(e0?e0.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip">'+dstr(e0)+'</span><span>−'+fmt1(rem)+' kg ≈ '+fmt(kcal)+' kcal · '+(base?fmt(base)+' kcal/Tag Defizit':'noch kein Defizit bekannt')+'</span></div></div>';
+    h+='<div class="note">Gerechnet mit deinem Defizit aus PREPIT (Phasen-Ziel'+(base?'':', sonst Ø der getrackten Tage')+'), 7000 kcal ≈ 1 kg. Tipp auf „Mit Cardio“, um zu sehen, wie viel schneller es mit Cardio geht.</div>';
+  }else{
+    var c=cardioCfg(),z=ZN.filter(function(x){return x[0]===c.zone})[0],ses=Math.round(cMet(c.type)*z[2]*b.w*c.min/60),wk=ses*c.per,day=wk/7,e1=eta(base+day);
+    h+='<div class="cgrid"><div><div class="glbl">Pro Einheit</div><b>'+fmt(ses)+' kcal</b></div><div><div class="glbl">Pro Woche</div><b>'+fmt(wk)+' kcal</b><small>'+fmt(c.min*c.per)+' Min</small></div><div><div class="glbl">Ø pro Tag</div><b>+'+fmt(day)+' kcal</b></div></div>';
+    h+='<div class="hero"><div class="lbl">Mit Ernährung + Cardio</div><div class="num">'+(e1?e1.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(e1)+'</span>'+(e0&&e1?'<span>'+(e0.days-e1.days)+' Tage früher als nur mit Ernährung ('+dstr(e0)+')</span>':'')+'</span></div></div>';
+    h+='<div class="note">'+c.min+' Min '+c.type+' in Zone '+c.zone+', '+c.per+'× pro Woche, bei '+fmt1(b.w)+' kg. Defizit Ernährung '+fmt(base)+' + Cardio '+fmt(day)+' = '+fmt(base+day)+' kcal pro Tag. Cardio-kcal sind geschätzt (wie in REPIT).</div>';
+  }
+  el.innerHTML=h}
+function hookGoal(){var card=document.getElementById('goalCard');if(!card)return;
+  card.querySelectorAll('[data-gtab]').forEach(function(bt){bt.addEventListener('click',function(){set('solgym.gtab',bt.dataset.gtab);card.querySelectorAll('[data-gtab]').forEach(function(x){x.classList.toggle('on',x===bt)});var ci=document.getElementById('cardioIn');if(ci)ci.hidden=bt.dataset.gtab!=='c';goalCalc()})});
+  card.querySelectorAll('[data-cz]').forEach(function(bt){bt.addEventListener('click',function(){var c=cardioCfg();c.zone=+bt.dataset.cz;saveCardio(c);card.querySelectorAll('[data-cz]').forEach(function(x){x.classList.toggle('on',x===bt)});goalCalc()})});
+  card.querySelectorAll('[data-cin]').forEach(function(inp){var ev=inp.tagName==='SELECT'?'change':'input';inp.addEventListener(ev,function(){var c=cardioCfg(),k=inp.dataset.cin;if(k==='type')c.type=inp.value;else if(n(inp.value)>0)c[k]=Math.round(n(inp.value));saveCardio(c);goalCalc()})});
+  goalCalc()}
 
 /* ---------- GESAMT: Zeichnen ---------- */
 var RANGE=parseInt(get(RKEY)||'30',10);if([7,30,90].indexOf(RANGE)<0)RANGE=30;
@@ -608,6 +643,24 @@ function renderAll(){
   }
   h+='</div>';
 
+  // Wann am Ziel? Nur Ernährung oder mit geplantem Cardio
+  (function(){
+    var phx=prep.phase,twx=phx&&n(phx.targetWeight)>0?n(phx.targetWeight):null,bulkx=phx&&phx.bulk===true;
+    var lw=allW.length?allW[allW.length-1]:null;
+    var pace=phx&&n(phx.kcal)>0?n(phx.kcal):(typeof avgDef!=='undefined'&&avgDef>50?Math.round(avgDef):0);
+    h+='<h2>Wann am Ziel?</h2><div class="card" id="goalCard">';
+    if(!twx||!lw||bulkx){h+='<div class="empty">'+(bulkx?'Der Rechner ist für Diät-Phasen gedacht. Im Aufbau zählt nicht das Defizit.':'Setz in PREPIT ein Phasen-Ziel (Zielgewicht) und trag dein Gewicht ein, dann siehst du hier, wann du am Ziel bist.')+'</div></div>';return}
+    var GT=get('solgym.gtab')==='c'?'c':'n';
+    h+='<div class="seg2"><button data-gtab="n" class="'+(GT==='n'?'on':'')+'">Nur Ernährung</button><button data-gtab="c" class="'+(GT==='c'?'on':'')+'">Mit Cardio</button></div>';
+    window._goalBase={w:lw.v,tw:twx,pace:pace};
+    var c=cardioCfg();
+    h+='<div id="cardioIn"'+(GT==='c'?'':' hidden')+'>';
+    h+='<div class="glbl">Cardio</div><select class="gsel" data-cin="type">'+CARDIO_T.map(function(x){return '<option'+(x===c.type?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
+    h+='<div class="glbl">Pulszone</div><div class="zrow">'+ZN.map(function(z){return '<button data-cz="'+z[0]+'" class="'+(c.zone===z[0]?'on':'')+'">Z'+z[0]+'<small>'+z[1]+'</small></button>'}).join('')+'</div>';
+    h+='<div class="grow"><label><span class="glbl">Minuten pro Einheit</span><input class="gin" inputmode="numeric" data-cin="min" value="'+c.min+'"></label><label><span class="glbl">Mal pro Woche</span><input class="gin" inputmode="numeric" data-cin="per" value="'+c.per+'"></label></div>';
+    h+='</div><div id="goalRes"></div></div>';
+  })();
+
   // Training
   h+='<h2>Training</h2><div class="card">';
   if(!rep.workouts.length){h+='<div class="empty">Noch keine REPIT-Trainings in SOL-GYM. Unten steht, wie du sie holst.</div>'}
@@ -654,6 +707,7 @@ function renderAll(){
     document.querySelectorAll('[data-dtab]').forEach(function(x){x.classList.toggle('on',x===b)});
     document.querySelectorAll('[data-pane]').forEach(function(p){p.hidden=p.dataset.pane!==t})})});
   if(window._vItems&&document.getElementById('chV'))hookBars('chV',window._vItems,'roV','<span>Tippe auf eine Woche.</span>');
+  hookGoal();
   window._kItems=window._vItems=window._dItems=window._wkItems=null;
 }
 
