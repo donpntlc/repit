@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap">
 <style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Layout: phone-first app shell, one column (max 640px), fixed bottom tab bar, rest timer docked above it.
    Single deliberate dark look: black iron, brushed gold. */
 :root{
@@ -145,7 +146,7 @@ button.rbadge{cursor:pointer}
 .lbox{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:env(safe-area-inset-top) 0 var(--sab,env(safe-area-inset-bottom,0px))}.lbox img{max-width:100%;max-height:88vh;object-fit:contain}.lbox span{color:var(--muted);font-size:12px}
 .card.ex.ss{border-left:3px solid var(--gold)}.card.ex.warm{border-left:3px solid #4fa3c7}.card.ex.warm.ss{border-left-color:var(--gold)}.tagrow{display:flex;gap:10px;align-items:center;margin:-4px 0 6px}.tagrow .sstag{margin:0}.wtag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6cc0e3}.rtag{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-left:6px;padding:1px 5px;border-radius:5px;vertical-align:2px}.rtag.w{color:#6cc0e3;border:1px solid #2f6f8a}.rtag.s{color:var(--gold);border:1px solid #6b5626}.sstag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:-4px 0 6px}
 .pgoal{font-size:11px;font-weight:800;color:var(--gold-hi);margin-top:2px}.pgoal.up{color:var(--ok)}
-.pohint{margin-top:8px;font-size:13px;line-height:1.4;padding:8px 10px;border-radius:10px;background:rgba(201,162,74,.08);border:1px solid rgba(201,162,74,.35)}
+.pohint{-webkit-text-size-adjust:100%;margin-top:8px;font-size:13px;line-height:1.4;padding:8px 10px;border-radius:10px;background:rgba(201,162,74,.08);border:1px solid rgba(201,162,74,.35)}
 .pohint b{color:var(--gold-hi)}.pohint.up{background:rgba(124,194,135,.10);border-color:rgba(124,194,135,.5)}.pohint.up b{color:var(--ok)}
 .ladder{display:flex;flex-direction:column;gap:6px;margin:12px 0}
 .lad{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;font-size:13px}
@@ -417,8 +418,8 @@ function vTraining(){
 }
 function emptyRoutines(){return `<div class="empty"><strong>Noch keine Routinen</strong>Leg deine Trainingstage an, z. B. Legday Kraft und Legday Athletik.<div class="row" style="justify-content:center;margin-top:12px"><button class="btn gold sm" data-act="r-new">Routine erstellen</button><button class="btn ghost sm" data-act="tl-open">Vorlage wählen</button></div></div>`}
 
-function curIdx(){const x=S.active?S.active.exercises:[];if(S.active&&S.active.hold!=null){if(S.rest&&x[S.active.hold])return S.active.hold;delete S.active.hold}const f=x.findIndex(e=>e.sets.length&&e.sets.some(s=>!s.done));if(f<0||!x[f].ss)return f;
- let best=f,bd=1e9;x.forEach((e,i)=>{if(e.ss!==x[f].ss||!e.sets.some(s=>!s.done))return;const d=e.sets.filter(s=>s.done).length;if(d<bd){bd=d;best=i}});return best}
+function curIdx(){const x=S.active?S.active.exercises:[];if(S.active&&S.active.hold!=null){if(S.rest&&x[S.active.hold])return S.active.hold;delete S.active.hold}const f=x.findIndex(e=>!e.skip&&e.sets.length&&e.sets.some(s=>!s.done));if(f<0||!x[f].ss)return f;
+ let best=f,bd=1e9;x.forEach((e,i)=>{if(e.skip||e.ss!==x[f].ss||!e.sets.some(s=>!s.done))return;const d=e.sets.filter(s=>s.done).length;if(d<bd){bd=d;best=i}});return best}
 function ssLabel(e){if(!e.ss||!S.active)return '';const g=S.active.exercises.filter(x=>x.ss===e.ss);const ids=[...new Set(S.active.exercises.filter(x=>x.ss).map(x=>x.ss))];return (g.length>2?'Zirkel ':'Supersatz ')+String.fromCharCode(65+ids.indexOf(e.ss))+' · '+(g.indexOf(e)+1)+'/'+g.length}
 function ssLastIdx(e){if(!e.ss||!S.active)return -1;let k=-1;S.active.exercises.forEach((x,i)=>{if(x.ss===e.ss)k=i});return k}
 function vActive(){
@@ -463,7 +464,9 @@ function sIntro(){const i=S.introStep||0,x=INTRO[i];return `<div class="eyebrow"
  <div class="dots">${INTRO.map((_,j)=>`<span class="${j===i?'on':''}"></span>`).join('')}</div>
  <div class="row" style="gap:8px;flex-wrap:nowrap">${i>0?'<button class="btn ghost" style="flex:1" data-act="intro-prev">Zurück</button>':''}<button class="btn gold" style="flex:2" data-act="intro-next">${i<INTRO.length-1?'Weiter':'Los geht’s'}</button></div>${i===INTRO.length-1?'<button class="btn ghost full" style="margin-top:8px" data-act="guide">Ganze Funktionsanleitung öffnen</button>':''}`}
 function introSeen(){try{return !!localStorage.getItem('hantelbuch.intro')}catch(e){return true}}
+function lastSkip(name){for(const w of S.workouts){if(S.active&&S.active.editOf===w.id)continue;const e=(w.exercises||[]).find(x=>x.name===name);if(!e)continue;if(e.skip)return w;if(e.sets&&e.sets.some(s=>s.done))return null}return null}
 function exCard(e,i,cur){
+  if(e.skip)return `<div class="card ex" style="opacity:.6"><div class="spread" style="align-items:center"><div class="row" style="flex-wrap:nowrap;gap:10px;min-width:0;align-items:center">${imgTag(e.name,'exthumb')}<div style="min-width:0"><div class="exname" style="font-weight:800">${exTitle(e.name)}</div><span class="rtag" style="background:rgba(143,138,126,.2);color:var(--muted)">Heute ausgelassen</span></div></div><button class="btn ghost sm" data-act="ex-skip" data-i="${i}">Doch machen</button></div><div class="muted mini" style="margin-top:6px">Wird nicht gewertet. Beim nächsten Training siehst du wieder die Werte von davor.</div></div>`;
   const prev=prevFor(e.name)||[];const ssMid=!!e.ss&&ssLastIdx(e)!==i;const warm=isWarmEx(e.name);
   const cardio=isCardio(e);const goals=setGoals(e)||[];
   const rows=e.sets.map((s,j)=>{const p=prev[j]||s.goal;const G=goals[j];const pk=G?String(G.kg||''):p?String(num(p.kg)):'';const pr=G?String(G.reps):p?String(num(p.reps)):'';let wn=0;
@@ -478,6 +481,7 @@ function exCard(e,i,cur){
   return `<div class="card ex${cur?' cur':''}${e.ss?' ss':''}${warm?' warm':''}">${e.ss||warm?`<div class="tagrow">${warm?`<span class="wtag">Aufwärmen</span>`:''}${e.ss?`<span class="sstag">${ssLabel(e)}</span>`:''}</div>`:''}<div class="ex-head"><div class="row" style="flex-wrap:nowrap;gap:10px;min-width:0;align-items:flex-start">${imgTag(e.name,'exthumb',`data-act="ex-open" data-v="${esc(e.name)}"`)}<div style="min-width:0"><h3 data-act="ex-open" data-v="${esc(e.name)}">${exTitle(e.name)}</h3><div class="muted mini">${lt?'Zuletzt '+ago(lt):'Erstes Mal'}${e.uni?` · <span style="color:var(--gold)">einseitig, Wechsel ${mmss(e.uniRest||15)}</span>`:''}</div></div></div>
   <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn text sm" data-act="ex-menu" data-i="${i}" aria-label="Optionen">•••</button></div></div>
   <div class="exmeta">${cardio?'':targetBox(`data-in="ent" data-i="${i}"`,e.target)}${gearBtn(e.name)}</div>
+  ${(()=>{const sw=lastSkip(e.name);if(!sw)return '';const ss=sessions(e.name).filter(x=>!(S.active&&S.active.editOf===x.w.id));return `<div class="mini" style="margin-top:6px;color:var(--muted)">Letztes Mal (${fShort(sw.start)}) ausgelassen.${ss[0]?' „Vorher“ zeigt die Werte vom '+fShort(ss[0].w.start)+'.':''}</div>`})()}
   ${poHint(e)}
   ${noteBox(`data-in="ent" data-i="${i}"`,e.note,e.next,e.nextDate)}
   <table class="sets" style="margin-top:8px"><thead><tr><th>Satz</th><th>Vorher</th><th>${cardio?'':'kg'}</th><th>${cardio?'Min':'Wdh.'}</th><th></th></tr></thead><tbody>${rows}</tbody></table>
@@ -623,7 +627,7 @@ function pList(){
 }
 function sMenu({i}){
   const e=S.active.exercises[i];
-  return `<h2>${esc(e.name)}</h2><div class="eyebrow" style="margin-bottom:8px">Pausenzeit</div>
+  return `<h2>${esc(e.name)}</h2><button class="btn ghost full" style="margin:4px 0 14px" data-act="ex-skip" data-i="${i}">${e.skip?'Doch machen':'Heute auslassen (z. B. zur Schonung)'}</button><div class="eyebrow" style="margin-bottom:8px">Pausenzeit</div>
   <div class="row">${[45,60,90,120,150,180,240,300].map(s=>`<button class="chip ${(e.rest||S.restDefault)===s?'on':''}" data-act="ex-rest" data-i="${i}" data-v="${s}">${mmss(s)}</button>`).join('')}</div>
   <div class="eyebrow" style="margin:14px 0 8px">Einseitig trainieren (links/rechts)</div>
   <div class="row"><button class="chip ${e.uni?'on':''}" data-act="ex-uni" data-i="${i}">${e.uni?'✓ Einseitig an':'Einseitig aus'}</button>${e.uni?[10,15,20,30,45,60].map(s=>`<button class="chip ${(e.uniRest||15)===s?'on':''}" data-act="ex-unirest" data-i="${i}" data-v="${s}">Wechsel ${mmss(s)}</button>`).join(''):''}</div>
@@ -769,7 +773,7 @@ function sHist({id}){
   <div class="row" style="flex-wrap:nowrap;gap:8px;margin-top:10px"><label class="mini muted" style="flex:1">Start<input class="field" type="time" style="color:var(--gold-hi);font-weight:700" data-in="htime" data-k="start" data-w="${w.id}" value="${hhmm(w.start)}"></label><label class="mini muted" style="flex:1">Ende<input class="field" type="time" style="color:var(--gold-hi);font-weight:700" data-in="htime" data-k="end" data-w="${w.id}" value="${hhmm(w.end||w.start)}"></label></div>
   ${(w.prs||[]).length?`<div class="row" style="margin-top:10px">${w.prs.map(p=>`<span class="pr">${esc(p.kind)}: ${esc(p.name)}</span>`).join('')}</div>`:''}
   <div class="ntl">Notiz zum Training</div><textarea class="nt" data-in="hwnote" data-w="${w.id}" rows="${ntRows(w.note)}" placeholder="Notiz zum Training">${esc(w.note||'')}</textarea>
-  <div class="stack" style="margin-top:12px">${w.exercises.map((e,k)=>`<div><div style="font-weight:700;color:var(--gold-hi);cursor:pointer" data-act="ex-open" data-v="${esc(e.name)}">${exTitle(e.name)} <span class="muted mini">ⓘ</span></div>${isCardio(e)?'':targetBox(`data-in="hnt" data-w="${w.id}" data-k="${k}"`,e.target)}${e.sets.filter(s=>s.done).map((s,j)=>`<div class="wline num"><span class="muted">${s.type==='w'?'W':j+1}</span><span>${isCardio(e)?`<input class="cell" style="width:64px;display:inline-block;padding:4px 6px" inputmode="numeric" data-in="hcmin" data-w="${w.id}" data-k="${k}" data-j="${j}" value="${num(s.reps)}"> min${zoneOf(e)?' · Zone '+e.zone:''}`:fmt(num(s.kg))+' kg × '+num(s.reps)}${s.rpe?effBadge(s.rpe):''}${s.rest?` <span class="muted">· Pause ${mmss(s.rest)}</span>`:''}</span></div>`).join('')}${noteBox(`data-in="hnt" data-w="${w.id}" data-k="${k}"`,e.note,e.next,e.nextDate)}</div>`).join('')}</div>
+  <div class="stack" style="margin-top:12px">${w.exercises.map((e,k)=>`<div><div style="font-weight:700;color:var(--gold-hi);cursor:pointer" data-act="ex-open" data-v="${esc(e.name)}">${exTitle(e.name)} <span class="muted mini">ⓘ</span>${e.skip?' <span class="muted mini">· ausgelassen</span>':''}</div>${isCardio(e)?'':targetBox(`data-in="hnt" data-w="${w.id}" data-k="${k}"`,e.target)}${e.sets.filter(s=>s.done).map((s,j)=>`<div class="wline num"><span class="muted">${s.type==='w'?'W':j+1}</span><span>${isCardio(e)?`<input class="cell" style="width:64px;display:inline-block;padding:4px 6px" inputmode="numeric" data-in="hcmin" data-w="${w.id}" data-k="${k}" data-j="${j}" value="${num(s.reps)}"> min${zoneOf(e)?' · Zone '+e.zone:''}`:fmt(num(s.kg))+' kg × '+num(s.reps)}${s.rpe?effBadge(s.rpe):''}${s.rest?` <span class="muted">· Pause ${mmss(s.rest)}</span>`:''}</span></div>`).join('')}${noteBox(`data-in="hnt" data-w="${w.id}" data-k="${k}"`,e.note,e.next,e.nextDate)}</div>`).join('')}</div>
   <div class="stack" style="margin-top:16px"><button class="btn gold full" data-act="h-edit" data-v="${w.id}">Training bearbeiten (Sätze, Cardio …)</button><button class="btn ghost full" data-act="h-routine" data-v="${w.id}">Als Routine speichern</button><button class="btn ghost full" data-act="h-again" data-v="${w.id}">Nochmals machen</button><button class="btn danger full" data-act="h-del" data-v="${w.id}">Training löschen</button></div>`;
 }
 function notesBlock(name){const nh=noteHist(name);const rn=(S.routines.flatMap(r=>r.exercises).find(e=>e.name===name&&e.note)||{}).note||'';
@@ -790,8 +794,8 @@ function sEx({name}){
   <div class="stack">${ss.slice(0,12).map(({w,e})=>`<div><div class="spread mini"><span style="font-weight:700">${fDate(w.start)}</span><span class="muted">${esc(w.name)}</span></div><div class="muted mini num">${doneSets(e).map(s=>fmt(num(s.kg))+'×'+num(s.reps)).join(' · ')}</div></div>`).join('')}</div>`
   :'<div class="empty">Noch keine Sätze für diese Übung. Nach dem ersten Training siehst du hier Rekorde und Verlauf.</div>'}`;
 }
-function finOpenList(){if(!S.active)return '';const rows=S.active.exercises.map((e,i)=>{const op=e.sets.map((st,j)=>[st,j]).filter(([st])=>!st.done);if(!op.length)return '';const c=isCardio(e);return `<div style="margin-top:10px"><div style="font-weight:700;color:var(--gold-hi)">${esc(e.name)}</div><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${op.map(([st,j])=>`<button class="chip" data-act="fin-tick" data-i="${i}" data-j="${j}">☐ Satz ${j+1}${st.reps!==''?' · '+(c?num(st.reps)+' min':(st.kg!==''?fmt(num(st.kg))+' kg × ':'')+num(st.reps)):''}</button>`).join('')}</div></div>`}).join('');return rows?`<div class="eyebrow" style="margin-top:6px">Nicht abgehakt – hast du es gemacht? Antippen zum Abhaken</div>${rows}<div style="height:14px"></div>`:''}
-function sConfirm({title,text,yes,act,v,danger,alt,fin}){if(fin&&S.active){const open=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>!s.done).length,0);text=open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt. Was du nicht abhakst, wird nicht gespeichert.`:'Alle Sätze sind abgehakt.'}return `<h2>${title}</h2><p class="muted">${text}</p>${fin?finOpenList():''}<div class="stack">${alt?`<button class="btn gold full" data-act="${alt.act}">${alt.label}</button>`:''}<button class="btn ${danger?'danger':alt?'ghost':'gold'} full" data-act="${act}" data-v="${v||''}">${yes}</button><button class="btn ghost full" data-act="close">Abbrechen</button></div>`}
+function finOpenList(){if(!S.active)return '';const rows=S.active.exercises.map((e,i)=>{if(e.skip)return '';const op=e.sets.map((st,j)=>[st,j]).filter(([st])=>!st.done);if(!op.length)return '';const c=isCardio(e);return `<div style="margin-top:10px"><div style="font-weight:700;color:var(--gold-hi)">${esc(e.name)}</div><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${op.map(([st,j])=>`<button class="chip" data-act="fin-tick" data-i="${i}" data-j="${j}">☐ Satz ${j+1}${st.reps!==''?' · '+(c?num(st.reps)+' min':(st.kg!==''?fmt(num(st.kg))+' kg × ':'')+num(st.reps)):''}</button>`).join('')}</div></div>`}).join('');return rows?`<div class="eyebrow" style="margin-top:6px">Nicht abgehakt – hast du es gemacht? Antippen zum Abhaken</div>${rows}<div style="height:14px"></div>`:''}
+function sConfirm({title,text,yes,act,v,danger,alt,fin}){if(fin&&S.active){const open=S.active.exercises.reduce((a,e)=>a+(e.skip?0:e.sets.filter(s=>!s.done).length),0);text=open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt. Was du nicht abhakst, wird nicht gespeichert.`:'Alle Sätze sind abgehakt.'}return `<h2>${title}</h2><p class="muted">${text}</p>${fin?finOpenList():''}<div class="stack">${alt?`<button class="btn gold full" data-act="${alt.act}">${alt.label}</button>`:''}<button class="btn ${danger?'danger':alt?'ghost':'gold'} full" data-act="${act}" data-v="${v||''}">${yes}</button><button class="btn ghost full" data-act="close">Abbrechen</button></div>`}
 function sSummary({id}){
   const w=S.workouts.find(x=>x.id===id)||S.lastSaved;if(!w)return '';
   if(!w.feel&&!S.sheet.skipFeel)return `<div style="min-height:60vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:10px 0"><div class="eyebrow">Training gespeichert</div><h2 style="margin:6px 0 18px">Wie hat sich das Training angefühlt?</h2><div class="stack">${CI_FEEL.map((t,k)=>`<button class="btn ghost full" style="justify-content:flex-start;font-size:16px;padding:14px 16px" data-act="ci-feel" data-v="${k+1}" data-w="${w.id}"><b style="color:var(--gold-hi);margin-right:12px">${k+1}</b>${t}</button>`).join('')}</div><button class="btn text full" style="margin-top:10px" data-act="ci-skip">Überspringen</button></div>`;
@@ -856,7 +860,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='01.11. 01:15'
+const APPV='06.11. 10:00'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -1036,7 +1040,7 @@ function defaultName(){const h=new Date().getHours();return h<11?'Morgentraining
 
 function finishWorkout(update){
   const a=clone(S.active);const wasEdit=!!a.editOf;a.end=wasEdit?(a.end||Date.now()):Date.now();if(wasEdit){const orig=S.workouts.find(x=>x.id===a.editOf);const cm=w=>(w.exercises||[]).filter(e=>isCardio(e)).reduce((t,e)=>t+e.sets.filter(st=>st.done).reduce((u,st)=>u+num(st.reps),0),0);if(orig)a.end=(orig.end||a.end)+(cm(a)-cm(orig))*60000}if(!wasEdit){for(const e of a.exercises)if(isCardio(e))for(const st of e.sets)if(st.done&&st.cstart){const pe=st.cstart+num(st.reps)*60000;if(pe>a.end)a.end=pe}if(S.rest&&/^Cardio/.test(S.rest.label||'')){S.rest=null;try{stopRestAudio()}catch(x){}}}delete a.editOf;if(wasEdit)update=false;
-  a.exercises=a.exercises.map(e=>({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.sets.length);
+  a.exercises=a.exercises.map(e=>e.skip?{name:e.name,skip:true,target:e.target||'',note:e.note||'',sets:[]}:({...e,sets:e.sets.filter(s=>s.done)})).filter(e=>e.skip||e.sets.length);
   const prs=[];
   for(const e of a.exercises){if(!sessions(e.name).length)continue;const b=bests(e.name,a.id);const bs=bestSet(e);if(!bs)continue;const kg=num(bs.kg),r=num(bs.reps);
     const top=Math.max(...doneSets(e).map(s=>num(s.kg)));
@@ -1143,11 +1147,12 @@ const ACT={
   'ex-rest':(el)=>{S.active.exercises[+el.dataset.i].rest=+el.dataset.v;saveActive();renderSheet();renderMain()},
   'ex-move':(el)=>{const i=+el.dataset.i,d=+el.dataset.v,x=S.active.exercises,k=i+d;if(k<0||k>=x.length)return;[x[i],x[k]]=[x[k],x[i]];saveActive();closeSheet();renderMain()},
   'del-set':(el)=>{const e=S.active.exercises[+el.dataset.i];e.sets.pop();saveActive();closeSheet();renderMain()},
+  'ex-skip':(el)=>{const e=S.active.exercises[+el.dataset.i];if(!e)return;if(e.skip)delete e.skip;else{if(e.sets.some(s=>s.done))return toast('Hier ist schon ein Satz abgehakt. Entferne zuerst die abgehakten Sätze.');e.skip=true;if(S.rest&&S.active.hold===+el.dataset.i)delete S.active.hold}saveActive();if(S.sheet)closeSheet();renderMain();toast(e.skip?'Heute ausgelassen':'Übung wieder aktiv')},
   'ex-del':(el)=>{S.active.exercises.splice(+el.dataset.i,1);saveActive();closeSheet();renderMain()},
   'ex-open':(el)=>openSheet({type:'ex',name:el.dataset.v,back:S.sheet&&S.sheet.type!=='ex'?S.sheet:null}),
   finish:()=>{if(S.active.editOf){finishWorkout();return toast('Training aktualisiert')}const n=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0);
     if(!n)return openSheet({type:'confirm',title:'Noch kein Satz abgehakt',text:'Hake mindestens einen Satz ab, damit das Training gespeichert wird. Oder verwirf es.',yes:'Training verwerfen',act:'discard',danger:true});
-    const open=S.active.exercises.reduce((a,e)=>a+e.sets.filter(s=>!s.done).length,0);
+    const open=S.active.exercises.reduce((a,e)=>a+(e.skip?0:e.sets.filter(s=>!s.done).length),0);
     openSheet({type:'confirm',fin:true,title:'Training beenden?',text:open?`${open} ${open===1?'Satz ist':'Sätze sind'} nicht abgehakt und ${open===1?'wird':'werden'} nicht gespeichert.`:'Alle Sätze sind abgehakt.',yes:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?'Nur speichern (Routine bleibt wie sie war)':'Training speichern',act:'finish-ok',alt:S.active.routineId&&S.routines.some(r=>r.id===S.active.routineId)?{act:'finish-upd',label:'Speichern & Routine überarbeiten'}:null})},
   'finish-ok':()=>{closeSheet();finishWorkout()},
   'finish-upd':()=>{closeSheet();finishWorkout(true);toast('Routine überarbeitet')},
