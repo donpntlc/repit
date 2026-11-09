@@ -112,6 +112,9 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **SOL-GYM Gesamt „Wann am Ziel?“:** Umschalter Nur Ernährung / Mit Cardio. Basis: Defizit aus Phasen-Ziel (`phase_goal_v1.kcal`, sonst Ø), Ziel `targetWeight`, 7000 kcal/kg. Cardio: Gerät, Zone (MET × Zonenfaktor wie REPIT), Minuten, Mal/Woche (`solgym.cardio`), zeigt kcal pro Einheit/Woche/Tag, Tage + Datum und „X Tage früher“.
 - **Offen (Bild, braucht Mac/ChatGPT):** Cable Crunch Sideways neu: Seil mit der **äusseren** Hand (weg vom Turm) halten und die **äussere** Bauchseite trainieren (leuchtend schräge Bauchmuskeln der turmfernen Seite).
 
+### Erledigt 09.11. (APPV „09.11. 17:40")
+- **Einseitig: Start Links/Rechts:** ••• der Übung → bei „Einseitig an“ Zeile „Start mit Links | Rechts“ (`e.uniStart`, Standard L). Halber Haken zeigt „L ✓“/„R ✓“, Wechselpause heisst „Seitenwechsel → Rechts/Links“. Wird mit `uni`/`uniRest` in die Routine übernommen (start-r, finishWorkout).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
