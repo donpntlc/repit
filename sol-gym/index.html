@@ -135,6 +135,7 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .verdict.ok{border-color:#3f6b45;background:#121a14}
 .vrow{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}.vrow span{color:var(--muted)}.vrow b{font-variant-numeric:tabular-nums}
 .vtxt{font-size:13.5px;line-height:1.45;margin-top:8px}.vsmall{font-size:11.5px;color:var(--muted);margin-top:6px}
+.tokbtn{appearance:none;margin-left:6px;border:1px solid var(--line);background:#0f0f11;color:var(--gold);font:inherit;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;cursor:pointer}
 details.more{margin-top:12px}details.more summary{cursor:pointer;color:var(--gold);font-weight:700;font-size:13.5px;list-style:none}
 details.more summary::-webkit-details-marker{display:none}details.more summary::after{content:' ›'}details.more[open] summary::after{content:' ‹'}
 details.more .wk{grid-template-columns:1.2fr 1fr 1fr;margin-top:8px}
@@ -243,7 +244,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
   </main>
 </div>
 
-<div id="wgate" role="dialog" aria-modal="true"><div class="box"><h3>Gewicht heute</h3><p>Einmal eintragen, gilt automatisch in REPIT und PREPIT.</p><input id="wgIn" type="text" inputmode="decimal" placeholder="z. B. 82,5" autocomplete="off"><div class="row"><button id="wgSkip">Heute nicht</button><button class="g" id="wgSave">Speichern</button></div></div></div>
+<div id="wgate" role="dialog" aria-modal="true"><div class="box"><h3>Gewicht heute</h3><p>Einmal eintragen, gilt automatisch in REPIT und PREPIT.</p><input id="wgIn" type="text" inputmode="decimal" placeholder="z. B. 82,5" autocomplete="off"><div class="row"><button id="wgSkip">Heute nicht</button><button class="g" id="wgSave">Speichern</button></div></div><div class="box" id="tokBox" hidden><h3>Gestern richtig getrackt?</h3><p id="tokTxt">Nur dann zählt der Tag für dein Defizit und dein Ziel.</p><div class="row"><button id="tokNo">Nein, nicht zählen</button><button class="g" id="tokYes">Ja</button></div></div></div>
 <section id="home">
   <img class="hmark" src="sol-mark.png" alt=""><div class="hlogo"><span class="sol">SOL</span><i class="dash"></i><b>GYM</b></div>
   <div class="hsub">Ernährung und Training in einer App.</div>
@@ -276,7 +277,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='06.11. 11:10';
+var SOLGYM_V='12.11. 12:25';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -324,7 +325,8 @@ document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('
 $('[data-close]').addEventListener('click',function(){if(Date.now()-OPENED>450)closeChooser()});
 $('[data-choose]').addEventListener('click',openChooser);
 function openGuide(){$('#guide').classList.add('on');$('#guide').scrollTop=0}
-document.addEventListener('click',function(e){var g=e.target.closest&&e.target.closest('[data-guide]');if(g){openGuide()}
+document.addEventListener('click',function(e){var tb=e.target.closest&&e.target.closest('[data-tok]');if(tb){tokSet(tb.dataset.tok,tb.dataset.v==='1'?true:false);var sc=$('#all').scrollTop;renderAll();$('#all').scrollTop=sc;return}
+  var g=e.target.closest&&e.target.closest('[data-guide]');if(g){openGuide()}
   if(e.target.closest&&e.target.closest('[data-guide-close]'))$('#guide').classList.remove('on')});
 // Tipp aufs Logo in REPIT oder PREPIT schickt „solgym:switch“ → Auswahl zeigen.
 var DIRECT=0;
@@ -337,6 +339,10 @@ measure();addEventListener('resize',measure);
 
 /* ---------- GESAMT: Daten lesen ---------- */
 function pj(raw){try{var v=JSON.parse(raw);if(typeof v==='string'){try{v=JSON.parse(v)}catch(e){}}return v}catch(e){return null}}
+// „Richtig getrackt?“ pro Tag: {"2026-11-11":false,...}. Liegt als flutter.*-Schlüssel, damit PREPIT es auch liest.
+var TOK='flutter.day_tracked_ok_v1';
+function tokMap(){var m=pj(get(TOK));return m&&typeof m==='object'?m:{}}
+function tokSet(k,v){var m=tokMap();if(v===null)delete m[k];else m[k]=v;set(TOK,JSON.stringify(JSON.stringify(m)))}
 function n(v){v=parseFloat(String(v==null?'':v).replace(',','.'));return isFinite(v)?v:0}
 function dk(d){d=new Date(d);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function addDays(d,k){var x=new Date(d);x.setDate(x.getDate()+k);return x}
@@ -558,9 +564,10 @@ function renderAll(){
   else if(!M){h+='<div class="empty">Öffne einmal PREPIT (Tracking), dann kennt Gesamt deinen Tagesbedarf und rechnet hier dein Defizit aus.</div>'}
   else{
     var refDef=ph&&!bulk&&n(ph.kcal)>0?n(ph.kcal):(prep.bridgeGoal&&M-prep.bridgeGoal>50?M-prep.bridgeGoal:0);
-    function dayDef(k){var d=prep.days[k],tr=trainDay[k]||0,t=!!(d&&d.kcal>50),sv=t?M-d.kcal:0;return {saved:sv,train:tr,tracked:t,total:sv+tr}}
+    var TOKM=tokMap();
+    function dayDef(k){var d=prep.days[k],tr=trainDay[k]||0,has=!!(d&&d.kcal>50),off=has&&TOKM[k]===false,t=has&&!off,sv=t?M-d.kcal:0;return {saved:sv,train:tr,tracked:t,off:off,has:has,total:sv+tr}}
     var dItems,tDays=keys.filter(function(k){return dayDef(k).tracked});
-    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?fmt(x.total)+' kcal Defizit':fmt(-x.total)+' kcal zu viel')+'</b> <span>· '+(x.saved>=0?fmt(x.saved)+' gespart':fmt(-x.saved)+' zu viel gegessen')+(x.train?' + '+fmt(x.train)+' Training':'')+'</span>':'<b>nicht getrackt</b>'+(x.train?' <span>· Training '+fmt(x.train)+' kcal</span>':''))}
+    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?fmt(x.total)+' kcal Defizit':fmt(-x.total)+' kcal zu viel')+'</b> <span>· '+(x.saved>=0?fmt(x.saved)+' gespart':fmt(-x.saved)+' zu viel gegessen')+(x.train?' + '+fmt(x.train)+' Training':'')+'</span>':(x.off?'<b>zählt nicht</b> <span>(nicht richtig getrackt)</span>':'<b>nicht getrackt</b>')+(x.train?' <span>· Training '+fmt(x.train)+' kcal</span>':''))+(x.has?' <button class="tokbtn" data-tok="'+k+'" data-v="'+(x.off?'1':'0')+'">'+(x.off?'Doch zählen':'Nicht zählen')+'</button>':'')}
     if(RANGE<=30){dItems=keys.map(function(k){var x=dayDef(k);x.label=k.slice(8,10);x.tip=tipDay(k);return x})}
     else{dItems=[];for(var s2=0;s2<keys.length;s2+=7){var wk2=keys.slice(s2,s2+7),tt=wk2.filter(function(k){return dayDef(k).tracked}),
       sv2=tt.length?tt.reduce(function(a,k){return a+dayDef(k).saved},0)/tt.length:0,tr2=wk2.reduce(function(a,k){return a+(trainDay[k]||0)},0)/wk2.length;
@@ -729,7 +736,14 @@ function syncWeights(){var r=wRead(),rc=false,pc=false;if(!r.rep&&!r.pm)return {
 function hasTodayW(){var r=wRead(),k=todayK(),ok=false;if(r.pm&&pkg(r.pm[k])>0)ok=true;if(r.rep&&Array.isArray(r.rep.body))r.rep.body.forEach(function(b){if(b.date===k&&n(b.weight)>0)ok=true});return ok}
 function saveTodayW(kg){var r=wRead(),k=todayK();if(!r.rep)r.rep={routines:[],workouts:[],body:[]};if(!Array.isArray(r.rep.body))r.rep.body=[];var e=null;r.rep.body.forEach(function(b){if(b.date===k)e=b});if(e)e.weight=String(kg);else r.rep.body.push({date:k,weight:String(kg),photos:[]});
   if(!r.pm)r.pm={};var old=r.pm[k];var ent={kg:kg,at:locIso()};if(old&&typeof old==='object'){if(old.img)ent.img=old.img;if(old.imgB64)ent.imgB64=old.imgB64}r.pm[k]=ent;wWrite(r,true,true)}
-function weightGate(done){try{syncWeights()}catch(e){}var r=wRead();var used=(r.rep&&(r.rep.workouts||[]).length)||r.pm;
+function yestK(){var d=new Date();d.setDate(d.getDate()-1);return dk(d)}
+function trackGate(done){var y=yestK(),ph=pj(get('flutter.phase_goal_v1')),prep=readPrep(),d=prep.days[y];
+  if(!(ph&&typeof ph==='object')||!(d&&d.kcal>50)||(y in tokMap()))return done();
+  var g=$('#wgate');$('#wgate .box').hidden=true;$('#tokBox').hidden=false;g.classList.add('on');
+  $('#tokTxt').textContent='Gestern ('+ddmm(y)+'): '+fmt(d.kcal)+' kcal eingetragen. Nur wenn das stimmt, zählt der Tag für dein Defizit und dein Ziel.';
+  var fin=function(v){tokSet(y,v);g.classList.remove('on');$('#tokBox').hidden=true;$('#wgate .box').hidden=false;done()};
+  $('#tokYes').onclick=function(){fin(true)};$('#tokNo').onclick=function(){fin(false)}}
+function weightGate(done0){var done=function(){trackGate(done0)};try{syncWeights()}catch(e){}var r=wRead();var used=(r.rep&&(r.rep.workouts||[]).length)||r.pm;
   if(!used||hasTodayW()||get('solgym.wask')===todayK())return done();
   var g=$('#wgate'),inp=$('#wgIn');g.classList.add('on');setTimeout(function(){try{inp.focus()}catch(e){}},200);
   var fin=function(){set('solgym.wask',todayK());g.classList.remove('on');try{inp.blur()}catch(e){}done()};
