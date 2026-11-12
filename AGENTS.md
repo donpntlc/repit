@@ -115,6 +115,9 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 ### Erledigt 09.11. (APPV „09.11. 17:40")
 - **Einseitig: Start Links/Rechts:** ••• der Übung → bei „Einseitig an“ Zeile „Start mit Links | Rechts“ (`e.uniStart`, Standard L). Halber Haken zeigt „L ✓“/„R ✓“, Wechselpause heisst „Seitenwechsel → Rechts/Links“. Wird mit `uni`/`uniRest` in die Routine übernommen (start-r, finishWorkout).
 
+### Erledigt 12.11. (APPV „12.11. 10:40")
+- **Fotos in der Geräte-Einstellung:** Einstellung-Knopf der Übung → unten „Fotos der Einstellung“ (＋ Foto, antippen = gross, × = löschen mit Bestätigung). Gespeichert in `S.gear[name].photos` [{id,t}], Bild in IndexedDB (`ph:local-…`), Input `#gearPhIn`. Knopf zeigt „· Foto“. Backup nimmt die Fotos mit.
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
