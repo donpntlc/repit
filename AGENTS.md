@@ -119,6 +119,10 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **Fotos in der Geräte-Einstellung:** Einstellung-Knopf der Übung → unten „Fotos der Einstellung“ (＋ Foto, antippen = gross, × = löschen mit Bestätigung). Gespeichert in `S.gear[name].photos` [{id,t}], Bild in IndexedDB (`ph:local-…`), Input `#gearPhIn`. Knopf zeigt „· Foto“. Backup nimmt die Fotos mit.
 - **13.11. (APPV „13.11. 10:50"):** Foto blieb leer. Fix: `renderSheet` ruft jetzt `_afterRender()` (lädt Fotos auch im Sheet), neue Fotos (Gerät + Körper) werden als Daten-Link (Text) in IndexedDB gespeichert statt als Blob (iPhone zeigt Blobs aus IndexedDB oft nicht an); `hydratePhotos` kann beides.
 
+### Erledigt 13.11. (APPV „13.11. 11:14")
+- **Übung ersetzen:** ••• der Übung im Training → „Übung ersetzen“. Modus „Gleiche Muskeln“ (Standard) zeigt Übungen mit gleichem Hauptmuskel (aus  Spalte Hauptmuskeln, Zuordnung , , ), darunter „Teilweise gleiche Muskeln“; ohne Beschreibung → gleiche Rubrik. „Frei wählen“ = normale Liste. Erledigte Sätze bleiben bei der alten Übung, die neue kommt direkt dahinter. Nur im laufenden Training (nicht im Routinen-Editor).
+- **EMOM-Vorlagen (Outdoor):** Training-Reiter → „EMOM-Vorlagen (Outdoor)“ (Sheet , Liste ): Ganzkörper Starter 16 Min, Burpee-Power 20, Park: Stange & Bank 20, Kampfsport-Kondition 15. Startet Training mit  {min,list,t0,m,end}; Karte oben mit Minute x/y, Countdown, aktueller + nächster Übung; jede volle Minute Piepton + Satz automatisch abgehakt (/), keine Satzpause im EMOM. Neue Übungen: Kniebeuge (Körpergewicht), Jump Squats, Mountain Climbers (ohne Bild).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.

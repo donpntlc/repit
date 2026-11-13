@@ -282,7 +282,7 @@ const LIB=[['Frontheben am Kabel','Schultern'],['Stiff Leg Deadlift (Cable)','Be
 ['Kniebeuge','Beine'],['Frontkniebeuge','Beine'],['Beinpresse','Beine'],['Hackenschmidt','Beine'],['Rumänisches Kreuzheben','Beine'],['Ausfallschritte','Beine'],['Bulgarian Split Squat','Beine'],['Step-ups','Beine'],['Beinstrecker','Beine'],['Beinbeuger liegend','Beine'],['Beinbeuger sitzend','Beine'],['Hip Thrust','Beine'],['Abduktoren (Maschine)','Beine'],['Adduktoren (Maschine)','Beine'],['Wadenheben stehend','Beine'],['Wadenheben sitzend','Beine'],
 ['Langhantelcurls','Arme'],['Kurzhantelcurls','Arme'],['Hammercurls','Arme'],['Kabelcurls','Arme'],['Kabelcurls einarmig','Arme'],['Scottcurls','Arme'],['Trizepsdrücken am Kabel','Arme'],['French Press','Arme'],['Enges Bankdrücken','Arme'],['Überkopf-Trizeps (Kabel)','Arme'],
 ['Plank (Sek.)','Core'],['Hängendes Beinheben','Core'],['Cable Crunch','Core'],['Ab Wheel','Core'],['Dragon Flag','Core'],['Russian Twists','Core'],['Pallof Press','Core'],
-['Power Clean','Athletik'],['Kettlebell Swing','Athletik'],['Box Jumps','Athletik'],['Broad Jumps','Athletik'],['Sled Push','Athletik'],['Medizinball-Wurf','Athletik'],['Sprints (m)','Athletik'],['Farmer\'s Walk','Athletik'],['Sprawl','Athletik'],['Double-Leg-Shot (Ringen)','Athletik'],['Ringerbrücke','Athletik'],['Kip-up','Athletik'],['Technical Stand-up','Athletik'],['Hip Escape (Shrimp)','Athletik'],['Sit-out (Ringen)','Athletik'],['Schattenboxen (Sek.)','Athletik'],['Boxsack (Sek.)','Athletik'],['Seilspringen (Sek.)','Athletik'],['Burpees','Athletik']
+['Power Clean','Athletik'],['Kettlebell Swing','Athletik'],['Box Jumps','Athletik'],['Broad Jumps','Athletik'],['Sled Push','Athletik'],['Medizinball-Wurf','Athletik'],['Sprints (m)','Athletik'],['Farmer\'s Walk','Athletik'],['Sprawl','Athletik'],['Double-Leg-Shot (Ringen)','Athletik'],['Ringerbrücke','Athletik'],['Kip-up','Athletik'],['Technical Stand-up','Athletik'],['Hip Escape (Shrimp)','Athletik'],['Sit-out (Ringen)','Athletik'],['Schattenboxen (Sek.)','Athletik'],['Boxsack (Sek.)','Athletik'],['Seilspringen (Sek.)','Athletik'],['Burpees','Athletik'],['Kniebeuge (Körpergewicht)','Beine'],['Jump Squats','Athletik'],['Mountain Climbers','Core']
 ];
 
 /* ---------- State ---------- */
@@ -412,7 +412,7 @@ function vTraining(){
   const wk=S.workouts.filter(w=>w.start>Date.now()-7*864e5).length;
   return `${reportCard()}<div class="card hero stack"><div class="eyebrow">Diese Woche</div><div class="big num">${wk} ${wk===1?'Training':'Trainings'}</div>
   ${last?`<div class="muted mini">Zuletzt: ${esc(last.name)}, ${fDate(last.start)} · ${fmt(wVolume(last))} kg Volumen</div>`:'<div class="muted mini">Starte dein erstes Training. Jeder Satz wird gespeichert.</div>'}
-  <button class="btn gold full" data-act="start-empty">Leeres Training starten</button><div class="row" style="justify-content:center;gap:4px;flex-wrap:wrap"><button class="btn text sm" data-act="intro-open">So funktioniert REPIT →</button><button class="btn text sm" data-act="guide">Alle Funktionen →</button></div></div>
+  <button class="btn gold full" data-act="start-empty">Leeres Training starten</button><button class="btn ghost full" data-act="emom-open">EMOM-Vorlagen (Outdoor)</button><div class="row" style="justify-content:center;gap:4px;flex-wrap:wrap"><button class="btn text sm" data-act="intro-open">So funktioniert REPIT →</button><button class="btn text sm" data-act="guide">Alle Funktionen →</button></div></div>
   <div class="spread"><h2>Routinen</h2>${S.routines.filter(r=>r.folder!=='coach').length>1?'<button class="btn text sm" data-act="ro-open">Reihenfolge</button>':''}</div>
   ${weekBar()}${S.routines.filter(r=>r.folder!=='coach').length?`<div class="rgrid">${weekFilter(S.routines.filter(r=>r.folder!=='coach')).map(routineCard).join('')}</div>`:emptyRoutines()}
   <div class="sep"></div>
@@ -428,7 +428,7 @@ function vActive(){
   const a=S.active;
   return `<div class="wk-head"><div class="spread"><span class="eyebrow">${a.editOf?'Training bearbeiten · '+fDate(a.start):'Training läuft'}</span>${a.editOf?'':'<span class="timer num" id="elapsed">0:00</span>'}</div>
   <input class="wk-name" id="wname" data-in="wname" value="${esc(a.name)}" aria-label="Name des Trainings"></div>
-  <div class="card"><div class="ntl" style="margin-top:0">Notiz zum Training</div><textarea class="nt" data-in="wnote" rows="${ntRows(a.note)}" placeholder="Wie lief's, Schlaf, Energie …">${esc(a.note||'')}</textarea></div>
+  ${emomCard()}<div class="card"><div class="ntl" style="margin-top:0">Notiz zum Training</div><textarea class="nt" data-in="wnote" rows="${ntRows(a.note)}" placeholder="Wie lief's, Schlaf, Energie …">${esc(a.note||'')}</textarea></div>
   <div class="exsep"><span>Übungen</span></div>
   <div class="stack">${a.exercises.map((e,i)=>exCard(e,i,i===curIdx())).join('')}</div>
   <div class="stack" style="margin-top:14px">
@@ -610,13 +610,20 @@ function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
   sh.hidden=false;bd.hidden=false;
-  const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView,report:sReport})[S.sheet.type];
+  const f=({picker:sPicker,emom:sEmom,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView,report:sReport})[S.sheet.type];
   sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);_afterRender();
 }
 function sPicker(){
-  return `<div class="spread"><h2>Übung wählen</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
+  const rp=S.sheet.target==='replace';const old=rp?S.active.exercises[S.sheet.i]:null;
+  if(rp&&S.sheet.mode!=='free'){const sm=similarEx(old.name);const qq=S.pq.trim().toLowerCase();const f=a=>a.filter(n=>n.toLowerCase().includes(qq));const row=n=>`<button class="li" data-act="pick" data-v="${esc(n)}">${pImgOn()?`<span style="width:64px;flex:none;display:flex">${imgTag(n,'lithumb')}</span>`:''}<span class="name" style="flex:1;text-align:left">${esc(n)}</span><span class="muted mini">${esc(((musOf(n)||[])[0])||catOf(n))}</span></button>`;const a=f(sm.same),b=f(sm.part);
+   return `<div class="spread"><h2>Übung ersetzen</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
+   <div class="muted mini" style="margin-bottom:8px">Statt <b>${esc(old.name)}</b>${sm.mus?' · trifft '+esc(sm.mus.slice(0,3).join(', ')):''}</div>
+   <div class="row" style="margin-bottom:8px"><button class="chip on">Gleiche Muskeln</button><button class="chip" data-act="repl-mode" data-v="free">Frei wählen</button></div>
+   <input class="field" id="pq" data-in="pq" placeholder="Suchen" value="${esc(S.pq)}">
+   <div class="list" id="plist">${a.length?`<div class="eyebrow" style="margin:10px 0 4px">${sm.mus?'Gleicher Hauptmuskel: '+esc(sm.mus[0]):'Gleiche Rubrik: '+esc(catOf(old.name))}</div>`+a.map(row).join(''):'<div class="muted mini" style="margin:10px 0">Keine passende Übung gefunden. Tipp auf „Frei wählen“.</div>'}${b.length?`<div class="eyebrow" style="margin:14px 0 4px">Teilweise gleiche Muskeln</div>`+b.map(row).join(''):''}</div>`}
+  return `<div class="spread"><h2>${rp?'Übung ersetzen':'Übung wählen'}</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
   <input class="field" id="pq" data-in="pq" placeholder="Suchen oder neue Übung eintippen" value="${esc(S.pq)}">
-  <div class="cats"><button class="chip ${!S.pcat?'on':''}" data-act="pcat" data-v="">Alle</button>${CATS.map(c=>`<button class="chip ${S.pcat===c?'on':''}" data-act="pcat" data-v="${c}">${c}</button>`).join('')}</div>
+  ${rp?'<div class="row" style="margin:8px 0"><button class="chip" data-act="repl-mode" data-v="same">Gleiche Muskeln</button><button class="chip on">Frei wählen</button></div>':''}<div class="cats"><button class="chip ${!S.pcat?'on':''}" data-act="pcat" data-v="">Alle</button>${CATS.map(c=>`<button class="chip ${S.pcat===c?'on':''}" data-act="pcat" data-v="${c}">${c}</button>`).join('')}</div>
   <div class="list" id="plist">${pList()}</div>`;
 }
 function pImgOn(){try{return localStorage.getItem('hantelbuch.pickimg')==='1'}catch(e){return false}}
@@ -638,6 +645,7 @@ function sMenu({i}){
   <div class="eyebrow" style="margin:14px 0 8px">Supersatz / Zirkel</div><div class="row"><button class="chip ${e.ss?'on':''}" data-act="ex-ss" data-i="${i}">${e.ss?'✓ Gekoppelt (antippen zum Lösen)':((S.active.exercises[i-1]&&S.active.exercises[i-1].ss)?'Zur Gruppe davor hinzufügen':(i<S.active.exercises.length-1?'Mit nächster Übung koppeln':'Mit vorheriger Übung koppeln'))}</button></div><div class="muted mini" style="margin-top:4px">Übungen im Wechsel: Die App springt nach jedem Satz zur nächsten Übung der Gruppe, ohne Pause dazwischen. Erst nach der letzten Übung läuft die Pause. Für einen Zirkel (3 oder mehr) einfach die nächste Übung auch koppeln.</div>
   <div class="eyebrow" style="margin:14px 0 8px">Aufwärm-Übung</div><div class="row"><button class="chip ${isWarmEx(e.name)?'on':''}" data-act="ex-warm" data-i="${i}">${isWarmEx(e.name)?'✓ Aufwärmen, keine Ziel-Hinweise':'Normale Übung'}</button></div><div class="muted mini" style="margin-top:4px">Einzelne Aufwärmsätze markierst du, indem du auf die Satznummer tippst (W).</div>
   <div class="list" style="margin-top:12px">
+  <button class="li" data-act="ex-repl" data-i="${i}">Übung ersetzen</button>
   <button class="li" data-act="ex-move" data-i="${i}" data-v="-1">Nach oben schieben</button>
   <button class="li" data-act="ex-move" data-i="${i}" data-v="1">Nach unten schieben</button>
   <button class="li" data-act="del-set" data-i="${i}">Letzten Satz entfernen</button>
@@ -866,7 +874,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='13.11. 10:50'
+const APPV='13.11. 11:14'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -897,7 +905,7 @@ function tick(){
   const el=document.getElementById('elapsed');if(el&&S.active){const s=(Date.now()-S.active.start)/1000;el.textContent=s>=3600?Math.floor(s/3600)+':'+mmss(s%3600).padStart(5,'0'):mmss(s)}
   if(S.rest){const left=(S.rest.end-Date.now())/1000;if(left<=0){const late=left<-3;S.rest=null;renderRest();if(late){stopRestAudio()}else{const viaAudio=restAudio&&!restAudio.paused;if(viaAudio){if(customBuf||rawEl){try{if(rawEl)playRaw();else if(audioCtx)playCustom()}catch(e){}}setTimeout(stopRestAudio,4000)}else{stopRestAudio();beep()}}toast('Pause vorbei. Nächster Satz!');if(S.active&&S.active.hold!=null){delete S.active.hold;renderMain()}}else{const t=$('#restT'),i=$('#restI');if(t)t.textContent=mmss(left);if(i)i.style.width=(left/S.rest.total*100)+'%'}}
 }
-setInterval(tick,1000);
+setInterval(()=>{tick();emomTick()},1000);
 
 /* ---------- Toast ---------- */
 let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
@@ -1033,6 +1041,35 @@ const EXDESC={"Frontheben am Kabel":["steht mit dem Rücken zum Kabelturm, Rolle
 function baseName(n){return String(n||'').split(' · ')[0].trim()}
 function variantOf(n){const i=String(n||'').indexOf(' · ');return i<0?'':String(n).slice(i+3).trim()}
 function exDesc(n){const b=baseName(n);return EXDESC[b]||EXDESC[IMG_ALIAS[b]]||null}
+/* ---------- Muskeln (für „Übung ersetzen“) ---------- */
+const MUSK=[['Bizeps',/bizeps|brachialis/i],['Trizeps',/trizeps/i],['Brust',/brust/i],['Latissimus',/latissimus/i],['Mittlerer Rücken',/mittlerer rücken|rhomboiden|oberer rücken/i],['Unterer Rücken',/rückenstrecker/i],['Vordere Schulter',/vordere( und seitliche)? schulter/i],['Seitliche Schulter',/seitliche schulter/i],['Hintere Schulter',/hintere schulter/i],['Trapez',/trapez/i],['Quadrizeps',/quadrizeps/i],['Beinbeuger',/beinbeuger/i],['Gesäss',/gesäss/i],['Waden',/wade|gastrocnemius|soleus/i],['Adduktoren',/adduktoren/i],['Bauch',/bauch/i],['Unterarme',/unterarm|griffkraft/i]];
+const EXTRA_MUS={'Kniebeuge (Körpergewicht)':['Quadrizeps, Gesäss',''],'Jump Squats':['Quadrizeps, Gesäss, Waden',''],'Mountain Climbers':['gerader Bauchmuskel, Hüftbeuger','Schultern']};
+function musOf(n){const d=exDesc(n)||EXTRA_MUS[baseName(n)];if(!d)return null;const s=String(d[1]||'');return MUSK.map(([m,re])=>{const x=s.search(re);return x<0?null:[m,x]}).filter(Boolean).sort((a,b)=>a[1]-b[1]).map(a=>a[0])}
+function similarEx(name){const mt=musOf(name),base=baseName(name);const all=allNames().filter(n=>baseName(n)!==base);
+ if(!mt||!mt.length){const c=catOf(name);return {mus:null,same:all.filter(n=>catOf(n)===c).sort((a,b)=>a.localeCompare(b,'de')),part:[]}}
+ const sc=all.map(n=>{const m=musOf(n)||[];const ov=m.filter(x=>mt.includes(x)).length;return {n,m,ov,prim:m.includes(mt[0]),first:m[0]===mt[0]}}).filter(x=>x.ov);
+ const srt=(a,b)=>(b.first-a.first)||(b.ov-a.ov)||a.n.localeCompare(b.n,'de');
+ return {mus:mt,same:sc.filter(x=>x.prim).sort(srt).map(x=>x.n),part:sc.filter(x=>!x.prim).sort(srt).map(x=>x.n)}}
+/* ---------- EMOM-Vorlagen (Outdoor) ---------- */
+const EMOMS=[
+ {id:'e1',name:'EMOM Ganzkörper Starter',min:16,info:'Ohne Geräte · 4 Runden à 4 Minuten',list:[['Kniebeuge (Körpergewicht)',15],['Liegestütze',10],['Ausfallschritte',12],['Mountain Climbers',20]]},
+ {id:'e2',name:'EMOM Burpee-Power',min:20,info:'Ohne Geräte · 5 Runden à 4 Minuten',list:[['Burpees',8],['Jump Squats',12],['Liegestütze',10],['Plank (Sek.)',40]]},
+ {id:'e3',name:'EMOM Park: Stange & Bank',min:20,info:'Klimmzugstange + Bank · 5 Runden',list:[['Klimmzüge',5],['Dips',10],['Step-ups',12],['Hängendes Beinheben',8]]},
+ {id:'e4',name:'EMOM Kampfsport-Kondition',min:15,info:'Ohne Geräte · 5 Runden à 3 Minuten',list:[['Sprawl',8],['Schattenboxen (Sek.)',40],['Burpees',6]]}];
+function sEmom(){return `<div class="spread"><h2>EMOM</h2><button class="btn text" data-act="close">Schliessen</button></div>
+ <div class="muted mini" style="margin-bottom:12px">Every Minute On the Minute: Jede Minute startest du die nächste Übung. Bist du schneller fertig, ist der Rest der Minute deine Pause. Ideal draussen.</div>
+ <div class="stack">${EMOMS.map(x=>`<button class="card" data-act="emom-go" data-v="${x.id}" style="text-align:left;width:100%;margin:0"><div class="spread"><strong style="font-size:17px">${esc(x.name.replace('EMOM ',''))}</strong><span class="gold-t" style="color:var(--gold-hi);font-weight:800">${x.min} Min</span></div><div class="muted mini" style="margin:4px 0 8px">${esc(x.info)}</div>${x.list.map((e,k)=>`<div class="mini">Minute ${k+1}: <b>${/\(Sek\.\)/.test(e[0])?e[1]+' Sek.':e[1]+'×'} ${esc(e[0].replace(' (Sek.)',''))}</b></div>`).join('')}</button>`).join('')}</div>
+ <div class="muted mini" style="margin-top:12px">Zu leicht? Wiederholungen pro Minute erhöhen. Zu schwer? Senken, bis du jede Minute sauber schaffst und noch 15–20 Sek. Pause bleibt.</div>`}
+function emomCard(){const em=S.active&&S.active.emom;if(!em)return '';const n=em.list.length;
+ if(!em.t0)return `<div class="card hero stack"><div class="eyebrow">EMOM · ${em.min} Minuten</div><div class="muted mini">Jede Minute die nächste Übung. Die App piept beim Minutenwechsel und hakt den Satz ab.</div><button class="btn gold full" data-act="emom-start">EMOM starten</button></div>`;
+ if(em.end)return `<div class="card hero"><div class="eyebrow">EMOM fertig</div><div class="muted mini">${em.min} Minuten geschafft. Prüf die Wiederholungen unten und beende dann das Training.</div></div>`;
+ const m=Math.min(em.min-1,Math.floor((Date.now()-em.t0)/60000));const cur=em.list[m%n],nx=em.list[(m+1)%n];const fmtE=e=>(/\(Sek\.\)/.test(e[0])?e[1]+' Sek. ':e[1]+'× ')+baseName(e[0]).replace(' (Sek.)','');
+ return `<div class="card hero stack"><div class="spread"><span class="eyebrow">EMOM · Minute <span id="emomM">${m+1}</span> / ${em.min}</span><span class="timer num" id="emomT" style="font-size:30px;color:var(--gold-hi)">${mmss(60-((Date.now()-em.t0)/1000)%60)}</span></div>
+ <div style="font-size:22px;font-weight:800" id="emomC">${esc(fmtE(cur))}</div>${m+1<em.min?`<div class="muted mini">Danach: ${esc(fmtE(nx))}</div>`:'<div class="muted mini">Letzte Minute!</div>'}
+ <button class="btn ghost sm" data-act="emom-stop">EMOM beenden</button></div>`}
+function emomTick(){const em=S.active&&S.active.emom;if(!em||!em.t0||em.end)return;const el=(Date.now()-em.t0)/1000,m=Math.floor(el/60);const t=document.getElementById('emomT');if(t)t.textContent=mmss(60-el%60);
+ if(m>(em.m||0)){for(let k=em.m||0;k<Math.min(m,em.min);k++)emomMark(k);em.m=m;if(m>=em.min)em.end=Date.now();try{beep()}catch(e){}try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}saveActive();renderMain();if(em.end)toast('EMOM fertig. Stark!')}}
+function emomMark(k){const em=S.active.emom,n=em.list.length,it=em.list[k%n],ex=S.active.exercises.find(e=>e.name===it[0]);if(!ex)return;const s=ex.sets[Math.floor(k/n)];if(s&&!s.done){if(s.reps==='')s.reps=String(it[1]);s.done=true}}
 function exTitle(n){const v=variantOf(n);return esc(baseName(n))+(v?` <span class="vtag">${esc(v)}</span>`:'')}
 function exImg(n,g){n=baseName(n);return 'img/'+slug(IMG_ALIAS[n]||n)+'-'+(g||gender())+'.jpg'}
 function imgTag(n,cls,attrs){return `<img class="${cls}" src="${exImg(n)}" alt="" ${cls==='lithumb'?'loading="lazy" ':''}decoding="async" onerror="this.remove()" ${attrs||''}>`}
@@ -1142,14 +1179,23 @@ const ACT={
   'add-ex':()=>{S.pq='';S.pcat='';openSheet({type:'picker',target:'active'})},
   'add-ex-r':()=>{S.pq='';S.pcat='';openSheet({type:'picker',target:'routine'})},
   'picker-back':()=>{S.sheet.target==='routine'?openSheet({type:'routine'}):closeSheet()},
+  'ex-repl':(el)=>{S.pq='';S.pcat='';openSheet({type:'picker',target:'replace',i:+el.dataset.i,mode:'same'})},
+  'repl-mode':(el)=>{S.sheet.mode=el.dataset.v;S.pq='';renderSheet()},
+  'emom-open':()=>openSheet({type:'emom'}),
+  'emom-go':(el)=>{if(S.active)return toast('Beende zuerst das laufende Training.');const x=EMOMS.find(y=>y.id===el.dataset.v);if(!x)return;const rounds=Math.ceil(x.min/x.list.length);closeSheet();
+   startWorkout(x.name,x.list.map(([n,rp])=>({name:n,rest:0,target:String(rp),sets:Array.from({length:Math.ceil((x.min-x.list.findIndex(z=>z[0]===n))/x.list.length)},()=>({kg:'',reps:'',done:false,type:'n'})),note:'',next:'',nextDate:null})));
+   S.active.emom={min:x.min,list:x.list,t0:null,m:0};saveActive();renderAll()},
+  'emom-start':()=>{unlockAudio();const em=S.active.emom;em.t0=Date.now();em.m=0;saveActive();renderMain();toast('Los! Minute 1')},
+  'emom-stop':()=>openSheet({type:'confirm',title:'EMOM beenden?',text:'Der Minuten-Timer stoppt. Abgehakte Sätze bleiben gespeichert.',yes:'EMOM beenden',act:'emom-stop-yes'}),
+  'emom-stop-yes':()=>{const em=S.active&&S.active.emom;if(em){em.end=Date.now()}saveActive();closeSheet();renderMain()},
   pcat:(el)=>{S.pcat=el.dataset.v;renderSheet()},
   pick:(el)=>pickEx(el.dataset.v),
   'pick-new':()=>{const n=S.pq.trim();if(!n)return;S.custom.push([n,S.pcat||'Eigene']);saveMeta();pickEx(n)},
   done:(el)=>{const i=+el.dataset.i,j=+el.dataset.j,e=S.active.exercises[i],s=e.sets[j];
     if(!s.done){const p=(prevFor(e.name)||[])[j];if(s.kg===''&&p)s.kg=String(num(p.kg));if(s.reps===''&&p)s.reps=String(num(p.reps));
       if(s.reps===''){toast(isCardio(e)?'Trag zuerst die Minuten ein.':'Trag zuerst die Wiederholungen ein.');document.getElementById('rp-'+i+'-'+j)?.focus();return}
-      unlockAudio();if(isCardio(e)&&num(s.reps)>0){s.done=true;s.cstart=Date.now();startRest(Math.round(num(s.reps)*60),'Cardio'+(zoneOf(e)?' Z'+e.zone:''));saveActive();renderMain();return}if(e.uni&&!s.half){s.half=true;startRest(e.uniRest||15,'Seitenwechsel → '+((e.uniStart||'L')==='L'?'Rechts':'Links'))}else{s.done=true;s.half=false;if(S.active.hold!=null)delete S.active.hold;const ni=curIdx();const nx=S.active.exercises[ni];if(e.ss&&nx&&ni>i&&nx.ss===e.ss){S.rest=null;stopRestAudio();renderRest();toast('Weiter: '+baseName(nx.name))}else{startRest(s.rest||e.rest||S.restDefault);if(e.ss&&nx&&nx.ss===e.ss&&ni!==i)S.active.hold=i}}
-      if(s.done&&helpOn()&&!isCardio(e)&&s.type!=='w'&&!isWarmEx(e.name)&&!s.rpe){saveActive();renderMain();return openSheet({type:'rpe',i,j,help:true})}
+      unlockAudio();if(isCardio(e)&&num(s.reps)>0){s.done=true;s.cstart=Date.now();startRest(Math.round(num(s.reps)*60),'Cardio'+(zoneOf(e)?' Z'+e.zone:''));saveActive();renderMain();return}if(e.uni&&!s.half){s.half=true;startRest(e.uniRest||15,'Seitenwechsel → '+((e.uniStart||'L')==='L'?'Rechts':'Links'))}else{s.done=true;s.half=false;if(S.active.hold!=null)delete S.active.hold;const ni=curIdx();const nx=S.active.exercises[ni];if(e.ss&&nx&&ni>i&&nx.ss===e.ss){S.rest=null;stopRestAudio();renderRest();toast('Weiter: '+baseName(nx.name))}else{if(!S.active.emom)startRest(s.rest||e.rest||S.restDefault);if(e.ss&&nx&&nx.ss===e.ss&&ni!==i)S.active.hold=i}}
+      if(s.done&&!S.active.emom&&helpOn()&&!isCardio(e)&&s.type!=='w'&&!isWarmEx(e.name)&&!s.rpe){saveActive();renderMain();return openSheet({type:'rpe',i,j,help:true})}
       if(poMode()==='full'&&!isCardio(e)){const pj=e.sets.slice(0,j).map((x,k)=>[x,k]).reverse().find(([x])=>x.done&&x.type!=='w');if(pj&&!pj[0].rpe)setTimeout(()=>toast('Tipp: Bewerte noch Satz '+(pj[1]+1)+' mit 1–4'),900)}}else{s.done=false;s.half=false}
     saveActive();renderMain()},
   'add-set':(el)=>{const e=S.active.exercises[+el.dataset.i];const l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',done:false,type:'n',rest:l?l.rest:undefined});saveActive();renderMain()},
@@ -1245,6 +1291,10 @@ const ACT={
   'w-save':async()=>{const v=num($('#wIn').value);if(v<20||v>400)return toast('Gib dein Gewicht in kg ein, z. B. 82,4.');const k=dayKey();const b=clone(S.body.find(x=>x.date===k)||{date:k,photos:[]});b.weight=Math.round(v*10)/10;await saveBody(b);renderMain();toast('Gewicht gespeichert')}
 };
 function pickEx(name){
+  if(S.sheet.target==='replace'){const i=S.sheet.i,o=S.active.exercises[i];const ln=lastNotes(name);const keep=o.sets.filter(s=>s.done).length;
+   const nw={name,rest:o.rest||S.restDefault,sets:[...o.sets.filter(s=>s.done),...blankSets(Math.max(1,o.sets.length-keep))],note:ln.note,next:ln.next,nextDate:ln.nextDate,target:ln.target||TARGETS[name]||o.target||'',ss:o.ss};
+   if(keep){nw.sets=blankSets(Math.max(1,o.sets.length-keep));o.sets=o.sets.filter(s=>s.done);S.active.exercises.splice(i+1,0,nw)}else S.active.exercises[i]=nw;
+   saveActive();closeSheet();renderMain();toast(keep?'Ersetzt ab jetzt. Erledigte Sätze bleiben bei '+baseName(o.name)+'.':'Ersetzt durch '+name);return}
   if(S.sheet.target==='routine'){S.edit.exercises.push({name,sets:3,rest:S.restDefault});openSheet({type:'routine'})}
   else{const ln=lastNotes(name);S.active.exercises.push({name,rest:S.restDefault,sets:blankSets(3),note:ln.note,next:ln.next,nextDate:ln.nextDate,target:ln.target||TARGETS[name]||''});saveActive();closeSheet();renderMain();setTimeout(()=>pageScroll({top:document.body.scrollHeight,behavior:'smooth'}),30)}
 }
@@ -1270,7 +1320,7 @@ document.addEventListener('input',e=>{
   else if(k==='kg'||k==='reps'){S.active.exercises[+el.dataset.i].sets[+el.dataset.j][k]=el.value.replace(/[^0-9.,]/g,'');saveActive()}
   else if(k==='wname'){S.active.name=el.value;saveActive()}
   else if(k==='exq'){S.exq=el.value;$('#exlist').innerHTML=exList()}
-  else if(k==='pq'){S.pq=el.value;$('#plist').innerHTML=pList()}
+  else if(k==='pq'){S.pq=el.value;if(S.sheet&&S.sheet.target==='replace'&&S.sheet.mode!=='free'){const v=el.value,ps=el.selectionStart;renderSheet();const n=$('#pq');if(n){n.focus();try{n.setSelectionRange(ps,ps)}catch(e){}}}else $('#plist').innerHTML=pList()}
   else if(k==='rname'){S.edit.name=el.value}
   else if(k==='co-name'||k==='co-coach'){const c=coachCfg();c[k==='co-name'?'name':'coach']=el.value;setCoachCfg(c)}
   else if(k==='rnote'){S.edit.note=el.value;grow(el)}
