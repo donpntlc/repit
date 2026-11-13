@@ -696,7 +696,7 @@ function sRx({i}){const e=S.edit&&S.edit.exercises[i];if(!e)return '';const n=e.
  <button class="btn gold full" style="margin-top:14px" data-act="rx-done">Fertig</button>`}
 function tplCard(t){return `<button class="tcard${t.app?' app':''}" data-act="tv-open" data-v="${t.id}"><span style="flex:1;min-width:0"><span class="name">${esc(t.name)}</span>${t.app?'<span class="ttag">SOL-Vorlage</span>':''}<span class="muted mini" style="display:block;margin-top:2px">${t.days.length} Trainingstage</span></span><span style="color:var(--muted);font-size:20px">›</span></button>`}
 function sTList(){const own=S.tpls||[];return `<div class="spread"><h2>Vorlagen</h2><button class="btn text sm" data-act="close">Schliessen</button></div>
- <div class="eyebrow" style="margin-top:8px">Von REPIT</div><div class="stack" style="margin-top:6px">${appTpls().map(tplCard).join('')}</div>
+ <div class="eyebrow" style="margin-top:8px">Von REPIT</div><div class="stack" style="margin-top:6px">${appTpls().map(tplCard).join('')}<button class="tcard app" data-act="emom-open"><span style="flex:1;min-width:0"><span class="name">EMOM Outdoor</span><span class="ttag">SOL-Vorlage</span><span class="muted mini" style="display:block;margin-top:2px">${EMOMS.length} Workouts · 15–20 Minuten</span></span><span style="color:var(--muted);font-size:20px">›</span></button></div>
  <div class="eyebrow" style="margin-top:16px">Meine Vorlagen</div><div class="stack" style="margin-top:6px">${own.map(tplCard).join('')||'<div class="muted mini">Noch keine eigenen Vorlagen. Leg z. B. einen „3er-Split Beinfokus“ an und gib ihn später jedem Kunden mit einem Tipp.</div>'}</div>
  <button class="btn gold full" style="margin-top:12px" data-act="tpl-new">+ Eigene Vorlage</button>`}
 function sTView({tid}){const t=tplById(tid);if(!t)return '<p class="muted">Vorlage nicht gefunden.</p>';const cl=clients();const f=S.tplFor&&cl.includes(S.tplFor)?S.tplFor:'';
@@ -874,7 +874,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='13.11. 11:14'
+const APPV='13.11. 11:34'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -1056,7 +1056,7 @@ const EMOMS=[
  {id:'e2',name:'EMOM Burpee-Power',min:20,info:'Ohne Geräte · 5 Runden à 4 Minuten',list:[['Burpees',8],['Jump Squats',12],['Liegestütze',10],['Plank (Sek.)',40]]},
  {id:'e3',name:'EMOM Park: Stange & Bank',min:20,info:'Klimmzugstange + Bank · 5 Runden',list:[['Klimmzüge',5],['Dips',10],['Step-ups',12],['Hängendes Beinheben',8]]},
  {id:'e4',name:'EMOM Kampfsport-Kondition',min:15,info:'Ohne Geräte · 5 Runden à 3 Minuten',list:[['Sprawl',8],['Schattenboxen (Sek.)',40],['Burpees',6]]}];
-function sEmom(){return `<div class="spread"><h2>EMOM</h2><button class="btn text" data-act="close">Schliessen</button></div>
+function sEmom(){return `<div class="spread"><h2>EMOM</h2><button class="btn text" data-act="close">${S.sheet&&S.sheet.back?'‹ Zurück':'Schliessen'}</button></div>
  <div class="muted mini" style="margin-bottom:12px">Every Minute On the Minute: Jede Minute startest du die nächste Übung. Bist du schneller fertig, ist der Rest der Minute deine Pause. Ideal draussen.</div>
  <div class="stack">${EMOMS.map(x=>`<button class="card" data-act="emom-go" data-v="${x.id}" style="text-align:left;width:100%;margin:0"><div class="spread"><strong style="font-size:17px">${esc(x.name.replace('EMOM ',''))}</strong><span class="gold-t" style="color:var(--gold-hi);font-weight:800">${x.min} Min</span></div><div class="muted mini" style="margin:4px 0 8px">${esc(x.info)}</div>${x.list.map((e,k)=>`<div class="mini">Minute ${k+1}: <b>${/\(Sek\.\)/.test(e[0])?e[1]+' Sek.':e[1]+'×'} ${esc(e[0].replace(' (Sek.)',''))}</b></div>`).join('')}</button>`).join('')}</div>
  <div class="muted mini" style="margin-top:12px">Zu leicht? Wiederholungen pro Minute erhöhen. Zu schwer? Senken, bis du jede Minute sauber schaffst und noch 15–20 Sek. Pause bleibt.</div>`}
@@ -1181,8 +1181,8 @@ const ACT={
   'picker-back':()=>{S.sheet.target==='routine'?openSheet({type:'routine'}):closeSheet()},
   'ex-repl':(el)=>{S.pq='';S.pcat='';openSheet({type:'picker',target:'replace',i:+el.dataset.i,mode:'same'})},
   'repl-mode':(el)=>{S.sheet.mode=el.dataset.v;S.pq='';renderSheet()},
-  'emom-open':()=>openSheet({type:'emom'}),
-  'emom-go':(el)=>{if(S.active)return toast('Beende zuerst das laufende Training.');const x=EMOMS.find(y=>y.id===el.dataset.v);if(!x)return;const rounds=Math.ceil(x.min/x.list.length);closeSheet();
+  'emom-open':()=>openSheet({type:'emom',back:S.sheet&&S.sheet.type==='tlist'?S.sheet:null}),
+  'emom-go':(el)=>{if(S.active)return toast('Beende zuerst das laufende Training.');const x=EMOMS.find(y=>y.id===el.dataset.v);if(!x)return;S.sheet=null;renderSheet();
    startWorkout(x.name,x.list.map(([n,rp])=>({name:n,rest:0,target:String(rp),sets:Array.from({length:Math.ceil((x.min-x.list.findIndex(z=>z[0]===n))/x.list.length)},()=>({kg:'',reps:'',done:false,type:'n'})),note:'',next:'',nextDate:null})));
    S.active.emom={min:x.min,list:x.list,t0:null,m:0};saveActive();renderAll()},
   'emom-start':()=>{unlockAudio();const em=S.active.emom;em.t0=Date.now();em.m=0;saveActive();renderMain();toast('Los! Minute 1')},
