@@ -874,7 +874,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='13.11. 11:34'
+const APPV='13.11. 11:35'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -1054,7 +1054,7 @@ function similarEx(name){const mt=musOf(name),base=baseName(name);const all=allN
 const EMOMS=[
  {id:'e1',name:'EMOM Ganzkörper Starter',min:16,info:'Ohne Geräte · 4 Runden à 4 Minuten',list:[['Kniebeuge (Körpergewicht)',15],['Liegestütze',10],['Ausfallschritte',12],['Mountain Climbers',20]]},
  {id:'e2',name:'EMOM Burpee-Power',min:20,info:'Ohne Geräte · 5 Runden à 4 Minuten',list:[['Burpees',8],['Jump Squats',12],['Liegestütze',10],['Plank (Sek.)',40]]},
- {id:'e3',name:'EMOM Park: Stange & Bank',min:20,info:'Klimmzugstange + Bank · 5 Runden',list:[['Klimmzüge',5],['Dips',10],['Step-ups',12],['Hängendes Beinheben',8]]},
+ {id:'e3',name:'EMOM Park: Stange & Bank',min:20,info:'Klimmzugstange + Bank · 4 Runden à 5 Minuten',list:[['Klimmzüge',5],['Liegestütze',12],['Dips',10],['Step-ups',12],['Hängendes Beinheben',8]]},
  {id:'e4',name:'EMOM Kampfsport-Kondition',min:15,info:'Ohne Geräte · 5 Runden à 3 Minuten',list:[['Sprawl',8],['Schattenboxen (Sek.)',40],['Burpees',6]]}];
 function sEmom(){return `<div class="spread"><h2>EMOM</h2><button class="btn text" data-act="close">${S.sheet&&S.sheet.back?'‹ Zurück':'Schliessen'}</button></div>
  <div class="muted mini" style="margin-bottom:12px">Every Minute On the Minute: Jede Minute startest du die nächste Übung. Bist du schneller fertig, ist der Rest der Minute deine Pause. Ideal draussen.</div>
