@@ -117,6 +117,7 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 
 ### Erledigt 12.11. (APPV „12.11. 10:40")
 - **Fotos in der Geräte-Einstellung:** Einstellung-Knopf der Übung → unten „Fotos der Einstellung“ (＋ Foto, antippen = gross, × = löschen mit Bestätigung). Gespeichert in `S.gear[name].photos` [{id,t}], Bild in IndexedDB (`ph:local-…`), Input `#gearPhIn`. Knopf zeigt „· Foto“. Backup nimmt die Fotos mit.
+- **13.11. (APPV „13.11. 10:50"):** Foto blieb leer. Fix: `renderSheet` ruft jetzt `_afterRender()` (lädt Fotos auch im Sheet), neue Fotos (Gerät + Körper) werden als Daten-Link (Text) in IndexedDB gespeichert statt als Blob (iPhone zeigt Blobs aus IndexedDB oft nicht an); `hydratePhotos` kann beides.
 
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
