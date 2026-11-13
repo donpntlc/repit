@@ -611,7 +611,7 @@ function renderSheet(){
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
   sh.hidden=false;bd.hidden=false;
   const f=({picker:sPicker,menu:sMenu,routine:sRoutine,hist:sHist,ex:sEx,confirm:sConfirm,summary:sSummary,guide:sGuide,checkin:sCheckin,rest:sRestDefault,data:sData,setrest:sSetRest,rpe:sRpe,order:sOrder,rorder:sROrder,tpl:sTpl,client:sClient,week:sWeek,day:sDay,intro:sIntro,share:sShare,planin:sPlanIn,pay:sPay,rday:sRDay,gender:sGender,gear:sGear,rview:sRView,rx:sRx,tlist:sTList,tview:sTView,report:sReport})[S.sheet.type];
-  sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);
+  sh.innerHTML=`<div class="in"><div class="grab"></div>${f(S.sheet)}</div>`;growAll(sh);_afterRender();
 }
 function sPicker(){
   return `<div class="spread"><h2>Übung wählen</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
@@ -866,7 +866,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='13.11. 10:45'
+const APPV='13.11. 10:50'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
