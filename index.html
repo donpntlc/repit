@@ -552,7 +552,7 @@ function exList(){
 
 function phSrc(p){if(String(p.id).startsWith('local-'))return `data-lph="${esc(p.id)}" alt=""`;return `src="/_blob/${esc(p.id)}"`}
 const _phCache={};
-async function hydratePhotos(){for(const el of document.querySelectorAll('img[data-lph]')){const id=el.dataset.lph;try{if(!_phCache[id]){const b=await idbGet('ph:'+id);if(b)_phCache[id]=URL.createObjectURL(b)}if(_phCache[id])el.src=_phCache[id]}catch(e){}}}
+async function hydratePhotos(){for(const el of document.querySelectorAll('img[data-lph]')){const id=el.dataset.lph;try{if(!_phCache[id]){const b=await idbGet('ph:'+id);if(typeof b==='string')_phCache[id]=b;else if(b){try{_phCache[id]=await b2d(b)}catch(e){_phCache[id]=URL.createObjectURL(b)}}}if(_phCache[id])el.src=_phCache[id]}catch(e){}}}
 function goalBlock(lastW){const g=S.goal||{};const cur=lastW?lastW.weight:null;const st=num(g.start),tg=num(g.target);
  let prog='';if(st&&tg&&cur){const tot=tg-st,done=cur-st;const pct=tot?Math.max(0,Math.min(100,Math.round(done/tot*100))):0;prog=`<div class="spread mini"><span>Start ${fmt(st)} kg</span><span style="color:var(--gold-hi);font-weight:800">${pct} %</span><span>Ziel ${fmt(tg)} kg</span></div><div class="bar" style="height:8px;border-radius:4px;background:var(--line);overflow:hidden"><i style="display:block;height:100%;width:${pct}%;background:var(--gold)"></i></div><div class="muted mini">Noch ${fmt(Math.abs(tg-cur))} kg bis zum Ziel.</div>`}
  return `<div class="row" style="flex-wrap:nowrap;gap:8px"><label style="flex:1" class="mini muted">Startgewicht<input class="field num" inputmode="decimal" data-in="goal" data-k="start" value="${esc(g.start||'')}" placeholder="${cur?fmt(cur):'z. B. 82'}"></label><label style="flex:1" class="mini muted">Zielgewicht<input class="field num" inputmode="decimal" data-in="goal" data-k="target" value="${esc(g.target||'')}" placeholder="z. B. 78"></label></div>${prog||'<div class="muted mini">Trag Start- und Zielgewicht ein. Im Verlauf oben siehst du dann die Ziellinie.</div>'}`}
@@ -866,7 +866,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='12.11. 10:40'
+const APPV='13.11. 10:45'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -1323,14 +1323,14 @@ function shrink(file){return new Promise((res,rej)=>{const img=new Image();const
 $('#photoIn').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
   toast('Foto wird gespeichert …');
-  try{const blob=await shrink(f).catch(()=>f);let r;if(assets&&refs){r=await assets.upload(blob)}else{r={id:'local-'+uid()};await idbSet('ph:'+r.id,blob)}const k=S.photoDate||dayKey();const b=clone(S.body.find(x=>x.date===k)||{date:k,photos:[]});b.photos=[...(b.photos||[]),{id:r.id,t:Date.now()}];await saveBody(b);renderMain();toast('Foto gespeichert')}
+  try{const blob=await shrink(f).catch(()=>f);let r;if(assets&&refs){r=await assets.upload(blob)}else{r={id:'local-'+uid()};const du=await b2d(blob);await idbSet('ph:'+r.id,du);_phCache[r.id]=du}const k=S.photoDate||dayKey();const b=clone(S.body.find(x=>x.date===k)||{date:k,photos:[]});b.photos=[...(b.photos||[]),{id:r.id,t:Date.now()}];await saveBody(b);renderMain();toast('Foto gespeichert')}
   catch(err){console.warn(err);toast('Foto konnte nicht gespeichert werden. Versuch es nochmals.')}
 });
 
 $('#gearPhIn').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;const n=S.sheet&&S.sheet.type==='gear'&&S.sheet.name;if(!n)return;
   toast('Foto wird gespeichert …');
-  try{const blob=await shrink(f).catch(()=>f);let r;if(assets&&refs){r=await assets.upload(blob)}else{r={id:'local-'+uid()};await idbSet('ph:'+r.id,blob)}S.gear=S.gear||{};const g=S.gear[n]=S.gear[n]||{};g.photos=[...(g.photos||[]),{id:r.id,t:Date.now()}];saveMeta();renderSheet();setTimeout(hydratePhotos,50);renderMain();toast('Foto gespeichert')}
+  try{const blob=await shrink(f).catch(()=>f);let r;if(assets&&refs){r=await assets.upload(blob)}else{r={id:'local-'+uid()};const du=await b2d(blob);await idbSet('ph:'+r.id,du);_phCache[r.id]=du}S.gear=S.gear||{};const g=S.gear[n]=S.gear[n]||{};g.photos=[...(g.photos||[]),{id:r.id,t:Date.now()}];saveMeta();renderSheet();setTimeout(hydratePhotos,50);renderMain();toast('Foto gespeichert')}
   catch(err){console.warn(err);toast('Foto konnte nicht gespeichert werden. Versuch es nochmals.')}
 });
 
@@ -1440,7 +1440,7 @@ function checkPlanHash(){const m=location.hash.match(/#plan=([\w-]+)/);if(!m)ret
 
 /* ---------- Backup ---------- */
 function b2d(b){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)})}
-async function backupOut(){toast('Backup wird erstellt …');const ph={};const _all=[...S.body.flatMap(b=>b.photos||[]),...Object.values(S.gear||{}).flatMap(g=>(g&&g.photos)||[])];for(const p of _all)if(String(p.id).startsWith('local-')){try{const bl=await idbGet('ph:'+p.id);if(bl)ph[p.id]=await b2d(bl)}catch(e){}}
+async function backupOut(){toast('Backup wird erstellt …');const ph={};const _all=[...S.body.flatMap(b=>b.photos||[]),...Object.values(S.gear||{}).flatMap(g=>(g&&g.photos)||[])];for(const p of _all)if(String(p.id).startsWith('local-')){try{const bl=await idbGet('ph:'+p.id);if(bl)ph[p.id]=typeof bl==='string'?bl:await b2d(bl)}catch(e){}}
  const data=JSON.stringify({app:'repit-backup',v:1,date:new Date().toISOString(),routines:S.routines,custom:S.custom,workouts:S.workouts,body:S.body,gear:S.gear||{},goal:S.goal||null,seeded:S.seeded||[],restDefault:S.restDefault,photos:ph});
  const fname='REPIT-Backup-'+dayKey()+'.json';const file=new File([data],fname,{type:'application/json'});
  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'REPIT Backup'});return}}catch(e){if(e&&e.name==='AbortError')return}
