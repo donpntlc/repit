@@ -123,6 +123,7 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .done .lbl{font-size:13px;color:var(--muted)}.done .num{font-size:40px;font-weight:800;line-height:1.05;margin-top:2px;font-variant-numeric:tabular-nums}.done .num small{font-size:17px;font-weight:600;color:var(--muted)}
 .done .sub{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 10px;font-size:13px;color:var(--muted)}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.split div{background:#0f0f11;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.split small{display:block;font-size:11.5px;line-height:1.35;margin-top:3px}.split .pos{color:#8fd19a}.split .neg{color:#e0a458}
 .split i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}.split b{display:block;color:var(--fg);font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
 .pbar{display:flex;height:10px;border-radius:6px;background:#0f0f11;border:1px solid var(--line);overflow:hidden}.pbar span{display:block;height:100%}
 .plbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px}
@@ -286,7 +287,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='14.11. 15:40';
+var SOLGYM_V='14.11. 15:55';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -411,7 +412,7 @@ function goalCalc(){var el=document.getElementById('goalRes'),b=window._goalBase
   function dstr(x){return x?x.date.toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}):'–'}
   var e0=eta(base),h='';
   if(GT==='r'){var rp=b.real||0,er=eta(rp);
-    h+='<div class="hero"><div class="lbl">Mit deinem echten Schnitt</div><div class="num">'+(er?er.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(er)+'</span><span>'+(rp?fmt(rp)+' kcal/Tag (Ernährung '+fmt(b.realFood)+' + Training '+fmt(b.realTrain)+')':'noch zu wenig gezählte Tage')+'</span></div></div>';
+    h+='<div class="hero"><div class="lbl">Mit deinem echten Schnitt</div><div class="num">'+(er?er.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(er)+'</span><span>'+(rp?fmt(rp)+' kcal/Tag (Ernährung '+fmt(b.realFood)+(b.realTrain>=0?' + ':' − ')+'Training '+(b.inc>0?'zusätzlich ':'')+fmt(Math.abs(b.realTrain))+')':'noch zu wenig gezählte Tage')+'</span></div></div>';
     h+='<div class="note">So viel hast du seit dem Start im Schnitt wirklich gespart: Essen nur an Tagen, die zählen, plus deine Trainings aus REPIT. Geplant waren '+fmt(base)+' kcal/Tag ('+dstr(e0)+').</div>';
   }else if(GT==='n'){
     h+='<div class="hero"><div class="lbl">Nur mit Ernährung</div><div class="num">'+(e0?e0.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip">'+dstr(e0)+'</span><span>−'+fmt1(rem)+' kg ≈ '+fmt(kcal)+' kcal · '+(base?fmt(base)+' kcal/Tag Defizit':'noch kein Defizit bekannt')+'</span></div></div>';
@@ -582,13 +583,17 @@ function renderAll(){
   else{
     var refDef=ph&&!bulk&&n(ph.kcal)>0?n(ph.kcal):(prep.bridgeGoal&&M-prep.bridgeGoal>50?M-prep.bridgeGoal:0);
     var TOKM=tokMap(),INC=prep.sportInc||0,MB=M-INC;
-    function dayDef(k){var d=prep.days[k],tr=trainDay[k]||0,has=!!(d&&d.kcal>50),off=has&&TOKM[k]===false,t=has&&!off,sv=t?MB-d.kcal:0;return {saved:sv,train:tr,tracked:t,off:off,has:has,total:sv+tr}}
+    // food = gespart gegenüber PREPIT-Bedarf (mit eingeplantem Sport), burn = Training verbrannt, extra = burn − eingeplanter Sport.
+    // Für die Balken: Gold = Ernährung (minus fehlender Sport), Hell = zusätzliches Training.
+    function dayDef(k){var d=prep.days[k],tr=trainDay[k]||0,has=!!(d&&d.kcal>50),off=has&&TOKM[k]===false,t=has&&!off,food=t?M-d.kcal:0,ex=tr-INC;
+      return {saved:t?food+Math.min(0,ex):0,train:Math.max(0,ex),food:food,burn:tr,extra:ex,tracked:t,off:off,has:has,total:(t?food:0)+ex}}
+    function trTxt(b,e,days){return INC>0?'Training '+fmt(b)+' verbrannt, '+fmt(INC*days)+' davon schon eingeplant → '+(e>=0?'+':'−')+fmt(Math.abs(e))+' zusätzlich':'Training '+fmt(b)}
     var dItems,tDays=keys.filter(function(k){return dayDef(k).tracked});
-    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?fmt(x.total)+' kcal Defizit':fmt(-x.total)+' kcal zu viel')+'</b> <span>· '+(x.saved>=0?fmt(x.saved)+' gespart':fmt(-x.saved)+' zu viel gegessen')+(x.train?' + '+fmt(x.train)+' Training':'')+'</span>':(x.off?'<b>zählt nicht</b> <span>(nicht richtig getrackt)</span>':'<b>nicht getrackt</b>')+(x.train?' <span>· Training '+fmt(x.train)+' kcal</span>':''))+(x.has?' <button class="tokbtn" data-tok="'+k+'" data-v="'+(x.off?'1':'0')+'">'+(x.off?'Doch zählen':'Nicht zählen')+'</button>':'')}
+    function tipDay(k){var x=dayDef(k);return ddmm(k)+' · '+(x.tracked?'<b>'+(x.total>=0?fmt(x.total)+' kcal Defizit':fmt(-x.total)+' kcal zu viel')+'</b> <span>· Essen '+(x.food>=0?fmt(x.food)+' gespart':fmt(-x.food)+' zu viel')+' · '+trTxt(x.burn,x.extra,1)+'</span>':(x.off?'<b>zählt nicht</b> <span>(nicht richtig getrackt)</span>':'<b>nicht getrackt</b>')+(x.burn?' <span>· Training '+fmt(x.burn)+' kcal</span>':''))+(x.has?' <button class="tokbtn" data-tok="'+k+'" data-v="'+(x.off?'1':'0')+'">'+(x.off?'Doch zählen':'Nicht zählen')+'</button>':'')}
     if(RANGE<=30){dItems=keys.map(function(k){var x=dayDef(k);x.label=k.slice(8,10);x.tip=tipDay(k);return x})}
     else{dItems=[];for(var s2=0;s2<keys.length;s2+=7){var wk2=keys.slice(s2,s2+7),tt=wk2.filter(function(k){return dayDef(k).tracked}),
-      sv2=tt.length?tt.reduce(function(a,k){return a+dayDef(k).saved},0)/tt.length:0,tr2=wk2.reduce(function(a,k){return a+(trainDay[k]||0)},0)/wk2.length;
-      dItems.push({label:ddmm(wk2[0]).slice(0,5),saved:sv2,train:tr2,tracked:tt.length>0,tip:'Woche ab '+ddmm(wk2[0])+' · <b>Ø '+fmt(sv2+tr2)+' kcal/Tag</b> <span>· '+fmt(sv2)+' gespart + '+fmt(tr2)+' Training</span>'})}}
+      sv2=tt.length?tt.reduce(function(a,k){return a+dayDef(k).food},0)/tt.length:0,b2=wk2.reduce(function(a,k){return a+(trainDay[k]||0)},0)/wk2.length,e2=b2-INC;
+      dItems.push({label:ddmm(wk2[0]).slice(0,5),saved:sv2+Math.min(0,e2),train:Math.max(0,e2),tracked:tt.length>0,tip:'Woche ab '+ddmm(wk2[0])+' · <b>Ø '+fmt(sv2+e2)+' kcal/Tag</b> <span>· Essen '+fmt(sv2)+' gespart · '+trTxt(b2,e2,1)+'</span>'})}}
     var sumDef=tDays.reduce(function(a,k){return a+dayDef(k).total},0),avgDef=tDays.length?sumDef/tDays.length:0;
     var DT=get('solgym.dtab')==='w'?'w':'k';
     h+='<div class="seg2"><button data-dtab="k" class="'+(DT==='k'?'on':'')+'">Kalorien</button><button data-dtab="w" class="'+(DT==='w'?'on':'')+'">Gewicht</button></div>';
@@ -598,25 +603,25 @@ function renderAll(){
     h+='<div class="pane" data-pane="k"'+(DT==='k'?'':' hidden')+'>';
     var DP=get('solgym.dper')==='w'?'w':'d';
     h+='<div class="seg2 sm"><button data-dper="d" class="'+(DP==='d'?'on':'')+'">Tag</button><button data-dper="w" class="'+(DP==='w'?'on':'')+'">Woche</button></div>';
-    var avgSv=tDays.length?tDays.reduce(function(a,k){return a+dayDef(k).saved},0)/tDays.length:0,avgTr=tDays.length?avgDef-avgSv:0;
+    var avgSv=tDays.length?tDays.reduce(function(a,k){return a+dayDef(k).food},0)/tDays.length:0,avgB=tDays.length?tDays.reduce(function(a,k){return a+dayDef(k).burn},0)/tDays.length:0,avgTr=avgB-INC;
     // Tag
     h+='<div data-per="d"'+(DP==='d'?'':' hidden')+'><div class="hero"><div class="lbl">Ø Defizit pro Tag</div><div class="num">'+(tDays.length?(avgDef<0?'−':'')+fmt(Math.abs(avgDef)):'–')+'<small> kcal</small></div>';
-    h+='<div class="sub">'+(refDef?'<span class="chip '+(okGoal?'ok':'')+'">'+(okGoal?'✓ ':'')+'Ziel '+fmt(refDef)+'</span>':'')+'<span>Ernährung '+fmt(avgSv)+' · Training '+fmt(avgTr)+'</span></div></div>';
+    h+='<div class="sub">'+(refDef?'<span class="chip '+(okGoal?'ok':'')+'">'+(okGoal?'✓ ':'')+'Ziel '+fmt(refDef)+'</span>':'')+'<span>Ernährung '+fmt(avgSv)+' · '+trTxt(avgB,avgTr,1)+'</span></div></div>';
     h+='<div class="readout" id="roD"></div>'+defChart('chD',dItems,refDef)+'</div>';
     window._dItems=dItems;
     // Woche (Montag–Sonntag)
     var mon=new Date(today);mon.setHours(12,0,0,0);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
     var nWk=Math.min(13,Math.max(4,Math.ceil(RANGE/7))),wkItems=[];
     for(var wq=nWk-1;wq>=0;wq--){var ws=addDays(mon,-wq*7),days=[];for(var wz=0;wz<7;wz++){var dd=addDays(ws,wz);if(dd<=today)days.push(dk(dd))}
-      var sv=0,trw=0,nt=0;days.forEach(function(k){var x=dayDef(k);if(x.tracked){sv+=x.saved;nt++}trw+=x.train});
-      wkItems.push({label:ddmm(dk(ws)).slice(0,5),saved:sv,train:trw,tracked:nt>0,
-        tip:'Woche ab '+ddmm(dk(ws))+' · <b>'+fmt(sv+trw)+' kcal</b> <span>· Ernährung '+fmt(sv)+' + Training '+fmt(trw)+' · ≈ '+fmt1(Math.abs(sv+trw)/7000)+' kg Fett · '+nt+'/'+days.length+' Tage getrackt</span>'})}
+      var sv=0,bw=0,nt=0;days.forEach(function(k){var x=dayDef(k);if(x.tracked){sv+=x.food;nt++}bw+=x.burn});var ew=bw-INC*days.length;
+      wkItems.push({label:ddmm(dk(ws)).slice(0,5),saved:sv+Math.min(0,ew),train:Math.max(0,ew),food:sv,burn:bw,extra:ew,nd:days.length,tracked:nt>0,
+        tip:'Woche ab '+ddmm(dk(ws))+' · <b>'+fmt(sv+ew)+' kcal</b> <span>· Essen '+fmt(sv)+' gespart · '+trTxt(bw,ew,days.length)+' · ≈ '+fmt1(Math.abs(sv+ew)/7000)+' kg Fett · '+nt+'/'+days.length+' Tage getrackt</span>'})}
     var cw=wkItems[wkItems.length-1];window._wkItems=wkItems;
-    h+='<div data-per="w"'+(DP==='w'?'':' hidden')+'><div class="hero"><div class="lbl">Defizit diese Woche</div><div class="num">'+fmt(cw.saved+cw.train)+'<small> kcal</small></div>';
-    h+='<div class="sub"><span class="chip '+(cw.saved+cw.train>0?'ok':'')+'">≈ '+fmt1(Math.abs(cw.saved+cw.train)/7000)+' kg Fett</span><span>Ernährung '+fmt(cw.saved)+' · Training '+fmt(cw.train)+'</span></div></div>';
+    h+='<div data-per="w"'+(DP==='w'?'':' hidden')+'><div class="hero"><div class="lbl">Defizit diese Woche</div><div class="num">'+fmt(cw.food+cw.extra)+'<small> kcal</small></div>';
+    h+='<div class="sub"><span class="chip '+(cw.food+cw.extra>0?'ok':'')+'">≈ '+fmt1(Math.abs(cw.food+cw.extra)/7000)+' kg Fett</span><span>Ernährung '+fmt(cw.food)+' · '+trTxt(cw.burn,cw.extra,cw.nd)+'</span></div></div>';
     h+='<div class="readout" id="roDW"></div>'+defChart('chDW',wkItems,refDef?refDef*7:0)+'</div>';
-    h+='<div class="k mini"><span><i style="background:#c9a24a"></i>Ernährung (gespart)</span><span><i style="background:#f2e3b8"></i>Training</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+'</div>';
-    if(INC>0)h+='<div class="sportinfo"><b>Sport zählt nur einmal.</b> Dein Aktivitätslevel „'+(lvlName(prep.level)||'aktiv')+'“ plant in PREPIT schon ca. '+fmt(INC)+' kcal Sport pro Tag ein ('+fmt(M)+' kcal Bedarf). Hier rechnet „Ernährung“ darum mit '+fmt(MB)+' kcal (ohne Sport), und deine echten Trainings aus REPIT kommen dazu.</div>';
+    h+='<div class="k mini"><span><i style="background:#c9a24a"></i>Ernährung (gespart)</span><span><i style="background:#f2e3b8"></i>'+(INC>0?'Training zusätzlich':'Training')+'</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+'</div>';
+    if(INC>0)h+='<div class="sportinfo"><b>Sport zählt nur einmal.</b> Dein Aktivitätslevel „'+(lvlName(prep.level)||'aktiv')+'“ plant in deinem Bedarf ('+fmt(M)+' kcal) schon ca. '+fmt(INC)+' kcal Sport pro Tag ein. Darum zählt beim Training nur, was du <b>zusätzlich</b> verbrennst. Trainierst du weniger als eingeplant, wird es abgezogen.</div>';
     h+='</div>';
 
     // --- Ansicht Gewicht ---
@@ -641,9 +646,9 @@ function renderAll(){
     for(var q=nW-1;q>=0;q--){var e=addDays(today,-q*7),st=addDays(e,-6),a1=dk(st),b1=dk(e);
       var wd=[];for(var z=0;z<7;z++)wd.push(dk(addDays(st,z)));
       var tr=wd.filter(function(k){return dayDef(k).tracked});
-      var def=tr.length?tr.reduce(function(x,k){return x+dayDef(k).saved},0)/tr.length*7:null;
+      var def=tr.length?tr.reduce(function(x,k){return x+dayDef(k).food},0)/tr.length*7:null;
       var trn=wd.reduce(function(x,k){return x+(trainDay[k]||0)},0);
-      var exp=def==null?null:(def+trn)/7000;
+      var exp=def==null?null:(def+trn-INC*7)/7000;
       var w1=wAvg(a1,b1),w0=wAvg(dk(addDays(st,-7)),dk(addDays(st,-1)));
       var act=w1!=null&&w0!=null?w0-w1:null;
       rows.push({a:a1,exp:exp,act:act,n:tr.length});
@@ -662,7 +667,7 @@ function renderAll(){
         h+='<div>'+ddmm(r.a)+'</div><div class="r">'+(r.exp==null?'–':(r.exp>=0?'−':'+')+fmt1(Math.abs(r.exp))+' kg')+'</div><div class="r '+(r.act==null||r.exp==null?'':good?'ok':'off')+'">'+(r.act==null?'–':(r.act>=0?'−':'+')+fmt1(Math.abs(r.act))+' kg')+'</div>'});
       h+='</div>';
       if(wN>=2){var realM=(eatS-trS+dS)/(wN*7);h+='<div class="note" style="margin-top:8px">Bedarf ohne Sport laut Waage: ca. <b style="color:var(--gold-hi)">'+fmt(realM)+' kcal</b> (gerechnet: '+fmt(MB)+').</div>'}
-      h+='<div class="note">Kalorien = (gespart + Training) ÷ 7000. Bedarf ohne Sport '+fmt(MB)+' kcal.</div></details>';
+      h+='<div class="note">Kalorien = (Essen gespart + Training zusätzlich) ÷ 7000. Bedarf '+fmt(M)+' kcal'+(INC>0?' (ohne Sport '+fmt(MB)+')':'')+'.</div></details>';
     }
     h+='</div>';
   }
@@ -677,21 +682,21 @@ function renderAll(){
     if(!twx||!lw||bulkx){h+='<div class="empty">'+(bulkx?'Der Rechner ist für Diät-Phasen gedacht. Im Aufbau zählt nicht das Defizit.':'Setz in PREPIT ein Phasen-Ziel (Zielgewicht) und trag dein Gewicht ein, dann siehst du hier, wann du am Ziel bist.')+'</div></div>';return}
     var GT=gTab();
     // Bisher geschafft seit Start des Phasen-Ziels
-    var Mx0=prep.maint||(prep.goal&&n(phx.kcal)>0?prep.goal.kcal+n(phx.kcal):0),INCx=prep.sportInc||0,Mx=Mx0?Mx0-INCx:0,tok=tokMap(),todayK2=dk(new Date());
+    var Mx0=prep.maint||(prep.goal&&n(phx.kcal)>0?prep.goal.kcal+n(phx.kcal):0),INCx=prep.sportInc||0,Mx=Mx0,tok=tokMap(),todayK2=dk(new Date());
     var st=String(phx.start||'')||dk(addDays(new Date(),-30)),svF=0,cnt=0,skip=0,trT=0,el=0;
     for(var dd=new Date(st+'T12:00:00');dk(dd)<todayK2;dd=addDays(dd,1)){var kk=dk(dd),pd=prep.days[kk];el++;
       if(pd&&pd.kcal>50){if(tok[kk]===false)skip++;else if(Mx){svF+=Mx-pd.kcal;cnt++}}}
     rep.workouts.forEach(function(w){if(w.day>=st&&w.day<=todayK2)trT+=w.kcal});
-    var tot=svF+trT,sw=n(phx.startWeight)>0?n(phx.startWeight):lw.v,gTot=Math.max((sw-twx)*7000,n(phx.kg)*7000,1),pr=Math.max(0,Math.min(1,tot/gTot));
-    var rF=cnt?svF/cnt:0,rT=el?trT/el:0;
+    var plan=INCx*el,exT=trT-plan,tot=svF+exT,sw=n(phx.startWeight)>0?n(phx.startWeight):lw.v,gTot=Math.max((sw-twx)*7000,n(phx.kg)*7000,1),pr=Math.max(0,Math.min(1,tot/gTot));
+    var rF=cnt?svF/cnt:0,rT=el?exT/el:0;
     h+='<div class="done"><div class="lbl">Bisher eingespart seit '+ddmm(st)+'</div><div class="num">'+fmt(tot)+'<small> kcal</small></div>';
     h+='<div class="sub"><span class="chip ok">≈ '+fmt1(Math.max(0,tot)/7000)+' kg Fett</span><span>'+cnt+' Tage gezählt'+(skip?' · '+skip+' nicht':'')+'</span></div>';
-    h+='<div class="split"><div><i style="background:#c9a24a"></i>Ernährung<b>'+fmt(svF)+' kcal</b></div><div><i style="background:#f2e3b8"></i>Training (REPIT)<b>'+fmt(trT)+' kcal</b></div></div>';
-    if(INCx>0){var plan=INCx*el,dif=trT-plan;h+='<div class="sportinfo">Dein Level „'+(lvlName(prep.level)||'aktiv')+'“ plant ca. '+fmt(INCx)+' kcal Sport pro Tag ein, seit Start '+fmt(plan)+' kcal. Trainiert: '+fmt(trT)+' kcal → <b>'+(dif>=0?fmt(dif)+' kcal mehr':fmt(-dif)+' kcal weniger')+'</b> als eingeplant. Gezählt wird nur einmal.</div>'}
-    h+='<div class="pbar"><span style="width:'+(tot>0?Math.max(0,svF)/gTot*100:0)+'%;background:#c9a24a"></span><span style="width:'+(trT/gTot*100)+'%;background:#f2e3b8"></span></div>';
+    h+='<div class="split"><div><i style="background:#c9a24a"></i>Ernährung<b>'+fmt(svF)+' kcal</b><small>gespart beim Essen</small></div><div><i style="background:#f2e3b8"></i>Training (REPIT)<b>'+fmt(trT)+' kcal</b><small>'+(INCx>0?'verbrannt · '+fmt(plan)+' schon eingeplant<br><span class="'+(exT>=0?'pos':'neg')+'">'+(exT>=0?'+':'−')+fmt(Math.abs(exT))+' zählt zusätzlich</span>':'verbrannt, zählt voll')+'</small></div></div>';
+    if(INCx>0)h+='<div class="sportinfo">Dein Level „'+(lvlName(prep.level)||'aktiv')+'“ plant ca. '+fmt(INCx)+' kcal Sport pro Tag in deine Ernährung ein. Nur was du darüber hinaus verbrennst, zählt zusätzlich, sonst wäre der Sport doppelt gezählt.</div>';
+    h+='<div class="pbar"><span style="width:'+(Math.max(0,svF+Math.min(0,exT))/gTot*100)+'%;background:#c9a24a"></span><span style="width:'+(Math.max(0,exT)/gTot*100)+'%;background:#f2e3b8"></span></div>';
     h+='<div class="plbl"><span>'+Math.round(pr*100)+' % vom Ziel</span><span>noch '+fmt(Math.max(0,gTot-tot))+' kcal</span></div></div>';
     h+='<div class="seg2 three"><button data-gtab="n" class="'+(GT==='n'?'on':'')+'">Plan</button><button data-gtab="r" class="'+(GT==='r'?'on':'')+'">Echter Schnitt</button><button data-gtab="c" class="'+(GT==='c'?'on':'')+'">Mit Cardio</button></div>';
-    window._goalBase={w:lw.v,tw:twx,pace:pace,real:Math.round(rF+rT),realFood:rF,realTrain:rT};
+    window._goalBase={w:lw.v,tw:twx,pace:pace,real:Math.round(rF+rT),realFood:rF,realTrain:rT,inc:INCx};
     var c=cardioCfg();
     h+='<div id="cardioIn"'+(GT==='c'?'':' hidden')+'>';
     h+='<div class="glbl">Cardio</div><select class="gsel" data-cin="type">'+CARDIO_T.map(function(x){return '<option'+(x===c.type?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
