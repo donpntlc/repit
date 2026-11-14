@@ -126,6 +126,7 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .split small{display:block;font-size:11.5px;line-height:1.35;margin-top:3px}.split .pos{color:#8fd19a}.split .neg{color:#e0a458}
 .split i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}.split b{display:block;color:var(--fg);font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
 .pbar{display:flex;height:10px;border-radius:6px;background:#0f0f11;border:1px solid var(--line);overflow:hidden}.pbar span{display:block;height:100%}
+.plbl b{color:var(--fg)}
 .plbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px}
 .seg2.three button{font-size:13px}
 .seg2{display:flex;background:#0f0f11;border:1px solid var(--line);border-radius:11px;padding:3px;margin-bottom:14px}
@@ -288,7 +289,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='14.11. 16:05';
+var SOLGYM_V='14.11. 16:10';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -698,7 +699,7 @@ function renderAll(){
     h+='<div class="split"><div><i style="background:#c9a24a"></i>Ernährung<b>'+fmt(svF)+' kcal</b><small>gespart beim Essen</small></div><div><i style="background:#f2e3b8"></i>Training (REPIT)<b>'+fmt(trT)+' kcal</b><small>'+(INCx>0?'verbrannt · '+fmt(plan)+' schon eingeplant<br><span class="'+(exT>=0?'pos':'neg')+'">'+(exT>=0?'+':'−')+fmt(Math.abs(exT))+' zählt zusätzlich</span>':'verbrannt, zählt voll')+'</small></div></div>';
     h+='<div class="sportinfo" id="inB" hidden>Gezählt werden nur abgeschlossene Tage bis gestern. Heute kommt erst morgen dazu, auch dein heutiges Training. Tage mit „nicht richtig getrackt“ zählen nicht.'+(INCx>0?'<br><br>Dein Level „'+(lvlName(prep.level)||'aktiv')+'“ plant ca. '+fmt(INCx)+' kcal Sport pro Tag in deine Ernährung ein. Nur was du darüber hinaus verbrennst, zählt zusätzlich, sonst wäre der Sport doppelt gezählt.':'')+'</div>';
     h+='<div class="pbar"><span style="width:'+(Math.max(0,svF+Math.min(0,exT))/gTot*100)+'%;background:#c9a24a"></span><span style="width:'+(Math.max(0,exT)/gTot*100)+'%;background:#f2e3b8"></span></div>';
-    h+='<div class="plbl"><span>'+Math.round(pr*100)+' % vom Ziel</span><span>noch '+fmt(Math.max(0,gTot-tot))+' kcal</span></div></div>';
+    h+='<div class="plbl"><span><b>'+fmt(Math.max(0,tot))+'</b> / '+fmt(gTot)+' kcal · '+Math.round(pr*100)+' %</span><span>noch '+fmt(Math.max(0,gTot-tot))+' kcal</span></div></div>';
     h+='<div class="seg2 three"><button data-gtab="n" class="'+(GT==='n'?'on':'')+'">Plan</button><button data-gtab="r" class="'+(GT==='r'?'on':'')+'">Echter Schnitt</button><button data-gtab="c" class="'+(GT==='c'?'on':'')+'">Mit Cardio</button></div>';
     window._goalBase={w:lw.v,tw:twx,pace:pace,real:Math.round(rF+rT),realFood:rF,realTrain:rT,inc:INCx,cnt:cnt,el:el};
     var c=cardioCfg();
