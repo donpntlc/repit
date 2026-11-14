@@ -145,6 +145,7 @@ svg.ch text{font-family:'Manrope',system-ui,sans-serif;font-size:10px;fill:var(-
 .vrow{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}.vrow span{color:var(--muted)}.vrow b{font-variant-numeric:tabular-nums}
 .vtxt{font-size:13.5px;line-height:1.45;margin-top:8px}.vsmall{font-size:11.5px;color:var(--muted);margin-top:6px}
 .tokbtn{appearance:none;margin-left:6px;border:1px solid var(--line);background:#0f0f11;color:var(--gold);font:inherit;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;cursor:pointer}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;border:1.5px solid var(--gold);color:var(--gold);background:transparent;font:italic 700 12px Georgia,serif;margin-left:6px;vertical-align:1px;cursor:pointer;padding:0}.ibtn.on{background:var(--gold);color:#17130a}
 .sportinfo{margin:10px 0;font-size:12.5px;line-height:1.45;color:var(--muted);border-left:3px solid var(--gold);padding:2px 0 2px 10px}.sportinfo b{color:var(--fg)}
 details.more{margin-top:12px}details.more summary{cursor:pointer;color:var(--gold);font-weight:700;font-size:13.5px;list-style:none}
 details.more summary::-webkit-details-marker{display:none}details.more summary::after{content:' ›'}details.more[open] summary::after{content:' ‹'}
@@ -287,7 +288,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='14.11. 15:55';
+var SOLGYM_V='14.11. 16:05';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -335,7 +336,8 @@ document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('
 $('[data-close]').addEventListener('click',function(){if(Date.now()-OPENED>450)closeChooser()});
 $('[data-choose]').addEventListener('click',openChooser);
 function openGuide(){$('#guide').classList.add('on');$('#guide').scrollTop=0}
-document.addEventListener('click',function(e){var tb=e.target.closest&&e.target.closest('[data-tok]');if(tb){tokSet(tb.dataset.tok,tb.dataset.v==='1'?true:false);var sc=$('#all').scrollTop;renderAll();$('#all').scrollTop=sc;return}
+document.addEventListener('click',function(e){var ib=e.target.closest&&e.target.closest('[data-info]');if(ib){var bx=document.getElementById(ib.dataset.info);if(bx){bx.hidden=!bx.hidden;ib.classList.toggle('on',!bx.hidden)}return}
+  var tb=e.target.closest&&e.target.closest('[data-tok]');if(tb){tokSet(tb.dataset.tok,tb.dataset.v==='1'?true:false);var sc=$('#all').scrollTop;renderAll();$('#all').scrollTop=sc;return}
   var g=e.target.closest&&e.target.closest('[data-guide]');if(g){openGuide()}
   if(e.target.closest&&e.target.closest('[data-guide-close]'))$('#guide').classList.remove('on')});
 // Tipp aufs Logo in REPIT oder PREPIT schickt „solgym:switch“ → Auswahl zeigen.
@@ -353,6 +355,7 @@ function pj(raw){try{var v=JSON.parse(raw);if(typeof v==='string'){try{v=JSON.pa
 var TOK='flutter.day_tracked_ok_v1';
 function tokMap(){var m=pj(get(TOK));return m&&typeof m==='object'?m:{}}
 function tokSet(k,v){var m=tokMap();if(v===null)delete m[k];else m[k]=v;set(TOK,JSON.stringify(JSON.stringify(m)))}
+function IB(id){return '<button class="ibtn" data-info="'+id+'" aria-label="Info">i</button>'}
 function lvlName(l){return l==='very_active'?'Sehr aktiv':l==='low_everyday'?'Wenig Alltag':l==='normal'?'Normal':''}
 function n(v){v=parseFloat(String(v==null?'':v).replace(',','.'));return isFinite(v)?v:0}
 function dk(d){d=new Date(d);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
@@ -412,16 +415,17 @@ function goalCalc(){var el=document.getElementById('goalRes'),b=window._goalBase
   function dstr(x){return x?x.date.toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}):'–'}
   var e0=eta(base),h='';
   if(GT==='r'){var rp=b.real||0,er=eta(rp);
-    h+='<div class="hero"><div class="lbl">Mit deinem echten Schnitt</div><div class="num">'+(er?er.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(er)+'</span><span>'+(rp?fmt(rp)+' kcal/Tag (Ernährung '+fmt(b.realFood)+(b.realTrain>=0?' + ':' − ')+'Training '+(b.inc>0?'zusätzlich ':'')+fmt(Math.abs(b.realTrain))+')':'noch zu wenig gezählte Tage')+'</span></div></div>';
-    h+='<div class="note">So viel hast du seit dem Start im Schnitt wirklich gespart: Essen nur an Tagen, die zählen, plus deine Trainings aus REPIT. Geplant waren '+fmt(base)+' kcal/Tag ('+dstr(e0)+').</div>';
+    h+='<div class="hero"><div class="lbl">Mit deinem echten Schnitt '+IB('inG')+'</div><div class="num">'+(er?er.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(er)+'</span><span>'+(rp?fmt(rp)+' kcal/Tag (Ernährung '+fmt(b.realFood)+(b.realTrain>=0?' + ':' − ')+'Training '+(b.inc>0?'zusätzlich ':'')+fmt(Math.abs(b.realTrain))+')':'noch zu wenig gezählte Tage')+'</span></div></div>';
+    if(b.el<7)h+='<div class="note">Erst '+b.el+' abgeschlossene '+(b.el===1?'Tag':'Tage')+' seit dem Start, darum noch ungenau. Nach 1–2 Wochen wird der Schnitt verlässlich.</div>';
+    h+='<div class="sportinfo" id="inG" hidden>Ø seit dem Start, nur abgeschlossene Tage bis gestern (heute zählt noch nicht): Essen gespart an Tagen, die zählen, plus Training zusätzlich pro Tag. Wenn du so weitermachst, bist du an diesem Datum am Ziel. Geplant waren '+fmt(base)+' kcal/Tag ('+dstr(e0)+').</div>';
   }else if(GT==='n'){
-    h+='<div class="hero"><div class="lbl">Nur mit Ernährung</div><div class="num">'+(e0?e0.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip">'+dstr(e0)+'</span><span>−'+fmt1(rem)+' kg ≈ '+fmt(kcal)+' kcal · '+(base?fmt(base)+' kcal/Tag Defizit':'noch kein Defizit bekannt')+'</span></div></div>';
-    h+='<div class="note">Gerechnet mit deinem Defizit aus PREPIT (Phasen-Ziel'+(base?'':', sonst Ø der getrackten Tage')+'), 7000 kcal ≈ 1 kg. Tipp auf „Mit Cardio“, um zu sehen, wie viel schneller es mit Cardio geht.</div>';
+    h+='<div class="hero"><div class="lbl">Nur mit Ernährung '+IB('inG')+'</div><div class="num">'+(e0?e0.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip">'+dstr(e0)+'</span><span>−'+fmt1(rem)+' kg ≈ '+fmt(kcal)+' kcal · '+(base?fmt(base)+' kcal/Tag Defizit':'noch kein Defizit bekannt')+'</span></div></div>';
+    h+='<div class="sportinfo" id="inG" hidden>Gerechnet mit deinem Defizit aus PREPIT (Phasen-Ziel'+(base?'':', sonst Ø der getrackten Tage')+'), 7000 kcal ≈ 1 kg. Tipp auf „Mit Cardio“, um zu sehen, wie viel schneller es mit Cardio geht.</div>';
   }else{
     var c=cardioCfg(),z=ZN.filter(function(x){return x[0]===c.zone})[0],ses=Math.round(cMet(c.type)*z[2]*b.w*c.min/60),wk=ses*c.per,day=wk/7,e1=eta(base+day);
     h+='<div class="cgrid"><div><div class="glbl">Pro Einheit</div><b>'+fmt(ses)+' kcal</b></div><div><div class="glbl">Pro Woche</div><b>'+fmt(wk)+' kcal</b><small>'+fmt(c.min*c.per)+' Min</small></div><div><div class="glbl">Ø pro Tag</div><b>+'+fmt(day)+' kcal</b></div></div>';
-    h+='<div class="hero"><div class="lbl">Mit Ernährung + Cardio</div><div class="num">'+(e1?e1.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(e1)+'</span>'+(e0&&e1?'<span>'+(e0.days-e1.days)+' Tage früher als nur mit Ernährung ('+dstr(e0)+')</span>':'')+'</span></div></div>';
-    h+='<div class="note">'+c.min+' Min '+c.type+' in Zone '+c.zone+', '+c.per+'× pro Woche, bei '+fmt1(b.w)+' kg. Defizit Ernährung '+fmt(base)+' + Cardio '+fmt(day)+' = '+fmt(base+day)+' kcal pro Tag. Cardio-kcal sind geschätzt (wie in REPIT).</div>';
+    h+='<div class="hero"><div class="lbl">Mit Ernährung + Cardio '+IB('inG')+'</div><div class="num">'+(e1?e1.days:'–')+'<small> Tage</small></div><div class="sub"><span class="chip ok">'+dstr(e1)+'</span>'+(e0&&e1?'<span>'+(e0.days-e1.days)+' Tage früher als nur mit Ernährung ('+dstr(e0)+')</span>':'')+'</span></div></div>';
+    h+='<div class="sportinfo" id="inG" hidden>'+c.min+' Min '+c.type+' in Zone '+c.zone+', '+c.per+'× pro Woche, bei '+fmt1(b.w)+' kg. Defizit Ernährung '+fmt(base)+' + Cardio '+fmt(day)+' = '+fmt(base+day)+' kcal pro Tag. Cardio-kcal sind geschätzt (wie in REPIT).</div>';
   }
   el.innerHTML=h}
 function hookGoal(){var card=document.getElementById('goalCard');if(!card)return;
@@ -620,8 +624,8 @@ function renderAll(){
     h+='<div data-per="w"'+(DP==='w'?'':' hidden')+'><div class="hero"><div class="lbl">Defizit diese Woche</div><div class="num">'+fmt(cw.food+cw.extra)+'<small> kcal</small></div>';
     h+='<div class="sub"><span class="chip '+(cw.food+cw.extra>0?'ok':'')+'">≈ '+fmt1(Math.abs(cw.food+cw.extra)/7000)+' kg Fett</span><span>Ernährung '+fmt(cw.food)+' · '+trTxt(cw.burn,cw.extra,cw.nd)+'</span></div></div>';
     h+='<div class="readout" id="roDW"></div>'+defChart('chDW',wkItems,refDef?refDef*7:0)+'</div>';
-    h+='<div class="k mini"><span><i style="background:#c9a24a"></i>Ernährung (gespart)</span><span><i style="background:#f2e3b8"></i>'+(INC>0?'Training zusätzlich':'Training')+'</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+'</div>';
-    if(INC>0)h+='<div class="sportinfo"><b>Sport zählt nur einmal.</b> Dein Aktivitätslevel „'+(lvlName(prep.level)||'aktiv')+'“ plant in deinem Bedarf ('+fmt(M)+' kcal) schon ca. '+fmt(INC)+' kcal Sport pro Tag ein. Darum zählt beim Training nur, was du <b>zusätzlich</b> verbrennst. Trainierst du weniger als eingeplant, wird es abgezogen.</div>';
+    h+='<div class="k mini"><span><i style="background:#c9a24a"></i>Ernährung (gespart)</span><span><i style="background:#f2e3b8"></i>'+(INC>0?'Training zusätzlich':'Training')+'</span>'+(refDef?'<span><i class="line"></i>Ziel</span>':'')+(INC>0?IB('inK'):'')+'</div>';
+    if(INC>0)h+='<div class="sportinfo" id="inK" hidden><b>Sport zählt nur einmal.</b> Dein Aktivitätslevel „'+(lvlName(prep.level)||'aktiv')+'“ plant in deinem Bedarf ('+fmt(M)+' kcal) schon ca. '+fmt(INC)+' kcal Sport pro Tag ein. Darum zählt beim Training nur, was du <b>zusätzlich</b> verbrennst. Trainierst du weniger als eingeplant, wird es abgezogen.</div>';
     h+='</div>';
 
     // --- Ansicht Gewicht ---
@@ -686,17 +690,17 @@ function renderAll(){
     var st=String(phx.start||'')||dk(addDays(new Date(),-30)),svF=0,cnt=0,skip=0,trT=0,el=0;
     for(var dd=new Date(st+'T12:00:00');dk(dd)<todayK2;dd=addDays(dd,1)){var kk=dk(dd),pd=prep.days[kk];el++;
       if(pd&&pd.kcal>50){if(tok[kk]===false)skip++;else if(Mx){svF+=Mx-pd.kcal;cnt++}}}
-    rep.workouts.forEach(function(w){if(w.day>=st&&w.day<=todayK2)trT+=w.kcal});
+    rep.workouts.forEach(function(w){if(w.day>=st&&w.day<todayK2)trT+=w.kcal});
     var plan=INCx*el,exT=trT-plan,tot=svF+exT,sw=n(phx.startWeight)>0?n(phx.startWeight):lw.v,gTot=Math.max((sw-twx)*7000,n(phx.kg)*7000,1),pr=Math.max(0,Math.min(1,tot/gTot));
     var rF=cnt?svF/cnt:0,rT=el?exT/el:0;
-    h+='<div class="done"><div class="lbl">Bisher eingespart seit '+ddmm(st)+'</div><div class="num">'+fmt(tot)+'<small> kcal</small></div>';
+    h+='<div class="done"><div class="lbl">Bisher eingespart seit '+ddmm(st)+' '+IB('inB')+'</div><div class="num">'+fmt(tot)+'<small> kcal</small></div>';
     h+='<div class="sub"><span class="chip ok">≈ '+fmt1(Math.max(0,tot)/7000)+' kg Fett</span><span>'+cnt+' Tage gezählt'+(skip?' · '+skip+' nicht':'')+'</span></div>';
     h+='<div class="split"><div><i style="background:#c9a24a"></i>Ernährung<b>'+fmt(svF)+' kcal</b><small>gespart beim Essen</small></div><div><i style="background:#f2e3b8"></i>Training (REPIT)<b>'+fmt(trT)+' kcal</b><small>'+(INCx>0?'verbrannt · '+fmt(plan)+' schon eingeplant<br><span class="'+(exT>=0?'pos':'neg')+'">'+(exT>=0?'+':'−')+fmt(Math.abs(exT))+' zählt zusätzlich</span>':'verbrannt, zählt voll')+'</small></div></div>';
-    if(INCx>0)h+='<div class="sportinfo">Dein Level „'+(lvlName(prep.level)||'aktiv')+'“ plant ca. '+fmt(INCx)+' kcal Sport pro Tag in deine Ernährung ein. Nur was du darüber hinaus verbrennst, zählt zusätzlich, sonst wäre der Sport doppelt gezählt.</div>';
+    h+='<div class="sportinfo" id="inB" hidden>Gezählt werden nur abgeschlossene Tage bis gestern. Heute kommt erst morgen dazu, auch dein heutiges Training. Tage mit „nicht richtig getrackt“ zählen nicht.'+(INCx>0?'<br><br>Dein Level „'+(lvlName(prep.level)||'aktiv')+'“ plant ca. '+fmt(INCx)+' kcal Sport pro Tag in deine Ernährung ein. Nur was du darüber hinaus verbrennst, zählt zusätzlich, sonst wäre der Sport doppelt gezählt.':'')+'</div>';
     h+='<div class="pbar"><span style="width:'+(Math.max(0,svF+Math.min(0,exT))/gTot*100)+'%;background:#c9a24a"></span><span style="width:'+(Math.max(0,exT)/gTot*100)+'%;background:#f2e3b8"></span></div>';
     h+='<div class="plbl"><span>'+Math.round(pr*100)+' % vom Ziel</span><span>noch '+fmt(Math.max(0,gTot-tot))+' kcal</span></div></div>';
     h+='<div class="seg2 three"><button data-gtab="n" class="'+(GT==='n'?'on':'')+'">Plan</button><button data-gtab="r" class="'+(GT==='r'?'on':'')+'">Echter Schnitt</button><button data-gtab="c" class="'+(GT==='c'?'on':'')+'">Mit Cardio</button></div>';
-    window._goalBase={w:lw.v,tw:twx,pace:pace,real:Math.round(rF+rT),realFood:rF,realTrain:rT,inc:INCx};
+    window._goalBase={w:lw.v,tw:twx,pace:pace,real:Math.round(rF+rT),realFood:rF,realTrain:rT,inc:INCx,cnt:cnt,el:el};
     var c=cardioCfg();
     h+='<div id="cardioIn"'+(GT==='c'?'':' hidden')+'>';
     h+='<div class="glbl">Cardio</div><select class="gsel" data-cin="type">'+CARDIO_T.map(function(x){return '<option'+(x===c.type?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
