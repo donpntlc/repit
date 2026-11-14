@@ -123,6 +123,10 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **Übung ersetzen:** ••• der Übung im Training → „Übung ersetzen“. Modus „Gleiche Muskeln“ (Standard) zeigt Übungen mit gleichem Hauptmuskel (aus `EXDESC` Spalte Hauptmuskeln, Zuordnung `MUSK`, `musOf()`, `similarEx()`), darunter „Teilweise gleiche Muskeln“; ohne Beschreibung → gleiche Rubrik. „Frei wählen“ = normale Liste. Erledigte Sätze bleiben bei der alten Übung, die neue kommt direkt dahinter. Nur im laufenden Training (nicht im Routinen-Editor).
 - **EMOM-Vorlagen (Outdoor):** Training-Reiter → „EMOM-Vorlagen (Outdoor)“ (Sheet `emom`, Liste `EMOMS`): Ganzkörper Starter 16 Min, Burpee-Power 20, Park: Stange & Bank 20 (Klimmzüge, Liegestütze, Dips, Step-ups, Beinheben; 4 Runden à 5 Min), Kampfsport-Kondition 15. Startet Training mit `S.active.emom` {min,list,t0,m,end}; Karte oben mit Minute x/y, Countdown, aktueller + nächster Übung; jede volle Minute Piepton + Satz automatisch abgehakt (`emomTick`/`emomMark`), keine Satzpause im EMOM. Neue Übungen: Kniebeuge (Körpergewicht), Jump Squats, Mountain Climbers (ohne Bild). Ab 13.11. 11:34 auch in Routinen → Vorlagen als Karte „EMOM Outdoor“ (SOL-Vorlage, öffnet `emom` mit Zurück zu `tlist`).
 
+### Erledigt 14.11. (APPV „14.11. 18:43")
+- **Frühere Fotos (Körper):** standardmässig zugeklappt, „Aufklappen ▾ / Zuklappen ▴“ (neuer Schlüssel `hantelbuch.phopen`). Datumszeile → Tages-Sheet („Bearbeiten ›“), Foto antippen → Vergleich ab diesem Foto.
+- **Fotos durchklicken:** Knopf „Fotos durchklicken (N)“ öffnet Vollbild `.pview` (`pvOpen/pvGo/pvShow`, Liste `pvList()` alt → neu über alle Tage). Oben Datum + Gewicht + x/y, rechts tippen = nächstes, links = zurück, wischen geht auch, keine Animation, Nachbarbilder werden vorgeladen (`phURL`).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
