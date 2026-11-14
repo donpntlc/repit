@@ -125,7 +125,7 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 
 ### Erledigt 14.11. (APPV „14.11. 18:43")
 - **Frühere Fotos (Körper):** standardmässig zugeklappt, „Aufklappen ▾ / Zuklappen ▴“ (neuer Schlüssel `hantelbuch.phopen`). Datumszeile → Tages-Sheet („Bearbeiten ›“), Foto antippen → Vergleich ab diesem Foto.
-- **Fotos durchklicken:** Knopf „Fotos durchklicken (N)“ öffnet Vollbild `.pview` (`pvOpen/pvGo/pvShow`, Liste `pvList()` alt → neu über alle Tage). Oben Datum + Gewicht + x/y, rechts tippen = nächstes, links = zurück, wischen geht auch, keine Animation, Nachbarbilder werden vorgeladen (`phURL`).
+- **Fotos durchklicken:** Knopf „Fotos durchklicken (N)“ öffnet Vollbild `.pview` (`pvOpen/pvGo/pvShow`, Liste `pvList()` alt → neu über alle Tage). Oben Datum + x/y, Gewicht gross unten (14.11. 18:53), rechts tippen = nächstes, links = zurück, wischen geht auch, keine Animation, Nachbarbilder werden vorgeladen (`phURL`).
 
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
