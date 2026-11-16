@@ -293,7 +293,7 @@ h2::after{content:'';position:absolute;left:0;bottom:0;width:34px;height:2.5px;b
 </div>
 
 <script>
-var SOLGYM_V='16.11. 09:45';
+var SOLGYM_V='16.11. 09:53';
 var SRC={prep:'../../sol-tracker/',rep:'../?v='+Date.now()};
 var KEY='solgym.tab',RKEY='solgym.range';
 var SAB=0,CUR='rep';
@@ -809,6 +809,13 @@ if(h==='rep'||h==='prep'||h==='all')show(h);
 load(get(KEY)==='prep'?'prep':'rep');
 setTimeout(function(){load('prep');load('rep')},800);
 });
+
+/* Update-Prüfung: neue SOL-GYM-Version automatisch laden (wie REPIT) */
+var _sgChk=0;function sgUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_sgChk<60000)return;_sgChk=Date.now();
+fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var SOLGYM_V='([^']+)'/);if(!m||m[1]===SOLGYM_V)return;
+var act=false;try{act=!!(JSON.parse(localStorage.getItem('hantelbuch.v1')||'{}').active)}catch(e){}if(act)return;
+location.replace(location.pathname+'?v='+Date.now())}).catch(function(){})}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)sgUpdate()});setTimeout(sgUpdate,2500);
 </script>
 </body>
 </html>
