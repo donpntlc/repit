@@ -127,6 +127,11 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **Frühere Fotos (Körper):** standardmässig zugeklappt, „Aufklappen ▾ / Zuklappen ▴“ (neuer Schlüssel `hantelbuch.phopen`). Datumszeile → Tages-Sheet („Bearbeiten ›“), Foto antippen → Vergleich ab diesem Foto.
 - **Fotos durchklicken:** Knopf „Fotos durchklicken (N)“ öffnet Vollbild `.pview` (`pvOpen/pvGo/pvShow`, Liste `pvList()` alt → neu über alle Tage). Oben Datum + x/y, Gewicht gross unten (14.11. 18:53), rechts tippen = nächstes, links = zurück, wischen geht auch, keine Animation, Nachbarbilder werden vorgeladen (`phURL`).
 
+### Erledigt 16.11. (APPV „16.11. 11:29")
+- **Unterkategorien:** `SUBS` (pro Rubrik Liste [Name, Übungen]), `SUB_OF`, `subOf(n)` (fester Eintrag → IMG_ALIAS → Namens-Muster → Hauptmuskel → „Weitere“), `subGroups`, `subHead` (CSS `.subhd`). Beine: Kniebeuge-Varianten, Einbeinig & Ausfallschritte, Deadlift-Varianten, Beinbeuger & Beinstrecker, Gesäss, Adduktoren, Waden; Arme: Bizeps, Trizeps, Unterarme; Rücken: Latissimus (Breite), Rudern (oberer Rücken), Unterer Rücken; usw. Sichtbar im Reiter Übungen (Rubriken-Ansicht + bei gewählter Rubrik) und im Übungs-Picker bei gewählter Rubrik.
+- **Ersetzen nach Gruppe:** `similarEx` liefert zuerst „Gleiche Gruppe“ (gleiche Unterkategorie, z. B. Hackenschmidt → Kniebeuge, Frontkniebeuge, Beinpresse, Perfect Squat), dann gleicher Hauptmuskel, dann teilweise. **Auch im Routinen-Editor:** Knopf ⇄ pro Übung (`r-repl`, Picker mit `ctx:'routine'`), Gewichte/Plan werden dabei nicht übernommen.
+- **Neue Übung „Perfect Squat (Maschine)“** (Beine, Kniebeuge-Varianten, mit Beschreibung). **Bild fehlt noch** (braucht Mac/ChatGPT).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
