@@ -612,7 +612,7 @@ function chart(pts,unit,goal){
 }
 
 /* ---------- Sheets ---------- */
-function openSheet(s){S.sheet=s;renderSheet()}
+function openSheet(s){const pt=S.sheet&&S.sheet.type;S.sheet=s;renderSheet();if(!pt||pt!==s.type||s.target==='replace'){const sh=$('#sheet');if(sh)sh.scrollTop=0}}
 function closeSheet(){const b=S.sheet&&S.sheet.back||null;const wasGear=S.sheet&&S.sheet.type==='gear';S.sheet=b;S.edit=null;renderSheet();if(wasGear)renderMain()}
 function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
@@ -623,7 +623,7 @@ function renderSheet(){
 }
 function sPicker(){
   const rp=S.sheet.target==='replace';const old=rp?(S.sheet.ctx==='routine'?S.edit.exercises[S.sheet.i]:S.active.exercises[S.sheet.i]):null;
-  if(rp&&S.sheet.mode!=='free'){const sm=similarEx(old.name);const qq=S.pq.trim().toLowerCase();const f=a=>a.filter(n=>n.toLowerCase().includes(qq));const row=n=>`<button class="li" data-act="pick" data-v="${esc(n)}">${pImgOn()?`<span style="width:64px;flex:none;display:flex">${imgTag(n,'lithumb')}</span>`:''}<span class="name" style="flex:1;text-align:left">${esc(n)}</span><span class="muted mini">${esc(subOf(n)&&subOf(n)!=='Weitere'?subOf(n):(((musOf(n)||[])[0])||catOf(n)))}</span></button>`;const a0=f(sm.sub||[]),a=f(sm.same),b=f(sm.part);
+  if(rp&&S.sheet.mode!=='free'){const sm=similarEx(old.name);const qq=S.pq.trim().toLowerCase();const f=a=>a.filter(n=>n.toLowerCase().includes(qq));const row=n=>`<button class="li" data-act="pick" data-v="${esc(n)}">${pImgOn()?`<span style="width:64px;flex:none;display:flex">${imgTag(n,'lithumb')}</span>`:''}<span class="name" style="flex:1;min-width:0;text-align:left">${esc(n)}</span><span class="muted mini" style="flex:0 1 38%;text-align:right;margin-left:8px">${esc(subOf(n)&&subOf(n)!=='Weitere'?subOf(n):(((musOf(n)||[])[0])||catOf(n)))}</span></button>`;const a0=f(sm.sub||[]),a=f(sm.same),b=f(sm.part);
    return `<div class="spread"><h2>Übung ersetzen</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="chip ${pImgOn()?'on':''}" data-act="pimg" style="font-size:12px">Fotos ${pImgOn()?'an':'aus'}</button><button class="btn text" data-act="picker-back">Zurück</button></span></div>
    <div class="muted mini" style="margin-bottom:8px">Statt <b>${esc(old.name)}</b>${sm.mus?' · trifft '+esc(sm.mus.slice(0,3).join(', ')):''}</div>
    <div class="row" style="margin-bottom:8px"><button class="chip on">Gleiche Muskeln</button><button class="chip" data-act="repl-mode" data-v="free">Frei wählen</button></div>
@@ -882,7 +882,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='16.11. 13:11'
+const APPV='16.11. 13:12'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
