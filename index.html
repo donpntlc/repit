@@ -122,6 +122,7 @@ tr.swiped td{background:rgba(220,80,80,.08)}
 .nt{overflow:hidden;resize:none}
 .gear{display:inline-flex;align-items:center;gap:6px;margin:6px 0 0 6px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:700;color:var(--fg);background:var(--surface2);max-width:100%;text-align:left}
 .gear svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:2;flex:none}
+.actblock{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:0 14px;overflow:hidden}.actblock .li{padding-left:0;padding-right:0}.actblock .li:last-child{border-bottom:0}
 .subhd{display:flex;justify-content:space-between;align-items:center;margin:12px 2px 2px;padding-bottom:4px;border-bottom:1px solid var(--line);font-size:13px;font-weight:800;color:var(--gold-hi)}.subhd span{color:var(--muted);font-weight:600;font-size:12px}
 .gphs{display:flex;flex-wrap:wrap;gap:8px}.gph{position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;background:var(--surface2);border:1px solid var(--line)}.gph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}.gph button{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;font-size:16px;line-height:24px;padding:0}.gph.add{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);font-size:24px;font-weight:700;border-style:dashed}.gph.add span{font-size:12px;color:var(--muted)}
 .gear.empty{color:var(--muted);font-weight:600}
@@ -651,7 +652,7 @@ function sMenu({i}){
   <div class="eyebrow" style="margin:14px 0 6px">Variante (eigener Verlauf)</div><input class="field" data-in="variant" data-i="${i}" value="${esc(variantOf(e.name))}" placeholder="z. B. Aufwärmen oder +kg"><div class="muted mini" style="margin-top:4px">Gleiche Übung, aber getrennte Werte und Notizen, z. B. Dips zum Aufwärmen am Brusttag und Dips mit Zusatzgewicht am anderen Tag. Gilt auch für die Routine.</div>
   <div class="eyebrow" style="margin:14px 0 8px">Supersatz / Zirkel</div><div class="row"><button class="chip ${e.ss?'on':''}" data-act="ex-ss" data-i="${i}">${e.ss?'✓ Gekoppelt (antippen zum Lösen)':((S.active.exercises[i-1]&&S.active.exercises[i-1].ss)?'Zur Gruppe davor hinzufügen':(i<S.active.exercises.length-1?'Mit nächster Übung koppeln':'Mit vorheriger Übung koppeln'))}</button></div><div class="muted mini" style="margin-top:4px">Übungen im Wechsel: Die App springt nach jedem Satz zur nächsten Übung der Gruppe, ohne Pause dazwischen. Erst nach der letzten Übung läuft die Pause. Für einen Zirkel (3 oder mehr) einfach die nächste Übung auch koppeln.</div>
   <div class="eyebrow" style="margin:14px 0 8px">Aufwärm-Übung</div><div class="row"><button class="chip ${isWarmEx(e.name)?'on':''}" data-act="ex-warm" data-i="${i}">${isWarmEx(e.name)?'✓ Aufwärmen, keine Ziel-Hinweise':'Normale Übung'}</button></div><div class="muted mini" style="margin-top:4px">Einzelne Aufwärmsätze markierst du, indem du auf die Satznummer tippst (W).</div>
-  <div class="list" style="margin-top:12px">
+  <div class="eyebrow" style="margin:16px 0 8px">Aktionen</div><div class="list actblock">
   <button class="li" data-act="ex-repl" data-i="${i}">Übung ersetzen</button>
   <button class="li" data-act="ex-move" data-i="${i}" data-v="-1">Nach oben schieben</button>
   <button class="li" data-act="ex-move" data-i="${i}" data-v="1">Nach unten schieben</button>
@@ -881,7 +882,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='16.11. 09:58'
+const APPV='16.11. 13:11'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
