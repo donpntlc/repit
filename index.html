@@ -329,6 +329,12 @@ function saveBody(b){const i=S.body.findIndex(x=>x.date===b.date);if(i>=0)S.body
 let pendingRender=false;
 function soft(){const a=document.activeElement;if(a&&a.matches&&a.matches('#main input, #main textarea, #main select')){pendingRender=true;return}renderMain()}
 document.addEventListener('focusout',()=>{if(pendingRender){pendingRender=false;setTimeout(renderMain,0)}});
+/* iPhone: nach dem Schliessen der Tastatur bleibt das Fenster manchmal verschoben, dann trifft ein Tipp das Element darunter. Zurücksetzen. */
+function fixVp(){const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;if(window.scrollY||window.pageYOffset||document.documentElement.scrollTop){window.scrollTo(0,0);document.documentElement.scrollTop=0}}
+document.addEventListener('focusout',()=>{setTimeout(fixVp,60);setTimeout(fixVp,350)});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>setTimeout(fixVp,60));
+window.addEventListener('scroll',()=>{if(!document.activeElement||!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))fixVp()},{passive:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(fixVp,60)});
 
 async function init(){
   renderNav();
@@ -882,7 +888,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='16.11. 13:12'
+const APPV='17.11. 10:47'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);

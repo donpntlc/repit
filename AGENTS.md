@@ -132,6 +132,8 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 - **Ersetzen nach Gruppe:** `similarEx` liefert zuerst „Gleiche Gruppe“ (gleiche Unterkategorie, z. B. Hackenschmidt → Kniebeuge, Frontkniebeuge, Beinpresse, Perfect Squat), dann gleicher Hauptmuskel, dann teilweise. **Auch im Routinen-Editor:** Knopf ⇄ pro Übung (`r-repl`, Picker mit `ctx:'routine'`), Gewichte/Plan werden dabei nicht übernommen.
 - **Neue Übung „Perfect Squat (Maschine)“** (Beine, Kniebeuge-Varianten, mit Beschreibung). **Bild fehlt noch** (braucht Mac/ChatGPT).
 
+- **17.11. Tipp versetzt (iPhone):** nach Tastatur schliessen blieb das Fenster (window) verschoben → Tipp traf das Element darunter. Fix `fixVp()` setzt `window.scrollTo(0,0)` bei focusout, visualViewport-resize, window-scroll und Rückkehr in die App (nur wenn kein Eingabefeld aktiv). Body bleibt Scroll-Container.
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
