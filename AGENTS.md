@@ -134,6 +134,10 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 
 - **17.11. Tipp versetzt (iPhone):** nach Tastatur schliessen blieb das Fenster (window) verschoben → Tipp traf das Element darunter. Fix `fixVp()` setzt `window.scrollTo(0,0)` bei focusout, visualViewport-resize, window-scroll und Rückkehr in die App (nur wenn kein Eingabefeld aktiv). Body bleibt Scroll-Container.
 
+### Erledigt 17.11. (APPV „17.11. 11:11")
+- **Essen nach dem Training bewerten** (Schalter in Daten unter Check-in, Schlüssel `hantelbuch.mealrate`, Standard an): Nach „Wie hat sich das Training angefühlt?“ kommt im Summary-Sheet „Was hast du vorher gegessen?“ (`sMeals`). Liest PREPIT `flutter.tracked_foods_v1` (doppelt JSON) für den Trainingstag, ohne Post-Workout und ohne Einträge nach Start +15 Min (`prepFoods`), gruppiert nach Mahlzeit (`MEAL_DE`). Pro Lebensmittel 👍 / – / 👎, eigenes Eintippen + Chips mit früher bewerteten. Gespeichert am Training: `w.meals=[{n,meal,g,r}]`, `w.mealsDone`. Funktioniert mit PREPIT-Daten nur in SOL-GYM bzw. gleicher Speicher; sonst Eintippen.
+- **Essen & Leistung** (Sheet `foodperf`, `foodPerf()`): Gut / Eher schlecht / Neutral, Score = 2×(👍−👎)/Anzahl + (Ø Gefühl − 2,5)/3. Erreichbar aus Summary und Daten.
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
