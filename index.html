@@ -453,8 +453,8 @@ function isWarmEx(n){return /warm|aufw[äa]rm/i.test(n)||warmList().includes(n)}
 function incKg(kg,name){const st=name?num(String(gearOf(name).step||'').replace(',','.')):0;if(st>0)return Math.round((kg+st)*100)/100;return kg<10?kg+1:Math.round((kg+2.5)/2.5)*2.5}
 function setGoals(e){if(isCardio(e)||!poOn()||isWarmEx(e.name)||(S.active&&S.active.editOf))return null;const rg=poRange(e.target);const prevW=(prevFor(e.name)||[]).filter(s=>s.type!=='w'&&num(s.reps));if(!prevW.length)return [];let k=0;
  return e.sets.map(st=>{if(st.type==='w')return null;const p=prevW[k++];if(!p)return null;const kg=num(p.kg),rp=num(p.reps),lv=effLvl(p.rpe);
-  if(rg&&rp>rg[1])return {kg:kg?incKg(kg,e.name):0,reps:rg[0],up:true,from:rp};
   if(lv===2)return {kg,reps:rp,clean:true};
+  if(rg&&rp>rg[1])return {kg:kg?incKg(kg,e.name):0,reps:rg[0],up:true,from:rp};
   return {kg,reps:rp+1}})}
 function applyGoals(){if(!S.active||!poOn())return;for(const e of S.active.exercises){const g=setGoals(e);if(!g)continue;g.forEach((G,j)=>{const st=e.sets[j];if(!G||!st||st.done)return;if(G.kg)st.kg=String(G.kg);st.reps=String(G.reps)})}saveActive();renderMain()}
 function poHint(e){const g=setGoals(e);if(!g)return '';const rg=poRange(e.target);
@@ -891,7 +891,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='17.11. 11:11'
+const APPV='17.11. 11:35'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
