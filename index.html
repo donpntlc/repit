@@ -491,7 +491,7 @@ function exCard(e,i,cur){
   const lt=lastEx(e.name);
   return `<div class="card ex${cur?' cur':''}${e.ss?' ss':''}${warm?' warm':''}">${e.ss||warm?`<div class="tagrow">${warm?`<span class="wtag">Aufwärmen</span>`:''}${e.ss?`<span class="sstag">${ssLabel(e)}</span>`:''}</div>`:''}<div class="ex-head"><div class="row" style="flex-wrap:nowrap;gap:10px;min-width:0;align-items:flex-start">${imgTag(e.name,'exthumb',`data-act="ex-open" data-v="${esc(e.name)}"`)}<div style="min-width:0"><h3 data-act="ex-open" data-v="${esc(e.name)}">${exTitle(e.name)}</h3><div class="muted mini">${lt?'Zuletzt '+ago(lt):'Erstes Mal'}${e.uni?` · <span style="color:var(--gold)">einseitig, Wechsel ${mmss(e.uniRest||15)}</span>`:''}</div></div></div>
   <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn text sm" data-act="ex-menu" data-i="${i}" aria-label="Optionen">•••</button></div></div>
-  <div class="exmeta">${cardio?'':targetBox(`data-in="ent" data-i="${i}"`,e.target)}${gearBtn(e.name)}</div>
+  <div class="exmeta">${cardio?'':targetBox(`data-in="ent" data-i="${i}"`,e.target)}${gearBtn(e.name,i)}</div>
   ${(()=>{const sw=lastSkip(e.name);if(!sw)return '';const ss=sessions(e.name).filter(x=>!(S.active&&S.active.editOf===x.w.id));return `<div class="mini" style="margin-top:6px;color:var(--muted)">Letztes Mal (${fShort(sw.start)}) ausgelassen.${ss[0]?' „Vorher“ zeigt die Werte vom '+fShort(ss[0].w.start)+'.':''}</div>`})()}
   ${S.active&&S.active.emom?'':poHint(e)}
   ${noteBox(`data-in="ent" data-i="${i}"`,e.note,e.next,e.nextDate)}
@@ -619,7 +619,7 @@ function chart(pts,unit,goal){
 
 /* ---------- Sheets ---------- */
 function openSheet(s){const pt=S.sheet&&S.sheet.type;S.sheet=s;renderSheet();if(!pt||pt!==s.type||s.target==='replace'){const sh=$('#sheet');if(sh)sh.scrollTop=0}}
-function closeSheet(){const b=S.sheet&&S.sheet.back||null;const wasGear=S.sheet&&S.sheet.type==='gear';S.sheet=b;S.edit=null;renderSheet();if(wasGear)renderMain()}
+function closeSheet(){const b=S.sheet&&S.sheet.back||null;const wasGear=S.sheet&&(S.sheet.type==='gear'||S.sheet.type==='menu');S.sheet=b;S.edit=null;renderSheet();if(wasGear)renderMain()}
 function renderSheet(){
   const sh=$('#sheet'),bd=$('#backdrop');
   if(!S.sheet){sh.hidden=true;bd.hidden=true;sh.innerHTML='';return}
@@ -658,6 +658,7 @@ function sMenu({i}){
   <div class="eyebrow" style="margin:14px 0 6px">Variante (eigener Verlauf)</div><input class="field" data-in="variant" data-i="${i}" value="${esc(variantOf(e.name))}" placeholder="z. B. Aufwärmen oder +kg"><div class="muted mini" style="margin-top:4px">Gleiche Übung, aber getrennte Werte und Notizen, z. B. Dips zum Aufwärmen am Brusttag und Dips mit Zusatzgewicht am anderen Tag. Gilt auch für die Routine.</div>
   <div class="eyebrow" style="margin:14px 0 8px">Supersatz / Zirkel</div><div class="row"><button class="chip ${e.ss?'on':''}" data-act="ex-ss" data-i="${i}">${e.ss?'✓ Gekoppelt (antippen zum Lösen)':((S.active.exercises[i-1]&&S.active.exercises[i-1].ss)?'Zur Gruppe davor hinzufügen':(i<S.active.exercises.length-1?'Mit nächster Übung koppeln':'Mit vorheriger Übung koppeln'))}</button></div><div class="muted mini" style="margin-top:4px">Übungen im Wechsel: Die App springt nach jedem Satz zur nächsten Übung der Gruppe, ohne Pause dazwischen. Erst nach der letzten Übung läuft die Pause. Für einen Zirkel (3 oder mehr) einfach die nächste Übung auch koppeln.</div>
   <div class="eyebrow" style="margin:14px 0 8px">Aufwärm-Übung</div><div class="row"><button class="chip ${isWarmEx(e.name)?'on':''}" data-act="ex-warm" data-i="${i}">${isWarmEx(e.name)?'✓ Aufwärmen, keine Ziel-Hinweise':'Normale Übung'}</button></div><div class="muted mini" style="margin-top:4px">Einzelne Aufwärmsätze markierst du, indem du auf die Satznummer tippst (W).</div>
+  <div class="eyebrow" id="gearsec" style="margin:18px 0 2px">Geräte-Einstellung</div><div class="muted mini" style="margin-bottom:8px">Gilt für jedes Training mit dieser Übung.</div>${gearBody(e.name)}
   <div class="eyebrow" style="margin:16px 0 8px">Aktionen</div><div class="list actblock">
   <button class="li" data-act="ex-repl" data-i="${i}">Übung ersetzen</button>
   <button class="li" data-act="ex-move" data-i="${i}" data-v="-1">Nach oben schieben</button>
@@ -891,7 +892,7 @@ function ringBell(at){const c=audioCtx,T=c.currentTime+at,out=c.createDynamicsCo
  [[1,1],[2.76,.55],[5.4,.32],[8.93,.18],[13.3,.08]].forEach(([r,a])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880*r;g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(1.1*a,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+.75/Math.sqrt(r));o.connect(g);g.connect(out);o.start(T);o.stop(T+.8)})}
 function boxBell(at){[0,.17,.34].forEach(d=>ringBell(at+d))}
 function beep(){if(document.hidden)return;try{if(rawEl&&!customBuf){playRaw();return}if(!audioCtx)return;if(audioCtx.state!=='running'){const t0=Date.now();audioCtx.resume().then(()=>{if(audioCtx.state==='running'&&Date.now()-t0<1500&&!document.hidden)beepNow()}).catch(()=>{});return}beepNow()}catch(e){}}
-const APPV='17.11. 11:35'
+const APPV='18.11. 12:44'
 let _updChk=0;async function checkUpdate(){if(location.hostname!=='donpntlc.github.io'||Date.now()-_updChk<60000)return;_updChk=Date.now();try{const t=await (await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const APPV='([^']+)'/);if(!m||m[1]===APPV)return;
  if(!S.active){toast('Neue Version wird geladen …');setTimeout(()=>location.replace(location.pathname+'?v='+Date.now()),900)}else toast('Neue Version da. Nach dem Training App neu öffnen.')}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,4000);
@@ -979,8 +980,10 @@ const GEAR=[['sitz','Sitzhöhe'],['lehne','Lehne'],['kabel','Kabelhöhe'],['pols
 function gearOf(n){return (S.gear&&S.gear[n])||{}}
 function gearTxt(n){const g=gearOf(n);return GEAR.filter(([k])=>g[k]&&String(g[k]).trim()).map(([k,l])=>(k==='sonst'?'':l.split(' ')[0]+' ')+String(g[k]).trim()).join(' · ')}
 const GEAR_ICO='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
-function gearBtn(n){const ph=((gearOf(n).photos)||[]).length;let t=gearTxt(n);if(ph)t=(t?t+' · ':'')+'Foto';return `<button class="gear ${t?'':'empty'}" data-act="gear" data-v="${esc(n)}" aria-label="Geräte-Einstellung">${GEAR_ICO}<span>${t?esc(t):'Einstellung'}</span></button>`}
-function sGear({name}){const g=gearOf(name);return `<div class="spread"><h2>Geräte-Einstellung</h2><button class="btn gold sm" data-act="close">Fertig</button></div><div class="muted mini" style="margin-bottom:12px">${esc(name)} · wird für jedes Training gespeichert</div>
+function gearBtn(n,i){const ph=((gearOf(n).photos)||[]).length;let t=gearTxt(n);if(ph)t=(t?t+' · ':'')+'Foto';return `<button class="gear ${t?'':'empty'}" data-act="gear" data-v="${esc(n)}"${i!=null?` data-i="${i}"`:''} aria-label="Geräte-Einstellung">${GEAR_ICO}<span>${t?esc(t):'Einstellung'}</span></button>`}
+function sGear({name}){return `<div class="spread"><h2>Geräte-Einstellung</h2><button class="btn gold sm" data-act="close">Fertig</button></div><div class="muted mini" style="margin-bottom:12px">${esc(name)} · wird für jedes Training gespeichert</div>${gearBody(name)}`}
+function gearName(){const s=S.sheet;if(!s)return null;if(s.type==='gear')return s.name;if(s.type==='menu'&&S.active&&S.active.exercises[s.i])return S.active.exercises[s.i].name;return null}
+function gearBody(name){const g=gearOf(name);return `
  <div class="geargrid">${GEAR.filter(([k])=>k!=='sonst').map(([k,l])=>`<label>${l}<input class="field" data-in="gear" data-k="${k}" value="${esc(g[k]||'')}" placeholder="–"></label>`).join('')}</div>
  <div class="ntl">Gewichtsschritt dieser Maschine</div><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:center"><input class="field num" inputmode="decimal" data-in="gear" data-k="step" value="${esc(g.step||'')}" placeholder="2,5" style="max-width:110px"><span class="muted mini">kg pro Stufe. „Gewicht hoch“ schlägt dann genau die nächste Stufe vor.</span></div>
  <div class="ntl">Sonstiges</div><textarea class="nt" data-in="gear" data-k="sonst" rows="2" placeholder="z. B. Kabel auf Loch 9, Griff am Ende greifen">${esc(g.sonst||'')}</textarea>
@@ -1310,8 +1313,8 @@ const ACT={
   'sound-reset':()=>{S.soundId=null;S.soundRaw=false;customBuf=null;if(rawEl){rawEl.remove();rawEl=null}try{localStorage.removeItem('hantelbuch.soundRaw')}catch(e){}try{localStorage.removeItem('hantelbuch.sound')}catch(e){}saveMeta();renderSheet&&renderSheet();toast('Standard-Sound aktiv')},
   'gph-add':()=>$('#gearPhIn').click(),
   'gph-del':(el)=>openSheet({type:'confirm',title:'Foto löschen?',text:'Das Foto der Einstellung wird von diesem Handy gelöscht.',yes:'Foto löschen',act:'gph-del-yes',v:el.dataset.v,danger:true,back:S.sheet}),
-  'gph-del-yes':async(el)=>{const s=S.sheet&&S.sheet.back;const n=s&&s.name;if(!n)return closeSheet();const g=S.gear[n]||{};g.photos=(g.photos||[]).filter(p=>p.id!==el.dataset.v);saveMeta();if(String(el.dataset.v).startsWith('local-'))await idbDel('ph:'+el.dataset.v);toast('Foto gelöscht');closeSheet();setTimeout(hydratePhotos,50);renderMain()},
-  'gear':(el)=>openSheet({type:'gear',name:el.dataset.v,back:S.sheet&&S.sheet.type==='ex'?S.sheet:null}),
+  'gph-del-yes':async(el)=>{const s=S.sheet&&S.sheet.back;const n=s&&(s.type==='menu'&&S.active&&S.active.exercises[s.i]?S.active.exercises[s.i].name:s.name);if(!n)return closeSheet();const g=S.gear[n]||{};g.photos=(g.photos||[]).filter(p=>p.id!==el.dataset.v);saveMeta();if(String(el.dataset.v).startsWith('local-'))await idbDel('ph:'+el.dataset.v);toast('Foto gelöscht');closeSheet();setTimeout(hydratePhotos,50);renderMain()},
+  'gear':(el)=>{if(el.dataset.i!=null&&S.active){openSheet({type:'menu',i:+el.dataset.i});setTimeout(()=>{const g=$('#gearsec'),sh=$('#sheet');if(g&&sh)sh.scrollTop=g.offsetTop-12},30);return}openSheet({type:'gear',name:el.dataset.v,back:S.sheet&&S.sheet.type==='ex'?S.sheet:null})},
   'ios-timer':()=>iosTimer(),
   'iostimer-auto':()=>{try{localStorage.setItem('hantelbuch.iostimer',iosAuto()?'0':'1')}catch(e){}renderSheet()},
   'ro-open':()=>openSheet({type:'rorder'}),
@@ -1412,7 +1415,7 @@ document.addEventListener('input',e=>{
   else if(k==='goal'){S.goal=S.goal||{};S.goal[el.dataset.k]=el.value.replace(',','.');clearTimeout(window._glt);window._glt=setTimeout(()=>{saveMeta();pendingRender=true},700)}
   else if(k==='calc'){S.calc=S.calc||{};S.calc[el.dataset.k]=el.value;clearTimeout(window._clt);window._clt=setTimeout(()=>{const y=document.querySelector('#sheet .in').scrollTop;renderSheet();const a=document.querySelector('#sheet [data-k="'+el.dataset.k+'"]');document.querySelector('#sheet .in').scrollTop=y;if(a){a.focus();try{a.setSelectionRange(a.value.length,a.value.length)}catch(e){}}},500)}
   else if(k==='planname'){S.planName=el.value}
-  else if(k==='gear'){const n=S.sheet&&S.sheet.name;if(!n)return;S.gear=S.gear||{};const g=S.gear[n]=S.gear[n]||{};g[el.dataset.k]=el.value;if(el.tagName==='TEXTAREA')grow(el);clearTimeout(window._gt);window._gt=setTimeout(()=>{saveMeta();if(S.tab==='training')pendingRender=true},500)}
+  else if(k==='gear'){const n=gearName();if(!n)return;S.gear=S.gear||{};const g=S.gear[n]=S.gear[n]||{};g[el.dataset.k]=el.value;if(el.tagName==='TEXTAREA')grow(el);clearTimeout(window._gt);window._gt=setTimeout(()=>{saveMeta();if(S.tab==='training')pendingRender=true},500)}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sheet)closeSheet();if(e.key==='Enter'&&e.target.id==='wIn')ACT['w-save']()});
 
@@ -1471,7 +1474,7 @@ $('#photoIn').addEventListener('change',async e=>{
 });
 
 $('#gearPhIn').addEventListener('change',async e=>{
-  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;const n=S.sheet&&S.sheet.type==='gear'&&S.sheet.name;if(!n)return;
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;const n=gearName();if(!n)return;
   toast('Foto wird gespeichert …');
   try{const blob=await shrink(f).catch(()=>f);let r;if(assets&&refs){r=await assets.upload(blob)}else{r={id:'local-'+uid()};const du=await b2d(blob);await idbSet('ph:'+r.id,du);_phCache[r.id]=du}S.gear=S.gear||{};const g=S.gear[n]=S.gear[n]||{};g.photos=[...(g.photos||[]),{id:r.id,t:Date.now()}];saveMeta();renderSheet();setTimeout(hydratePhotos,50);renderMain();toast('Foto gespeichert')}
   catch(err){console.warn(err);toast('Foto konnte nicht gespeichert werden. Versuch es nochmals.')}

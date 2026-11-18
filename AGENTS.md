@@ -140,6 +140,8 @@ Stufe 4 heißt „Alles gegeben | Muskelversagen“, Zahl im ausgewählten Kreis
 
 - **17.11. 11:35 Fix Progressive Overload:** In `setGoals()` hat Stufe 2 jetzt Vorrang vor „über dem Zielbereich → Gewicht hoch“. Satz mit Stufe 2 = gleiches Gewicht, gleiche Wdh., sauber (auch wenn die Wdh. über dem Ziel lagen).
 
+- **18.11. 12:44 Einstellungen zusammengelegt:** Im laufenden Training gibt es nur noch EIN Fenster pro Übung: das •••-Menü (`sMenu`) enthält jetzt auch den Abschnitt „Geräte-Einstellung“ (`gearBody(name)`, Anker `#gearsec`) vor „Aktionen“. Der Einstellung-Knopf auf der Karte (`gearBtn(n,i)`) öffnet dasselbe Menü und scrollt zur Geräte-Einstellung. `gearName()` liefert den Übungsnamen für Eingaben/Fotos aus `gear`- oder `menu`-Sheet. Das eigene `gear`-Sheet gibt es nur noch ausserhalb des Trainings (Übungen-Reiter).
+
 ### Noch offen (REPIT)
 - **Sprache Englisch** in den Einstellungen (alle Texte, Übungen, Einführung, Hinweise).
 - Bild „Deficit Deadlift (Trap Bar)“ (Trap Bar, erhöht auf Platte) – nutzt bis dahin das Kreuzheben-Bild.
